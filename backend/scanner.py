@@ -281,6 +281,8 @@ def compute_signals(market, members_c):
         ev = round(prob_win * payout - (1 - prob_win) * entry_price, 3)
 
         event_slug = market.get("event_slug", "")
+        temps = members_c if unit == "C" else [c_to_f(t) for t in members_c]
+        sym = "°C" if unit == "C" else "°F"
         signals.append({
             "city":          market["city"],
             "date":          market["date"],
@@ -297,7 +299,12 @@ def compute_signals(market, members_c):
             "condition_id":  b["condition_id"],
             "wunderground":  f"{market['wunderground']}/date/{market['date']}?units=m",
             "poly_url":      f"https://polymarket.com/event/{event_slug}" if event_slug else "",
-            "all_brackets":  market.get("all_brackets", [])
+            "all_brackets":  market.get("all_brackets", []),
+            "gfs_min":       round(min(temps), 1),
+            "gfs_max":       round(max(temps), 1),
+            "gfs_mean":      round(sum(temps) / len(temps), 1),
+            "gfs_unit":      sym,
+            "gfs_members":   len(temps)
         })
 
     return sorted(signals, key=lambda x: abs(x["edge"]), reverse=True)

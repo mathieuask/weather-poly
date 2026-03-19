@@ -27,6 +27,11 @@ interface Signal {
   wunderground: string;
   poly_url: string;
   all_brackets: BracketContext[];
+  gfs_min: number;
+  gfs_max: number;
+  gfs_mean: number;
+  gfs_unit: string;
+  gfs_members: number;
 }
 
 interface ScanResult {
@@ -90,11 +95,18 @@ function SignalCard({ s }: { s: Signal }) {
             <EdgeBadge edge={s.edge} />
           </div>
           <div className="text-sm text-gray-600 mt-0.5 font-medium">{s.question}</div>
-          <div className="text-xs text-gray-400 mt-0.5">
-            {new Date(s.date).toLocaleDateString("fr-FR", {
-              weekday: "long", day: "numeric", month: "long", timeZone: "UTC"
-            })}
-            {" · "}liq ${s.liquidity.toLocaleString()}
+          <div className="flex items-center gap-3 mt-1 flex-wrap">
+            <span className="text-xs text-gray-400">
+              {new Date(s.date).toLocaleDateString("fr-FR", {
+                weekday: "long", day: "numeric", month: "long", timeZone: "UTC"
+              })}
+            </span>
+            <span className="text-xs text-gray-400">·</span>
+            <span className="text-xs font-medium text-blue-600">
+              GFS {s.gfs_members} modèles : {s.gfs_min}{s.gfs_unit} → {s.gfs_mean}{s.gfs_unit} → {s.gfs_max}{s.gfs_unit}
+            </span>
+            <span className="text-xs text-gray-400">·</span>
+            <span className="text-xs text-gray-400">liq ${s.liquidity.toLocaleString()}</span>
           </div>
         </div>
         <div className="text-right shrink-0">
