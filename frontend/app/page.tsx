@@ -136,7 +136,7 @@ export default function Home() {
 
   const loadData = () => {
     setLoading(true);
-    fetch("/api/signals")
+    fetch("/signals.json")
       .then((r) => r.json())
       .then((d) => { setData(d); setLoading(false); })
       .catch(() => setLoading(false));
