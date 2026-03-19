@@ -21,8 +21,8 @@ OMAPI     = "https://ensemble-api.open-meteo.com/v1/ensemble"
 MIN_EDGE  = 5.0       # % minimum pour afficher un signal
 MIN_LIQ   = 100.0     # liquidité minimum du sous-marché
 
-# Villes exclues : GFS peu fiable en zone tropicale/subtropicale
-GFS_UNRELIABLE = {"singapore", "taipei", "miami"}
+# Villes exclues temporairement (mettre city_key ici pour désactiver)
+GFS_UNRELIABLE: set = set()
 OUT_FILE      = os.path.join(os.path.dirname(__file__), "signals.json")
 FRONTEND_OUT  = os.path.join(os.path.dirname(__file__), "..", "frontend", "public", "signals.json")
 CITIES_F      = os.path.join(os.path.dirname(__file__), "cities.json")

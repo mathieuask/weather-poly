@@ -185,7 +185,7 @@ function SignalCard({ s }: { s: Signal }) {
                 onClick={() => setShowGfs(true)}
                 className="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
               >
-                GFS {s.gfs_members} modèles : {s.gfs_min}{s.gfs_unit} → {s.gfs_mean}{s.gfs_unit} → {s.gfs_max}{s.gfs_unit}
+                GFS {s.gfs_members} modèles — moy. {s.gfs_mean}{s.gfs_unit} (min {s.gfs_min} / max {s.gfs_max})
               </button>
               {s.windy_url && (
                 <a href={s.windy_url} target="_blank" rel="noopener noreferrer"
