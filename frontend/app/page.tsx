@@ -96,6 +96,7 @@ export default function Home() {
   const [minEdge, setMinEdge] = useState(10);
   const [dateFilter, setDateFilter] = useState<string>("ALL");
   const [cityFilter, setCityFilter] = useState<string>("ALL");
+  const [hideResolved, setHideResolved] = useState(true);
 
   const loadData = () => {
     fetch("/api/signals")
@@ -114,6 +115,7 @@ export default function Home() {
     if (Math.abs(s.edge) < minEdge) return false;
     if (dateFilter !== "ALL" && s.date !== dateFilter) return false;
     if (cityFilter !== "ALL" && s.city !== cityFilter) return false;
+    if (hideResolved && (s.market_prob <= 1 || s.market_prob >= 99)) return false;
     return true;
   });
 
@@ -213,6 +215,16 @@ export default function Home() {
               ))}
             </select>
           </div>
+          <button
+            onClick={() => setHideResolved(!hideResolved)}
+            className={`flex items-center gap-2 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
+              hideResolved
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-500 border-gray-200 hover:text-gray-900"
+            }`}
+          >
+            {hideResolved ? "0/100% masqués" : "Tout afficher"}
+          </button>
         </div>
 
         {/* Légende */}
