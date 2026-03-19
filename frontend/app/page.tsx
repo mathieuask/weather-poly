@@ -86,14 +86,13 @@ function SignalCard({ s }: { s: Signal }) {
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-bold text-gray-900">{s.city}</span>
-            <span className="text-gray-400 text-sm">·</span>
-            <span className="font-mono text-sm text-gray-700">{s.bracket}</span>
             <DirectionBadge direction={s.direction} />
             <EdgeBadge edge={s.edge} />
           </div>
+          <div className="text-sm text-gray-600 mt-0.5 font-medium">{s.question}</div>
           <div className="text-xs text-gray-400 mt-0.5">
             {new Date(s.date).toLocaleDateString("fr-FR", {
-              weekday: "short", day: "numeric", month: "short", timeZone: "UTC"
+              weekday: "long", day: "numeric", month: "long", timeZone: "UTC"
             })}
             {" · "}liq ${s.liquidity.toLocaleString()}
           </div>
