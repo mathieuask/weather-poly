@@ -87,7 +87,7 @@ export default function Results() {
   const filtered = trades.filter(t => filter === "all" || t.result === filter);
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
+    <div className="p-4 max-w-2xl mx-auto" style={{ background: "#f3f4f6", minHeight: "100vh" }}>
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900">📋 Résultats</h1>

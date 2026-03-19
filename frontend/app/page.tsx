@@ -333,7 +333,7 @@ export default function Home() {
     : null;
 
   return (
-    <main className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <main className="min-h-screen p-4 md:p-8" style={{ background: "#f3f4f6" }}>
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
