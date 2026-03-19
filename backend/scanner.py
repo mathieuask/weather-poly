@@ -187,10 +187,11 @@ def parse_bracket(question, unit):
 
 
 # ─── ÉTAPE 2 : récupère ensemble GFS via Open-Meteo ──────────────────────────
-def fetch_gfs_ensemble(lat, lon, date_str):
+def fetch_gfs_ensemble(lat, lon, date_str, tz="UTC"):
     """
     Récupère les 30 membres GFS pour temperature_2m_max à la date donnée.
-    Retourne une liste de floats (°C).
+    Utilise le timezone local de la ville pour que les dates correspondent
+    au jour local (pas UTC). Retourne une liste de floats (°C).
     """
     params = {
         "latitude": lat,
@@ -198,7 +199,7 @@ def fetch_gfs_ensemble(lat, lon, date_str):
         "daily": "temperature_2m_max",
         "models": "gfs_seamless",
         "forecast_days": 7,
-        "timezone": "UTC"
+        "timezone": tz
     }
     r = requests.get(OMAPI, params=params, timeout=15)
     r.raise_for_status()
@@ -330,11 +331,12 @@ def run():
         lat, lon = market["lat"], market["lon"]
 
         # Cache GFS par ville+date
+        tz = CITY_MAP[market["city_key"]]["tz"]
         cache_key = f"{lat}_{lon}_{date}"
         if cache_key not in gfs_cache:
-            print(f"→ GFS {city} {date}...")
+            print(f"→ GFS {city} {date} (tz={tz})...")
             try:
-                members = fetch_gfs_ensemble(lat, lon, date)
+                members = fetch_gfs_ensemble(lat, lon, date, tz)
             except Exception as e:
                 print(f"  ⚠ Erreur GFS pour {city} {date}: {e}")
                 members = None
