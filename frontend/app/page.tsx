@@ -34,6 +34,7 @@ interface Signal {
   gfs_mean: number;
   gfs_unit: string;
   gfs_members: number;
+  gfs_values: number[];
 }
 
 interface ScanResult {
@@ -86,8 +87,79 @@ function ProbBar({ gfs, market }: { gfs: number; market: number }) {
   );
 }
 
-function SignalCard({ s }: { s: Signal }) {
+function GfsModal({ s, onClose }: { s: Signal; onClose: () => void }) {
+  const vals = s.gfs_values ?? [];
+  const counts: Record<number, number> = {};
+  vals.forEach(v => { counts[v] = (counts[v] ?? 0) + 1; });
+  const uniq = Object.keys(counts).map(Number).sort((a, b) => a - b);
+  const maxCount = Math.max(...Object.values(counts));
+
   return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <div className="font-bold text-gray-900">{s.city} — GFS Ensemble</div>
+            <div className="text-xs text-gray-400 mt-0.5">{s.gfs_members} membres · {new Date(s.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" })}</div>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl font-light">✕</button>
+        </div>
+
+        {/* Stats */}
+        <div className="flex gap-4 mb-4 text-center">
+          {[
+            { label: "Min", value: `${s.gfs_min}${s.gfs_unit}` },
+            { label: "Moyenne", value: `${s.gfs_mean}${s.gfs_unit}`, bold: true },
+            { label: "Max", value: `${s.gfs_max}${s.gfs_unit}` },
+          ].map(st => (
+            <div key={st.label} className="flex-1 bg-blue-50 rounded-xl py-2">
+              <div className={`text-sm ${st.bold ? "font-bold text-blue-700" : "font-medium text-blue-600"}`}>{st.value}</div>
+              <div className="text-xs text-gray-400 mt-0.5">{st.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Histogramme */}
+        <div className="space-y-1.5">
+          {uniq.map(temp => {
+            const count = counts[temp];
+            const pct = Math.round(count / maxCount * 100);
+            const isBracket = s.bracket.includes(`${temp}`);
+            return (
+              <div key={temp} className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 w-14 text-right shrink-0">{temp}{s.gfs_unit}</span>
+                <div className="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${isBracket ? "bg-blue-500" : "bg-gray-300"}`}
+                    style={{ width: `${pct}%` }}
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700">
+                    {count} modèle{count > 1 ? "s" : ""}
+                  </span>
+                </div>
+                <span className="text-xs text-gray-400 w-8 shrink-0">{Math.round(count / s.gfs_members * 100)}%</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Bracket cible */}
+        <div className="mt-4 p-3 rounded-xl bg-gray-50 text-xs text-gray-500">
+          Bracket cible : <span className="font-semibold text-gray-800">{s.bracket}</span>
+          {" "}→ GFS <span className="font-bold text-blue-600">{s.gfs_prob.toFixed(0)}%</span>
+          {" "}vs marché <span className="font-bold text-gray-700">{s.market_prob.toFixed(0)}%</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SignalCard({ s }: { s: Signal }) {
+  const [showGfs, setShowGfs] = useState(false);
+
+  return (
+    <>
+      {showGfs && <GfsModal s={s} onClose={() => setShowGfs(false)} />}
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -107,9 +179,12 @@ function SignalCard({ s }: { s: Signal }) {
               })}
             </span>
             <span className="text-xs text-gray-400">·</span>
-            <span className="text-xs font-medium text-blue-600">
-              GFS {s.gfs_members} modèles : {s.gfs_min}{s.gfs_unit} → {s.gfs_mean}{s.gfs_unit} → {s.gfs_max}{s.gfs_unit}
-            </span>
+            <button
+              onClick={() => setShowGfs(true)}
+              className="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+            >
+              GFS {s.gfs_members} modèles : {s.gfs_min}{s.gfs_unit} → {s.gfs_mean}{s.gfs_unit} → {s.gfs_max}{s.gfs_unit} ↗
+            </button>
             <span className="text-xs text-gray-400">·</span>
             <span className="text-xs text-gray-400">liq ${s.liquidity.toLocaleString()}</span>
           </div>
@@ -170,6 +245,7 @@ function SignalCard({ s }: { s: Signal }) {
 
       </div>
     </div>
+    </>
   );
 }
 

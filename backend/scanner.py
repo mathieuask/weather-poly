@@ -306,7 +306,8 @@ def compute_signals(market, members_c):
             "gfs_max":       round(max(temps), 1),
             "gfs_mean":      round(sum(temps) / len(temps), 1),
             "gfs_unit":      sym,
-            "gfs_members":   len(temps)
+            "gfs_members":   len(temps),
+            "gfs_values":    [round(t, 1) for t in sorted(temps)]
         })
 
     return sorted(signals, key=lambda x: abs(x["edge"]), reverse=True)
