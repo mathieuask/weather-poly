@@ -18,13 +18,29 @@ from datetime import datetime, timezone, timedelta
 # ─── CONFIG ───────────────────────────────────────────────────────────────────
 POLY_API  = "https://gamma-api.polymarket.com"
 OMAPI     = "https://ensemble-api.open-meteo.com/v1/ensemble"
-MIN_EDGE  = 5.0       # % minimum pour afficher (on filtre visuellement dans le dashboard)
-MIN_LIQ   = 100.0     # $ minimum (on affiche tout, badge qualité dans le dashboard)
-MIN_HOURS = 6.0       # heures avant résolution (en dessous → obs réelle > GFS)
-ECMWF_WEIGHT = 1.2   # ECMWF pondéré 1.2× vs GFS (doc recommandation)
+MIN_EDGE  = 5.0       # % minimum pour afficher
+MIN_LIQ   = 100.0     # $ minimum liquidité
+MIN_HOURS = 6.0       # heures avant résolution
+# Blend poids : ECMWF 1.2× / ICON 1.0× / GFS 0.8× (doc recommandation)
+MODEL_WEIGHTS = {"gfs_seamless": 0.8, "icon_seamless": 1.0, "ecmwf_ifs025": 1.2}
 
-# Villes exclues temporairement (mettre city_key ici pour désactiver)
-GFS_UNRELIABLE: set = set()
+# Confiance GFS par ville (high/medium/low) — pour badge et futur filtre live
+CITY_CONFIDENCE = {
+    "new york":      "high",
+    "chicago":       "high",
+    "toronto":       "high",
+    "london":        "high",
+    "paris":         "high",
+    "madrid":        "medium",
+    "miami":         "medium",
+    "buenos aires":  "medium",
+    "tokyo":         "medium",
+    "seoul":         "low",    # biais froid suspecté +3-4°C
+    "singapore":     "low",    # biais froid tropical +2-3°C
+    "taipei":        "low",    # subtropical
+}
+
+GFS_UNRELIABLE: set = set()  # blacklist manuelle (vide = toutes actives)
 OUT_FILE      = os.path.join(os.path.dirname(__file__), "signals.json")
 FRONTEND_OUT  = os.path.join(os.path.dirname(__file__), "..", "frontend", "public", "signals.json")
 CITIES_F      = os.path.join(os.path.dirname(__file__), "cities.json")
@@ -226,32 +242,46 @@ def fetch_ensemble(model, n_members, lat, lon, date_str, tz="UTC"):
 
 def fetch_gfs_ensemble(lat, lon, date_str, tz="UTC"):
     """
-    Blend GFS (30 membres) + ECMWF (51 membres, poids 1.2×).
-    ECMWF = meilleur modèle global, recommandé par DegenDoppler.
-    Retourne liste de floats °C (membres pondérés).
+    Blend pondéré GFS 0.8× + ICON 1.0× + ECMWF 1.2×
+    Chaque membre est répété proportionnellement à son poids.
+    Retourne (blended: list[float], model_str: str, model_stats: dict).
     """
-    gfs = fetch_ensemble("gfs_seamless", 30, lat, lon, date_str, tz)
+    import random, math
 
-    # ICON (DWD allemand, 39 membres) — excellent Europe + mondial
-    icon = []
-    try:
-        icon = fetch_ensemble("icon_seamless", 39, lat, lon, date_str, tz)
-    except Exception as e:
-        print(f"  ⚠ ICON indispo, GFS seul: {e}")
+    raw = {}
+    for model, weight in MODEL_WEIGHTS.items():
+        n_max = {"gfs_seamless": 30, "icon_seamless": 39, "ecmwf_ifs025": 50}[model]
+        try:
+            members = fetch_ensemble(model, n_max, lat, lon, date_str, tz)
+            if members:
+                raw[model] = (members, weight)
+        except Exception as e:
+            print(f"  ⚠ {model} indispo: {e}")
 
-    # Blend : GFS × 1.0 + ICON × 1.0 (même poids)
-    import random
-    blended = gfs[:]
-    if icon:
-        blended += icon
+    if not raw:
+        return None, "no_data", {}
 
-    n_gfs = len(gfs)
-    n_icon = len(icon)
-    model_str = f"GFS:{n_gfs}"
-    if n_icon:
-        model_str += f"+ICON:{n_icon}"
+    blended = []
+    stats = {}
+    for model, (members, weight) in raw.items():
+        mean = sum(members) / len(members)
+        std  = (sum((x - mean)**2 for x in members) / len(members)) ** 0.5
+        stats[model] = {"n": len(members), "mean": round(mean, 1), "std": round(std, 2)}
+        # Pondération : répète les membres proportionnellement
+        n_effective = max(len(members), round(len(members) * weight))
+        if n_effective > len(members):
+            extra = random.choices(members, k=n_effective - len(members))
+            blended += members + extra
+        else:
+            blended += random.choices(members, k=n_effective)
 
-    return blended if blended else None, model_str
+    parts = []
+    for m, key in [("GFS","gfs_seamless"),("ICON","icon_seamless"),("ECMWF","ecmwf_ifs025")]:
+        if key in raw:
+            parts.append(f"{m}:{raw[key][0].__len__()}")
+    model_str = "+".join(parts)
+
+    return blended if blended else None, model_str, stats
 
 
 # ─── ÉTAPE 3 : calcule proba GFS par bracket ─────────────────────────────────
@@ -332,10 +362,12 @@ def compute_signals(market, members_c):
         else:
             display_q = raw_q
 
-        is_endband = b["op"] in ("lte", "gte")  # end-band = signal le plus fiable
+        is_endband = b["op"] in ("lte", "gte")
+        city_key_lower = market["city"].lower()
+        confidence = CITY_CONFIDENCE.get(city_key_lower, "medium")
 
         # Qualité du signal : strong / medium / weak
-        if abs(edge) >= 20 and b["liquidity"] >= 500 and is_endband:
+        if abs(edge) >= 20 and b["liquidity"] >= 500 and is_endband and confidence != "low":
             quality = "strong"
         elif abs(edge) >= 10 and b["liquidity"] >= 200:
             quality = "medium"
@@ -348,6 +380,7 @@ def compute_signals(market, members_c):
             "bracket":       format_bracket(b["temp"], b["op"], unit),
             "is_endband":    is_endband,
             "quality":       quality,
+            "city_confidence": confidence,
             "direction":     direction,
             "gfs_prob":      gfs_prob,
             "market_prob":   b["p_yes"],
@@ -408,13 +441,13 @@ def run():
         if cache_key not in gfs_cache:
             print(f"→ Ensemble {city} {date} (tz={tz})...")
             try:
-                members, model_str = fetch_gfs_ensemble(lat, lon, date, tz)
+                members, model_str, model_stats = fetch_gfs_ensemble(lat, lon, date, tz)
             except Exception as e:
                 print(f"  ⚠ Erreur ensemble pour {city} {date}: {e}")
-                members, model_str = None, "error"
-            gfs_cache[cache_key] = (members, model_str)
+                members, model_str, model_stats = None, "error", {}
+            gfs_cache[cache_key] = (members, model_str, model_stats)
         else:
-            members, model_str = gfs_cache[cache_key]
+            members, model_str, model_stats = gfs_cache[cache_key]
 
         if not members:
             print(f"  ⚠ Pas de données ensemble pour {city} {date}")
