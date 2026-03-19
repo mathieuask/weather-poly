@@ -319,9 +319,16 @@ def compute_signals(market, members_c):
         # Réécrire la question pour les brackets extrêmes (lte/gte)
         raw_q = b["question"]
         if b["op"] == "lte":
-            display_q = re.sub(r"be (\d+)([°℃℉CF])", lambda m: f"be {m.group(1)}{m.group(2)} or below", raw_q)
+            # Remplace "be X°C" → "be X°C or below" seulement si pas déjà présent
+            if "or below" not in raw_q and "or higher" not in raw_q:
+                display_q = re.sub(r"(be -?\d+°[CF])", r"\1 or below", raw_q)
+            else:
+                display_q = raw_q
         elif b["op"] == "gte":
-            display_q = re.sub(r"be (\d+)([°℃℉CF])", lambda m: f"be {m.group(1)}{m.group(2)} or higher", raw_q)
+            if "or higher" not in raw_q and "or below" not in raw_q:
+                display_q = re.sub(r"(be -?\d+°[CF])", r"\1 or higher", raw_q)
+            else:
+                display_q = raw_q
         else:
             display_q = raw_q
 
