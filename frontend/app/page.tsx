@@ -165,11 +165,8 @@ function GfsModal({ s, onClose }: { s: Signal; onClose: () => void }) {
 }
 
 function SignalCard({ s }: { s: Signal }) {
-  const [showGfs, setShowGfs] = useState(false);
-
   return (
     <>
-      {showGfs && <GfsModal s={s} onClose={() => setShowGfs(false)} />}
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -191,12 +188,12 @@ function SignalCard({ s }: { s: Signal }) {
             </span>
             <span className="text-xs text-gray-400">·</span>
             <span className="flex items-center gap-1.5">
-              <button
-                onClick={() => setShowGfs(true)}
-                className="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+              <a
+                href={`/model?id=${s.condition_id}`}
+                className="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline"
               >
-                GFS {s.gfs_members} modèles — moy. {s.gfs_mean}{s.gfs_unit} (min {s.gfs_min} / max {s.gfs_max})
-              </button>
+                {s.gfs_members} modèles — moy. {s.gfs_mean}°{s.gfs_unit} (min {s.gfs_min} / max {s.gfs_max})
+              </a>
               {s.windy_url && (
                 <a href={s.windy_url} target="_blank" rel="noopener noreferrer"
                   className="text-xs text-blue-400 hover:text-blue-600" title="Voir sur Windy.com">
