@@ -91,9 +91,14 @@ def fetch_poly_markets(days_ahead=3):
                 "brackets": []
             }
 
-        # 1re passe : parse TOUS les brackets (sans filtre liq) pour trouver les vrais extrêmes
+        # 1re passe : parse uniquement les brackets OUVERTS (closed=False)
+        # closed=True = bracket fermé définitivement par Polymarket (pas juste vide)
         all_raw = []
         for m in event.get("markets", []):
+            # Filtre strict : on ne garde que les brackets réellement ouverts
+            if m.get("closed", False):
+                continue
+
             question = m.get("question", "")
             prices = m.get("outcomePrices", ["0", "0"])
             liq = float(m.get("liquidity", 0) or 0)
@@ -121,16 +126,13 @@ def fetch_poly_markets(days_ahead=3):
         if not all_raw:
             continue
 
-        # Identifie les extrêmes parmi les brackets AFFICHÉS sur Polymarket (liq > 0)
-        # = exactement ce que le site montre, sans les brackets à $0
+        # Identifie les extrêmes parmi les brackets OUVERTS (tous, même liq=0)
         all_raw.sort(key=lambda b: b["temp"])
-        shown = [b for b in all_raw if b["liquidity"] > 0]
+        if all_raw:
+            all_raw[0]["op"] = "lte"   # le plus bas ouvert = toujours "or below"
+            all_raw[-1]["op"] = "gte"  # le plus haut ouvert = toujours "or higher"
 
-        if shown:
-            shown[0]["op"] = "lte"   # le plus bas affiché = toujours "or below"
-            shown[-1]["op"] = "gte"  # le plus haut affiché = toujours "or higher"
-
-        # Stocke uniquement les brackets visibles sur Polymarket (liq > 0)
+        # Stocke tous les brackets ouverts (closed=False), même liq=0
         markets_by_city_date[key]["all_brackets"] = [
             {
                 "label": format_bracket(b["temp"], b["op"], city_info["unit"]),
@@ -139,7 +141,7 @@ def fetch_poly_markets(days_ahead=3):
                 "p_yes": b["p_yes"],
                 "liquidity": b["liquidity"]
             }
-            for b in all_raw if b["liquidity"] > 0
+            for b in all_raw
         ]
 
         # 2e passe : filtre liquidité + prix extrêmes, ajoute au marché
