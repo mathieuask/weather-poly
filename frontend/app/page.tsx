@@ -272,7 +272,7 @@ export default function Home() {
   const [data, setData] = useState<ScanResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"ALL" | "YES" | "NO">("ALL");
-  const [minEdge, setMinEdge] = useState(10);
+  const [minEdge, setMinEdge] = useState(5);
   const [dateFilter, setDateFilter] = useState<string>("ALL");
   const [cityFilter, setCityFilter] = useState<string>("ALL");
   const [hideResolved, setHideResolved] = useState(true);
