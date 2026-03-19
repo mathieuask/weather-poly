@@ -96,6 +96,7 @@ function SignalCard({ s }: { s: Signal }) {
       id: crypto.randomUUID(),
       date_added: new Date().toISOString(),
       city: s.city,
+      event_title: s.event_title,
       question: s.question,
       bracket: s.bracket,
       direction: s.direction,
@@ -109,6 +110,10 @@ function SignalCard({ s }: { s: Signal }) {
       poly_url: s.poly_url,
       wunderground: s.wunderground,
       resolve_date: s.date,
+      gfs_min: s.gfs_min,
+      gfs_max: s.gfs_max,
+      gfs_mean: s.gfs_mean,
+      gfs_unit: s.gfs_unit,
     });
     localStorage.setItem("weather_arb_trades", JSON.stringify(trades));
     setAdded(true);
