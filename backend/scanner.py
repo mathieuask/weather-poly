@@ -86,6 +86,7 @@ def fetch_poly_markets(days_ahead=3):
                 "lat": city_info["lat"],
                 "lon": city_info["lon"],
                 "station": city_info["station"],
+                "event_slug": event.get("slug", ""),
                 "wunderground": f"https://www.wunderground.com/history/daily/{city_info['station']}",
                 "brackets": []
             }
@@ -258,21 +259,23 @@ def compute_signals(market, members_c):
         prob_win = gfs_prob / 100 if direction == "YES" else (100 - gfs_prob) / 100
         ev = round(prob_win * payout - (1 - prob_win) * entry_price, 3)
 
+        event_slug = market.get("event_slug", "")
         signals.append({
-            "city":        market["city"],
-            "date":        market["date"],
-            "bracket":     format_bracket(b["temp"], b["op"], unit),
-            "direction":   direction,
-            "gfs_prob":    gfs_prob,
-            "market_prob": b["p_yes"],
-            "edge":        edge,
-            "entry_price": round(entry_price, 3),
-            "payout":      payout,
-            "ev":          ev,
-            "liquidity":   b["liquidity"],
-            "question":    b["question"],
-            "condition_id": b["condition_id"],
-            "wunderground": market["wunderground"]
+            "city":          market["city"],
+            "date":          market["date"],
+            "bracket":       format_bracket(b["temp"], b["op"], unit),
+            "direction":     direction,
+            "gfs_prob":      gfs_prob,
+            "market_prob":   b["p_yes"],
+            "edge":          edge,
+            "entry_price":   round(entry_price, 3),
+            "payout":        payout,
+            "ev":            ev,
+            "liquidity":     b["liquidity"],
+            "question":      b["question"],
+            "condition_id":  b["condition_id"],
+            "wunderground":  market["wunderground"],
+            "poly_url":      f"https://polymarket.com/event/{event_slug}" if event_slug else ""
         })
 
     return sorted(signals, key=lambda x: abs(x["edge"]), reverse=True)

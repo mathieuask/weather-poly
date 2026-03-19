@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Signal {
   city: string;
@@ -17,6 +17,7 @@ interface Signal {
   liquidity: number;
   question: string;
   wunderground: string;
+  poly_url: string;
 }
 
 interface ScanResult {
@@ -25,65 +26,97 @@ interface ScanResult {
   signals: Signal[];
 }
 
+const PAGE_SIZE = 10;
+
 function EdgeBadge({ edge }: { edge: number }) {
   const abs = Math.abs(edge);
   const color =
-    abs >= 20 ? "bg-green-500" : abs >= 10 ? "bg-yellow-500" : "bg-gray-500";
+    abs >= 20 ? "bg-green-500" : abs >= 10 ? "bg-yellow-500" : "bg-gray-400";
   return (
     <span className={`${color} text-white text-xs font-bold px-2 py-0.5 rounded`}>
-      {edge > 0 ? "+" : ""}
-      {edge.toFixed(1)}%
+      {edge > 0 ? "+" : ""}{edge.toFixed(1)}%
     </span>
   );
 }
 
 function DirectionBadge({ direction }: { direction: "YES" | "NO" }) {
   return (
-    <span
-      className={`font-bold text-sm px-2 py-0.5 rounded ${
-        direction === "YES"
-          ? "bg-blue-100 text-blue-700"
-          : "bg-red-100 text-red-700"
-      }`}
-    >
+    <span className={`font-bold text-sm px-2 py-0.5 rounded ${
+      direction === "YES" ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
+    }`}>
       {direction}
     </span>
   );
 }
 
-function ProbBar({
-  gfs,
-  market,
-  direction,
-}: {
-  gfs: number;
-  market: number;
-  direction: "YES" | "NO";
-}) {
+function ProbBar({ gfs, market }: { gfs: number; market: number }) {
   return (
     <div className="mt-2 space-y-1">
       <div className="flex items-center gap-2 text-xs">
         <span className="w-14 text-gray-500">Modèles</span>
         <div className="flex-1 bg-gray-100 rounded-full h-2">
-          <div
-            className="bg-blue-400 h-2 rounded-full"
-            style={{ width: `${gfs}%` }}
-          />
+          <div className="bg-blue-400 h-2 rounded-full transition-all" style={{ width: `${gfs}%` }} />
         </div>
-        <span className="w-8 text-right font-mono text-gray-700">
-          {gfs.toFixed(0)}%
-        </span>
+        <span className="w-8 text-right font-mono text-gray-700">{gfs.toFixed(0)}%</span>
       </div>
       <div className="flex items-center gap-2 text-xs">
         <span className="w-14 text-gray-500">Marché</span>
         <div className="flex-1 bg-gray-100 rounded-full h-2">
-          <div
-            className="bg-orange-400 h-2 rounded-full"
-            style={{ width: `${market}%` }}
-          />
+          <div className="bg-orange-400 h-2 rounded-full transition-all" style={{ width: `${market}%` }} />
         </div>
-        <span className="w-8 text-right font-mono text-gray-700">
-          {market.toFixed(0)}%
+        <span className="w-8 text-right font-mono text-gray-700">{market.toFixed(0)}%</span>
+      </div>
+    </div>
+  );
+}
+
+function SignalCard({ s }: { s: Signal }) {
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-gray-900">{s.city}</span>
+            <span className="text-gray-400 text-sm">·</span>
+            <span className="font-mono text-sm text-gray-700">{s.bracket}</span>
+            <DirectionBadge direction={s.direction} />
+            <EdgeBadge edge={s.edge} />
+          </div>
+          <div className="text-xs text-gray-400 mt-0.5">
+            {new Date(s.date).toLocaleDateString("fr-FR", {
+              weekday: "short", day: "numeric", month: "short", timeZone: "UTC"
+            })}
+            {" · "}liq ${s.liquidity.toLocaleString()}
+          </div>
+        </div>
+        <div className="text-right shrink-0">
+          <div className="font-mono text-sm font-bold text-gray-900">
+            {(s.entry_price * 100).toFixed(1)}¢
+          </div>
+          <div className="text-xs text-gray-400">entrée</div>
+        </div>
+      </div>
+
+      <ProbBar gfs={s.gfs_prob} market={s.market_prob} />
+
+      <div className="mt-3 flex items-center justify-between">
+        <div className="flex gap-3">
+          {s.poly_url && (
+            <a href={s.poly_url} target="_blank" rel="noopener noreferrer"
+              className="text-xs font-medium text-blue-600 hover:underline">
+              Polymarket →
+            </a>
+          )}
+          <a href={s.wunderground} target="_blank" rel="noopener noreferrer"
+            className="text-xs text-gray-400 hover:underline">
+            Wunderground
+          </a>
+        </div>
+        <span className="text-xs text-gray-400">
+          EV{" "}
+          <span className={s.ev > 0 ? "text-green-600 font-medium" : "text-red-500"}>
+            {s.ev > 0 ? "+" : ""}{s.ev.toFixed(3)}
+          </span>
         </span>
       </div>
     </div>
@@ -92,25 +125,48 @@ function ProbBar({
 
 export default function Home() {
   const [data, setData] = useState<ScanResult | null>(null);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"ALL" | "YES" | "NO">("ALL");
   const [minEdge, setMinEdge] = useState(10);
   const [dateFilter, setDateFilter] = useState<string>("ALL");
   const [cityFilter, setCityFilter] = useState<string>("ALL");
   const [hideResolved, setHideResolved] = useState(true);
+  const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
+  const loaderRef = useRef<HTMLDivElement>(null);
 
   const loadData = () => {
+    setLoading(true);
     fetch("/api/signals")
       .then((r) => r.json())
-      .then(setData)
-      .catch(console.error);
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => setLoading(false));
   };
 
   useEffect(() => { loadData(); }, []);
 
-  const allDates = [...new Set((data?.signals ?? []).map(s => s.date))].sort();
-  const allCities = [...new Set((data?.signals ?? []).map(s => s.city))].sort();
+  // Reset displayCount quand les filtres changent
+  useEffect(() => { setDisplayCount(PAGE_SIZE); }, [filter, minEdge, dateFilter, cityFilter, hideResolved]);
 
-  const signals = (data?.signals ?? []).filter((s) => {
+  // IntersectionObserver pour charger plus en scrollant
+  useEffect(() => {
+    const el = loaderRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setDisplayCount((c) => c + PAGE_SIZE);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const allDates = [...new Set((data?.signals ?? []).map((s) => s.date))].sort();
+  const allCities = [...new Set((data?.signals ?? []).map((s) => s.city))].sort();
+
+  const filtered = (data?.signals ?? []).filter((s) => {
     if (filter !== "ALL" && s.direction !== filter) return false;
     if (Math.abs(s.edge) < minEdge) return false;
     if (dateFilter !== "ALL" && s.date !== dateFilter) return false;
@@ -119,201 +175,137 @@ export default function Home() {
     return true;
   });
 
+  const visible = filtered.slice(0, displayCount);
+  const hasMore = displayCount < filtered.length;
+
   const generatedAt = data?.generated_at
     ? new Date(data.generated_at).toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "UTC",
+        hour: "2-digit", minute: "2-digit", timeZone: "UTC",
       }) + " UTC"
     : null;
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 md:p-8">
-      {/* Header */}
       <div className="max-w-3xl mx-auto">
+
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              🌤 Weather Arb
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">🌤 Weather Arb</h1>
             <p className="text-sm text-gray-500">
-              Polymarket × GFS — {generatedAt ?? "chargement..."}
+              Polymarket × GFS — {loading ? "chargement..." : generatedAt ?? "—"}
             </p>
           </div>
-          <div className="text-right flex items-center gap-3">
-            <button
-              onClick={loadData}
-              className="text-sm text-blue-500 hover:text-blue-700 transition-colors"
-            >
+          <div className="flex items-center gap-3">
+            <button onClick={loadData}
+              className="text-sm text-blue-500 hover:text-blue-700 transition-colors">
               ↻ Actualiser
             </button>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">
-                {signals.length}
-              </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-gray-900">{filtered.length}</div>
               <div className="text-xs text-gray-500">signaux</div>
             </div>
           </div>
         </div>
 
         {/* Filtres */}
-        <div className="flex gap-3 mb-6 flex-wrap">
+        <div className="flex gap-2 mb-6 flex-wrap">
+          {/* Direction */}
           <div className="flex gap-1 bg-white border rounded-lg p-1">
             {(["ALL", "YES", "NO"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
+              <button key={f} onClick={() => setFilter(f)}
                 className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                  filter === f
-                    ? "bg-gray-900 text-white"
-                    : "text-gray-500 hover:text-gray-900"
-                }`}
-              >
+                  filter === f ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-900"
+                }`}>
                 {f}
               </button>
             ))}
           </div>
+
+          {/* Edge min */}
           <div className="flex items-center gap-2 bg-white border rounded-lg px-3 py-1">
-            <span className="text-sm text-gray-500">Edge min</span>
-            <select
-              value={minEdge}
-              onChange={(e) => setMinEdge(Number(e.target.value))}
-              className="text-sm font-medium text-gray-900 bg-transparent outline-none"
-            >
+            <span className="text-sm text-gray-500">Edge</span>
+            <select value={minEdge} onChange={(e) => setMinEdge(Number(e.target.value))}
+              className="text-sm font-medium text-gray-900 bg-transparent outline-none">
               {[5, 10, 15, 20, 30].map((v) => (
-                <option key={v} value={v}>
-                  {v}%
-                </option>
+                <option key={v} value={v}>{v}%</option>
               ))}
             </select>
           </div>
+
+          {/* Date */}
           <div className="flex items-center gap-2 bg-white border rounded-lg px-3 py-1">
             <span className="text-sm text-gray-500">Date</span>
-            <select
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="text-sm font-medium text-gray-900 bg-transparent outline-none"
-            >
+            <select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}
+              className="text-sm font-medium text-gray-900 bg-transparent outline-none">
               <option value="ALL">Toutes</option>
-              {allDates.map(d => (
+              {allDates.map((d) => (
                 <option key={d} value={d}>
-                  {new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                  {new Date(d).toLocaleDateString("fr-FR", {
+                    day: "numeric", month: "short", timeZone: "UTC"
+                  })}
                 </option>
               ))}
             </select>
           </div>
+
+          {/* Ville */}
           <div className="flex items-center gap-2 bg-white border rounded-lg px-3 py-1">
             <span className="text-sm text-gray-500">Ville</span>
-            <select
-              value={cityFilter}
-              onChange={(e) => setCityFilter(e.target.value)}
-              className="text-sm font-medium text-gray-900 bg-transparent outline-none"
-            >
+            <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
+              className="text-sm font-medium text-gray-900 bg-transparent outline-none">
               <option value="ALL">Toutes</option>
-              {allCities.map(c => (
+              {allCities.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </div>
-          <button
-            onClick={() => setHideResolved(!hideResolved)}
+
+          {/* Toggle résolus */}
+          <button onClick={() => setHideResolved(!hideResolved)}
             className={`flex items-center gap-2 px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
               hideResolved
                 ? "bg-gray-900 text-white border-gray-900"
                 : "bg-white text-gray-500 border-gray-200 hover:text-gray-900"
-            }`}
-          >
+            }`}>
             {hideResolved ? "0/100% masqués" : "Tout afficher"}
           </button>
         </div>
 
         {/* Légende */}
-        <div className="flex gap-4 text-xs text-gray-500 mb-4">
+        <div className="flex gap-4 text-xs text-gray-400 mb-4">
           <span className="flex items-center gap-1">
-            <span className="w-3 h-2 rounded-full bg-blue-400 inline-block" />{" "}
-            GFS (30 modèles)
+            <span className="w-3 h-2 rounded-full bg-blue-400 inline-block" /> GFS (30 modèles)
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-3 h-2 rounded-full bg-orange-400 inline-block" />{" "}
-            Marché Polymarket
+            <span className="w-3 h-2 rounded-full bg-orange-400 inline-block" /> Marché Polymarket
           </span>
         </div>
 
-        {/* Signaux */}
-        {!data && (
+        {/* Liste */}
+        {loading && (
           <div className="text-center py-12 text-gray-400">Chargement...</div>
         )}
 
-        <div className="space-y-3">
-          {signals.map((s, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-gray-900">{s.city}</span>
-                    <span className="text-gray-400 text-sm">·</span>
-                    <span className="font-mono text-sm text-gray-700">
-                      {s.bracket}
-                    </span>
-                    <DirectionBadge direction={s.direction} />
-                    <EdgeBadge edge={s.edge} />
-                  </div>
-                  <div className="text-xs text-gray-400 mt-0.5">
-                    {new Date(s.date).toLocaleDateString("fr-FR", {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                    })}{" "}
-                    · liq ${s.liquidity.toLocaleString()}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="font-mono text-sm font-bold text-gray-900">
-                    {s.entry_price.toFixed(2)}¢
-                  </div>
-                  <div className="text-xs text-gray-400">entrée</div>
-                </div>
-              </div>
-
-              <ProbBar
-                gfs={s.gfs_prob}
-                market={s.market_prob}
-                direction={s.direction}
-              />
-
-              <div className="mt-3 flex items-center justify-between">
-                <a
-                  href={s.wunderground}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-500 hover:underline"
-                >
-                  Wunderground →
-                </a>
-                <span className="text-xs text-gray-400">
-                  EV{" "}
-                  <span
-                    className={
-                      s.ev > 0 ? "text-green-600 font-medium" : "text-red-500"
-                    }
-                  >
-                    {s.ev > 0 ? "+" : ""}
-                    {s.ev.toFixed(3)}
-                  </span>
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {signals.length === 0 && data && (
+        {!loading && filtered.length === 0 && (
           <div className="text-center py-12 text-gray-400">
             Aucun signal avec edge ≥ {minEdge}%
           </div>
         )}
+
+        <div className="space-y-3">
+          {visible.map((s, i) => <SignalCard key={i} s={s} />)}
+        </div>
+
+        {/* Sentinel pour IntersectionObserver */}
+        <div ref={loaderRef} className="py-4 text-center text-xs text-gray-400">
+          {hasMore
+            ? `Affichage ${visible.length} / ${filtered.length} — scroll pour charger plus`
+            : filtered.length > 0
+            ? `${filtered.length} signaux au total`
+            : ""}
+        </div>
+
       </div>
     </main>
   );
