@@ -91,13 +91,12 @@ def fetch_poly_markets(days_ahead=3):
                 "brackets": []
             }
 
-        # Parse chaque sous-marché
+        # 1re passe : parse TOUS les brackets (sans filtre liq) pour trouver les vrais extrêmes
+        all_raw = []
         for m in event.get("markets", []):
             question = m.get("question", "")
             prices = m.get("outcomePrices", ["0", "0"])
             liq = float(m.get("liquidity", 0) or 0)
-
-            # outcomePrices peut être une string JSON ou une liste
             if isinstance(prices, str):
                 try:
                     prices = json.loads(prices)
@@ -107,30 +106,45 @@ def fetch_poly_markets(days_ahead=3):
                 p_yes = float(prices[0])
             except (ValueError, IndexError, TypeError):
                 continue
-
-            if liq < MIN_LIQ:
-                continue
-
-            # Filtre marchés déjà résolus (prix à 0% ou 100%)
-            if p_yes >= 0.99 or p_yes <= 0.01:
-                continue
-
-            # Parse la température et l'opérateur depuis la question
-            # Ex: "Will the highest temperature in Madrid be 15°C on March 20?"
-            # Ex: "Will the highest temperature in NYC be 12°C or below on..."
-            # Ex: "Will the highest temperature in NYC be 22°C or higher on..."
             bracket = parse_bracket(question, city_info["unit"])
             if bracket is None:
                 continue
-
-            markets_by_city_date[key]["brackets"].append({
+            all_raw.append({
                 "question": question,
                 "temp": bracket["temp"],
-                "op": bracket["op"],   # "exact", "lte", "gte"
+                "op": bracket["op"],
                 "p_yes": round(p_yes * 100, 1),
                 "liquidity": round(liq, 0),
                 "condition_id": m.get("conditionId", "")
             })
+
+        if not all_raw:
+            continue
+
+        # Identifie les vrais extrêmes AVANT tout filtre
+        all_raw.sort(key=lambda b: b["temp"])
+        all_raw[0]["op"] = "lte"    # bracket le plus bas = toujours ≤X
+        all_raw[-1]["op"] = "gte"   # bracket le plus haut = toujours ≥X
+
+        # Stocke la liste complète des brackets pour le contexte
+        markets_by_city_date[key]["all_brackets"] = [
+            {
+                "label": format_bracket(b["temp"], b["op"], city_info["unit"]),
+                "temp": b["temp"],
+                "op": b["op"],
+                "p_yes": b["p_yes"],
+                "liquidity": b["liquidity"]
+            }
+            for b in all_raw
+        ]
+
+        # 2e passe : filtre liquidité + prix extrêmes, ajoute au marché
+        for b in all_raw:
+            if b["liquidity"] < MIN_LIQ:
+                continue
+            if b["p_yes"] >= 99 or b["p_yes"] <= 1:
+                continue
+            markets_by_city_date[key]["brackets"].append(b)
 
     return list(markets_by_city_date.values())
 
@@ -274,8 +288,9 @@ def compute_signals(market, members_c):
             "liquidity":     b["liquidity"],
             "question":      b["question"],
             "condition_id":  b["condition_id"],
-            "wunderground":  market["wunderground"],
-            "poly_url":      f"https://polymarket.com/event/{event_slug}" if event_slug else ""
+            "wunderground":  f"{market['wunderground']}/date/{market['date']}?units=m",
+            "poly_url":      f"https://polymarket.com/event/{event_slug}" if event_slug else "",
+            "all_brackets":  market.get("all_brackets", [])
         })
 
     return sorted(signals, key=lambda x: abs(x["edge"]), reverse=True)
@@ -360,7 +375,27 @@ def run():
     for s in all_signals[:5]:
         print(f"  {s['city']:12} {s['bracket']:>8} | {s['direction']} | GFS={s['gfs_prob']:.0f}% vs {s['market_prob']:.0f}% | Edge={s['edge']:+.1f}% | EV={s['ev']:+.3f}")
 
+    # Auto-push vers GitHub si git dispo
+    _git_push(len(all_signals))
+
     return output
+
+
+def _git_push(nb_signals: int):
+    import subprocess
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    try:
+        subprocess.run(["git", "add", "backend/signals.json", "frontend/public/signals.json"],
+                       cwd=repo_root, check=True, capture_output=True)
+        subprocess.run(["git", "commit", "-m", f"data: {nb_signals} signals — {now}"],
+                       cwd=repo_root, check=True, capture_output=True)
+        subprocess.run(["git", "push"],
+                       cwd=repo_root, check=True, capture_output=True)
+        print(f"→ GitHub: {nb_signals} signaux pushés ({now})")
+    except subprocess.CalledProcessError as e:
+        # Pas de changements ou git non configuré → pas grave
+        print(f"→ GitHub push skipped: {e.stderr.decode()[:100] if e.stderr else 'no changes'}")
 
 
 if __name__ == "__main__":

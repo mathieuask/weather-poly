@@ -2,6 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 
+interface BracketContext {
+  label: string;
+  temp: number;
+  op: string;
+  p_yes: number;
+  liquidity: number;
+}
+
 interface Signal {
   city: string;
   date: string;
@@ -18,6 +26,7 @@ interface Signal {
   question: string;
   wunderground: string;
   poly_url: string;
+  all_brackets: BracketContext[];
 }
 
 interface ScanResult {
@@ -99,6 +108,31 @@ function SignalCard({ s }: { s: Signal }) {
 
       <ProbBar gfs={s.gfs_prob} market={s.market_prob} />
 
+      {/* Distribution complète des brackets */}
+      {s.all_brackets && s.all_brackets.length > 0 && (
+        <div className="mt-3 border-t pt-3">
+          <div className="text-xs text-gray-400 mb-1.5">Distribution du marché</div>
+          <div className="flex flex-wrap gap-1">
+            {s.all_brackets.map((b, i) => {
+              const isTarget = b.label === s.bracket;
+              const hasLiq = b.liquidity > 0;
+              return (
+                <div key={i} className={`text-xs px-2 py-0.5 rounded border ${
+                  isTarget
+                    ? "border-blue-400 bg-blue-50 font-bold text-blue-700"
+                    : hasLiq
+                    ? "border-gray-200 bg-white text-gray-600"
+                    : "border-dashed border-gray-200 text-gray-300"
+                }`}>
+                  {b.label}
+                  {hasLiq && <span className="ml-1 text-gray-400">{b.p_yes.toFixed(0)}%</span>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="mt-3 flex items-center justify-between">
         <div className="flex gap-3">
           {s.poly_url && (
@@ -134,9 +168,13 @@ export default function Home() {
   const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
   const loaderRef = useRef<HTMLDivElement>(null);
 
+  const SIGNALS_URL =
+    process.env.NEXT_PUBLIC_SIGNALS_URL ||
+    "https://raw.githubusercontent.com/mathieuask/weather-poly/master/frontend/public/signals.json";
+
   const loadData = () => {
     setLoading(true);
-    fetch("/signals.json")
+    fetch(SIGNALS_URL + "?t=" + Date.now()) // cache-bust
       .then((r) => r.json())
       .then((d) => { setData(d); setLoading(false); })
       .catch(() => setLoading(false));
