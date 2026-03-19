@@ -130,7 +130,7 @@ def fetch_poly_markets(days_ahead=3):
             shown[0]["op"] = "lte"   # le plus bas affiché = toujours "or below"
             shown[-1]["op"] = "gte"  # le plus haut affiché = toujours "or higher"
 
-        # Stocke la liste complète des brackets pour le contexte
+        # Stocke uniquement les brackets visibles sur Polymarket (liq > 0)
         markets_by_city_date[key]["all_brackets"] = [
             {
                 "label": format_bracket(b["temp"], b["op"], city_info["unit"]),
@@ -139,7 +139,7 @@ def fetch_poly_markets(days_ahead=3):
                 "p_yes": b["p_yes"],
                 "liquidity": b["liquidity"]
             }
-            for b in all_raw
+            for b in all_raw if b["liquidity"] > 0
         ]
 
         # 2e passe : filtre liquidité + prix extrêmes, ajoute au marché
