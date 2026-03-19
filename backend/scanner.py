@@ -121,10 +121,13 @@ def fetch_poly_markets(days_ahead=3):
         if not all_raw:
             continue
 
-        # Identifie les vrais extrêmes AVANT tout filtre
+        # Identifie les extrêmes parmi les brackets AVEC liquidité suffisante
         all_raw.sort(key=lambda b: b["temp"])
-        all_raw[0]["op"] = "lte"    # bracket le plus bas = toujours ≤X
-        all_raw[-1]["op"] = "gte"   # bracket le plus haut = toujours ≥X
+        liquid = [b for b in all_raw if b["liquidity"] >= MIN_LIQ]
+
+        if liquid:
+            liquid[0]["op"] = "lte"   # le plus bas avec liq = toujours "or below"
+            liquid[-1]["op"] = "gte"  # le plus haut avec liq = toujours "or higher"
 
         # Stocke la liste complète des brackets pour le contexte
         markets_by_city_date[key]["all_brackets"] = [
