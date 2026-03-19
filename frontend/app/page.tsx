@@ -35,6 +35,7 @@ interface Signal {
   gfs_unit: string;
   gfs_members: number;
   gfs_values: number[];
+  windy_url: string;
 }
 
 interface ScanResult {
@@ -179,12 +180,20 @@ function SignalCard({ s }: { s: Signal }) {
               })}
             </span>
             <span className="text-xs text-gray-400">·</span>
-            <button
-              onClick={() => setShowGfs(true)}
-              className="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-            >
-              GFS {s.gfs_members} modèles : {s.gfs_min}{s.gfs_unit} → {s.gfs_mean}{s.gfs_unit} → {s.gfs_max}{s.gfs_unit} ↗
-            </button>
+            <span className="flex items-center gap-1.5">
+              <button
+                onClick={() => setShowGfs(true)}
+                className="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+              >
+                GFS {s.gfs_members} modèles : {s.gfs_min}{s.gfs_unit} → {s.gfs_mean}{s.gfs_unit} → {s.gfs_max}{s.gfs_unit}
+              </button>
+              {s.windy_url && (
+                <a href={s.windy_url} target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-blue-400 hover:text-blue-600" title="Voir sur Windy.com">
+                  🌬️
+                </a>
+              )}
+            </span>
             <span className="text-xs text-gray-400">·</span>
             <span className="text-xs text-gray-400">liq ${s.liquidity.toLocaleString()}</span>
           </div>

@@ -322,7 +322,8 @@ def compute_signals(market, members_c):
             "gfs_mean":      round(sum(temps) / len(temps), 1),
             "gfs_unit":      sym,
             "gfs_members":   len(temps),
-            "gfs_values":    [round(t, 1) for t in sorted(temps)]
+            "gfs_values":    [round(t, 1) for t in sorted(temps)],
+            "windy_url":     f"https://www.windy.com/{market['lat']}/{market['lon']}?gfs,{market['date']},{market['lat']},{market['lon']}"
         })
 
     return sorted(signals, key=lambda x: abs(x["edge"]), reverse=True)
