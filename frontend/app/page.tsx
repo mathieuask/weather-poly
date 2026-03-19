@@ -95,7 +95,7 @@ export default function Home() {
   const [minEdge, setMinEdge] = useState(10);
 
   useEffect(() => {
-    fetch("/api/signals")
+    fetch("/signals.json")
       .then((r) => r.json())
       .then(setData)
       .catch(console.error);

@@ -335,6 +335,12 @@ def run():
     with open(OUT_FILE, "w") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
+    # Copie aussi dans frontend/public/ pour le dashboard local
+    public_out = os.path.join(os.path.dirname(__file__), "../frontend/public/signals.json")
+    if os.path.exists(os.path.dirname(public_out)):
+        with open(public_out, "w") as f:
+            json.dump(output, f, indent=2, ensure_ascii=False)
+
     print(f"\n✅ {len(all_signals)} signaux sauvegardés → {OUT_FILE}")
     print(f"\nTOP 5 SIGNAUX:")
     for s in all_signals[:5]:
