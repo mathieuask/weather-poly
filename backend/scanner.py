@@ -20,6 +20,9 @@ POLY_API  = "https://gamma-api.polymarket.com"
 OMAPI     = "https://ensemble-api.open-meteo.com/v1/ensemble"
 MIN_EDGE  = 5.0       # % minimum pour afficher un signal
 MIN_LIQ   = 100.0     # liquidité minimum du sous-marché
+
+# Villes exclues : GFS peu fiable en zone tropicale/subtropicale
+GFS_UNRELIABLE = {"singapore", "taipei", "miami"}
 OUT_FILE      = os.path.join(os.path.dirname(__file__), "signals.json")
 FRONTEND_OUT  = os.path.join(os.path.dirname(__file__), "..", "frontend", "public", "signals.json")
 CITIES_F      = os.path.join(os.path.dirname(__file__), "cities.json")
@@ -73,6 +76,8 @@ def fetch_poly_markets(days_ahead=3):
                 break
         if not city_key:
             continue
+        if city_key in GFS_UNRELIABLE:
+            continue  # GFS peu fiable en zone tropicale
 
         city_info = CITY_MAP[city_key]
         key = f"{city_key}_{date_str}"
@@ -284,6 +289,16 @@ def compute_signals(market, members_c):
         event_slug = market.get("event_slug", "")
         temps = members_c if unit == "C" else [c_to_f(t) for t in members_c]
         sym = "°C" if unit == "C" else "°F"
+
+        # Réécrire la question pour les brackets extrêmes (lte/gte)
+        raw_q = b["question"]
+        if b["op"] == "lte":
+            display_q = re.sub(r"be (\d+)([°℃℉CF])", lambda m: f"be {m.group(1)}{m.group(2)} or below", raw_q)
+        elif b["op"] == "gte":
+            display_q = re.sub(r"be (\d+)([°℃℉CF])", lambda m: f"be {m.group(1)}{m.group(2)} or higher", raw_q)
+        else:
+            display_q = raw_q
+
         signals.append({
             "city":          market["city"],
             "date":          market["date"],
@@ -296,7 +311,7 @@ def compute_signals(market, members_c):
             "payout":        payout,
             "ev":            ev,
             "liquidity":     b["liquidity"],
-            "question":      b["question"],
+            "question":      display_q,
             "condition_id":  b["condition_id"],
             "wunderground":  f"{market['wunderground']}/date/{market['date']}?units=m",
             "poly_url":      f"https://polymarket.com/event/{event_slug}" if event_slug else "",
