@@ -18,9 +18,9 @@ from datetime import datetime, timezone, timedelta
 # ─── CONFIG ───────────────────────────────────────────────────────────────────
 POLY_API  = "https://gamma-api.polymarket.com"
 OMAPI     = "https://ensemble-api.open-meteo.com/v1/ensemble"
-MIN_EDGE  = 10.0      # % minimum (doc: 8-15%, on démarre à 10%)
-MIN_LIQ   = 500.0     # $ minimum (doc: $2000, mais marchés petits → $500)
-MIN_HOURS = 12.0      # heures avant résolution (en dessous → obs réelle > GFS)
+MIN_EDGE  = 5.0       # % minimum pour afficher (on filtre visuellement dans le dashboard)
+MIN_LIQ   = 100.0     # $ minimum (on affiche tout, badge qualité dans le dashboard)
+MIN_HOURS = 6.0       # heures avant résolution (en dessous → obs réelle > GFS)
 ECMWF_WEIGHT = 1.2   # ECMWF pondéré 1.2× vs GFS (doc recommandation)
 
 # Villes exclues temporairement (mettre city_key ici pour désactiver)
@@ -327,11 +327,20 @@ def compute_signals(market, members_c):
 
         is_endband = b["op"] in ("lte", "gte")  # end-band = signal le plus fiable
 
+        # Qualité du signal : strong / medium / weak
+        if abs(edge) >= 20 and b["liquidity"] >= 500 and is_endband:
+            quality = "strong"
+        elif abs(edge) >= 10 and b["liquidity"] >= 200:
+            quality = "medium"
+        else:
+            quality = "weak"
+
         signals.append({
             "city":          market["city"],
             "date":          market["date"],
             "bracket":       format_bracket(b["temp"], b["op"], unit),
             "is_endband":    is_endband,
+            "quality":       quality,
             "direction":     direction,
             "gfs_prob":      gfs_prob,
             "market_prob":   b["p_yes"],

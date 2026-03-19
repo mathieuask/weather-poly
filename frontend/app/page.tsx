@@ -36,6 +36,7 @@ interface Signal {
   gfs_members: number;
   gfs_values: number[];
   windy_url: string;
+  quality: "strong" | "medium" | "weak";
 }
 
 interface ScanResult {
@@ -49,12 +50,20 @@ const PAGE_SIZE = 10;
 function EdgeBadge({ edge }: { edge: number }) {
   const abs = Math.abs(edge);
   const color =
-    abs >= 20 ? "bg-green-500" : abs >= 10 ? "bg-yellow-500" : "bg-gray-400";
+    abs >= 20 ? "bg-green-100 text-green-700 border border-green-200"
+    : abs >= 10 ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
+    : "bg-gray-100 text-gray-500 border border-gray-200";
   return (
-    <span className={`${color} text-white text-xs font-bold px-2 py-0.5 rounded`}>
+    <span className={`${color} text-xs font-bold px-2 py-0.5 rounded`}>
       {edge > 0 ? "+" : ""}{edge.toFixed(1)}%
     </span>
   );
+}
+
+function QualityBadge({ quality }: { quality: string }) {
+  if (quality === "strong") return <span className="text-xs px-1.5 py-0.5 rounded bg-green-50 text-green-600 font-semibold border border-green-200">⭐ Fort</span>;
+  if (quality === "medium") return <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-50 text-yellow-700 font-medium border border-yellow-200">Moyen</span>;
+  return <span className="text-xs px-1.5 py-0.5 rounded bg-gray-50 text-gray-400 border border-gray-200">Faible</span>;
 }
 
 function DirectionBadge({ direction }: { direction: "YES" | "NO" }) {
@@ -168,6 +177,7 @@ function SignalCard({ s }: { s: Signal }) {
             <span className="font-bold text-gray-900">{s.city}</span>
             <DirectionBadge direction={s.direction} />
             <EdgeBadge edge={s.edge} />
+            <QualityBadge quality={s.quality} />
           </div>
           {s.event_title && (
             <div className="text-sm text-gray-700 mt-0.5 font-semibold">{s.event_title}</div>

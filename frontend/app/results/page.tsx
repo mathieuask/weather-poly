@@ -146,8 +146,10 @@ export default function Results() {
       <div className="flex gap-1.5 mb-3">
         {(["all","pending","win","loss"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`text-xs px-3 py-1 rounded-full font-medium transition-colors ${
-              filter === f ? "bg-gray-900 text-white" : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
+            className={`text-xs px-3 py-1 rounded-full font-medium transition-colors border ${
+              filter === f
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
             }`}>
             {f === "all" ? `Tous (${trades.length})` :
              f === "pending" ? `⏳ En cours (${stats.pending})` :
