@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+
 
 interface BracketContext {
   label: string;
@@ -87,38 +87,6 @@ function ProbBar({ gfs, market }: { gfs: number; market: number }) {
 }
 
 function SignalCard({ s }: { s: Signal }) {
-  const [amount, setAmount] = useState("10");
-  const [added, setAdded] = useState(false);
-
-  const addToTracking = () => {
-    const trades = JSON.parse(localStorage.getItem("weather_arb_trades") || "[]");
-    trades.unshift({
-      id: crypto.randomUUID(),
-      date_added: new Date().toISOString(),
-      city: s.city,
-      event_title: s.event_title,
-      question: s.question,
-      bracket: s.bracket,
-      direction: s.direction,
-      entry_price: s.entry_price,
-      gfs_prob: s.gfs_prob,
-      market_prob: s.market_prob,
-      edge: s.edge,
-      amount: parseFloat(amount) || 10,
-      result: "pending",
-      pnl: null,
-      poly_url: s.poly_url,
-      wunderground: s.wunderground,
-      resolve_date: s.date,
-      gfs_min: s.gfs_min,
-      gfs_max: s.gfs_max,
-      gfs_mean: s.gfs_mean,
-      gfs_unit: s.gfs_unit,
-    });
-    localStorage.setItem("weather_arb_trades", JSON.stringify(trades));
-    setAdded(true);
-  };
-
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -199,25 +167,7 @@ function SignalCard({ s }: { s: Signal }) {
             </span>
           </span>
         </div>
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-400">$</span>
-          <input
-            type="number"
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-            className="w-14 text-xs border border-gray-200 rounded px-1.5 py-1 text-center"
-            min="1"
-          />
-          <button
-            onClick={addToTracking}
-            disabled={added}
-            className={`text-xs px-2 py-1 rounded font-medium transition-colors ${
-              added ? "bg-green-100 text-green-600" : "bg-gray-900 text-white hover:bg-gray-700"
-            }`}
-          >
-            {added ? "✓ Ajouté" : "+ Suivre"}
-          </button>
-        </div>
+
       </div>
     </div>
   );
