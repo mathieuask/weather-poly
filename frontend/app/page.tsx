@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface BracketContext {
   label: string;
@@ -85,6 +86,33 @@ function ProbBar({ gfs, market }: { gfs: number; market: number }) {
 }
 
 function SignalCard({ s }: { s: Signal }) {
+  const [amount, setAmount] = useState("10");
+  const [added, setAdded] = useState(false);
+
+  const addToTracking = () => {
+    const trades = JSON.parse(localStorage.getItem("weather_arb_trades") || "[]");
+    trades.unshift({
+      id: crypto.randomUUID(),
+      date_added: new Date().toISOString(),
+      city: s.city,
+      question: s.question,
+      bracket: s.bracket,
+      direction: s.direction,
+      entry_price: s.entry_price,
+      gfs_prob: s.gfs_prob,
+      market_prob: s.market_prob,
+      edge: s.edge,
+      amount: parseFloat(amount) || 10,
+      result: "pending",
+      pnl: null,
+      poly_url: s.poly_url,
+      wunderground: s.wunderground,
+      resolve_date: s.date,
+    });
+    localStorage.setItem("weather_arb_trades", JSON.stringify(trades));
+    setAdded(true);
+  };
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -144,8 +172,8 @@ function SignalCard({ s }: { s: Signal }) {
         </div>
       )}
 
-      <div className="mt-3 flex items-center justify-between">
-        <div className="flex gap-3">
+      <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex gap-3 items-center">
           {s.poly_url && (
             <a href={s.poly_url} target="_blank" rel="noopener noreferrer"
               className="text-xs font-medium text-blue-600 hover:underline">
@@ -156,13 +184,31 @@ function SignalCard({ s }: { s: Signal }) {
             className="text-xs text-gray-400 hover:underline">
             Wunderground
           </a>
-        </div>
-        <span className="text-xs text-gray-400">
-          EV{" "}
-          <span className={s.ev > 0 ? "text-green-600 font-medium" : "text-red-500"}>
-            {s.ev > 0 ? "+" : ""}{s.ev.toFixed(3)}
+          <span className="text-xs text-gray-400">
+            EV <span className={s.ev > 0 ? "text-green-600 font-medium" : "text-red-500"}>
+              {s.ev > 0 ? "+" : ""}{s.ev.toFixed(3)}
+            </span>
           </span>
-        </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-gray-400">$</span>
+          <input
+            type="number"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+            className="w-14 text-xs border border-gray-200 rounded px-1.5 py-1 text-center"
+            min="1"
+          />
+          <button
+            onClick={addToTracking}
+            disabled={added}
+            className={`text-xs px-2 py-1 rounded font-medium transition-colors ${
+              added ? "bg-green-100 text-green-600" : "bg-gray-900 text-white hover:bg-gray-700"
+            }`}
+          >
+            {added ? "✓ Ajouté" : "+ Suivre"}
+          </button>
+        </div>
       </div>
     </div>
   );
