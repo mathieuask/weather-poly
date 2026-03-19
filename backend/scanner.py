@@ -108,6 +108,10 @@ def fetch_poly_markets(days_ahead=3):
             if liq < MIN_LIQ:
                 continue
 
+            # Filtre marchés déjà résolus (prix à 0% ou 100%)
+            if p_yes >= 0.99 or p_yes <= 0.01:
+                continue
+
             # Parse la température et l'opérateur depuis la question
             # Ex: "Will the highest temperature in Madrid be 15°C on March 20?"
             # Ex: "Will the highest temperature in NYC be 12°C or below on..."
@@ -246,9 +250,11 @@ def compute_signals(market, members_c):
         entry_price = b["p_yes"] / 100 if direction == "YES" else (100 - b["p_yes"]) / 100
         payout = round(1 - entry_price, 2)
 
-        # EV: prob × gain - (1-prob) × mise
-        prob = gfs_prob / 100
-        ev = round(prob * payout - (1 - prob) * entry_price, 3)
+        # EV: prob_win × gain - prob_lose × mise
+        # Pour YES : prob_win = gfs_prob
+        # Pour NO  : prob_win = 1 - gfs_prob (on gagne si la temp N'est PAS dans ce bracket)
+        prob_win = gfs_prob / 100 if direction == "YES" else (100 - gfs_prob) / 100
+        ev = round(prob_win * payout - (1 - prob_win) * entry_price, 3)
 
         signals.append({
             "city":        market["city"],
