@@ -11,6 +11,7 @@ weather-poly scanner
 import json
 import re
 import os
+import shutil
 import requests
 from datetime import datetime, timezone, timedelta
 
@@ -19,8 +20,9 @@ POLY_API  = "https://gamma-api.polymarket.com"
 OMAPI     = "https://ensemble-api.open-meteo.com/v1/ensemble"
 MIN_EDGE  = 5.0       # % minimum pour afficher un signal
 MIN_LIQ   = 100.0     # liquidité minimum du sous-marché
-OUT_FILE  = os.path.join(os.path.dirname(__file__), "signals.json")
-CITIES_F  = os.path.join(os.path.dirname(__file__), "cities.json")
+OUT_FILE      = os.path.join(os.path.dirname(__file__), "signals.json")
+FRONTEND_OUT  = os.path.join(os.path.dirname(__file__), "..", "frontend", "public", "signals.json")
+CITIES_F      = os.path.join(os.path.dirname(__file__), "cities.json")
 
 # ─── CHARGEMENT DES VILLES ────────────────────────────────────────────────────
 with open(CITIES_F) as f:
@@ -53,7 +55,7 @@ def fetch_poly_markets(days_ahead=3):
             continue
         try:
             end = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
-        except:
+        except (ValueError, TypeError):
             continue
 
         # On garde uniquement les marchés qui closent dans les prochains jours
@@ -98,11 +100,11 @@ def fetch_poly_markets(days_ahead=3):
             if isinstance(prices, str):
                 try:
                     prices = json.loads(prices)
-                except:
+                except (json.JSONDecodeError, ValueError):
                     continue
             try:
                 p_yes = float(prices[0])
-            except:
+            except (ValueError, IndexError, TypeError):
                 continue
 
             if liq < MIN_LIQ:
@@ -141,22 +143,22 @@ def parse_bracket(question, unit):
     symbol = "°c" if unit == "C" else "°f"
 
     # Pattern: "be 15°c or below"
-    m = re.search(r'be (\d+)' + re.escape(symbol) + r' or below', q)
+    m = re.search(r'be (-?\d+)' + re.escape(symbol) + r' or below', q)
     if m:
         return {"temp": float(m.group(1)), "op": "lte"}
 
     # Pattern: "be 22°c or higher"
-    m = re.search(r'be (\d+)' + re.escape(symbol) + r' or higher', q)
+    m = re.search(r'be (-?\d+)' + re.escape(symbol) + r' or higher', q)
     if m:
         return {"temp": float(m.group(1)), "op": "gte"}
 
     # Pattern: "be 15°c on" (exact)
-    m = re.search(r'be (\d+)' + re.escape(symbol) + r'(?: on| in)', q)
+    m = re.search(r'be (-?\d+)' + re.escape(symbol) + r'(?: on| in)', q)
     if m:
         return {"temp": float(m.group(1)), "op": "exact"}
 
     # Fallback: cherche juste le nombre avant °
-    m = re.search(r'be (\d+)' + re.escape(symbol[1:]), q)
+    m = re.search(r'be (-?\d+)' + re.escape(symbol[1:]), q)
     if m:
         return {"temp": float(m.group(1)), "op": "exact"}
 
@@ -292,7 +294,7 @@ def run():
 
     # Étape 1 : marchés Polymarket
     print("→ Récupération des marchés Polymarket...")
-    poly_markets = fetch_poly_markets(days_ahead=3)
+    poly_markets = fetch_poly_markets(days_ahead=7)
     print(f"  {len(poly_markets)} marchés trouvés ({sum(len(m['brackets']) for m in poly_markets)} brackets)")
 
     all_signals = []
@@ -307,7 +309,11 @@ def run():
         cache_key = f"{lat}_{lon}_{date}"
         if cache_key not in gfs_cache:
             print(f"→ GFS {city} {date}...")
-            members = fetch_gfs_ensemble(lat, lon, date)
+            try:
+                members = fetch_gfs_ensemble(lat, lon, date)
+            except Exception as e:
+                print(f"  ⚠ Erreur GFS pour {city} {date}: {e}")
+                members = None
             gfs_cache[cache_key] = members
         else:
             members = gfs_cache[cache_key]
@@ -341,11 +347,10 @@ def run():
     with open(OUT_FILE, "w") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
-    # Copie aussi dans frontend/public/ pour le dashboard local
-    public_out = os.path.join(os.path.dirname(__file__), "../frontend/public/signals.json")
-    if os.path.exists(os.path.dirname(public_out)):
-        with open(public_out, "w") as f:
-            json.dump(output, f, indent=2, ensure_ascii=False)
+    # Copie vers le frontend
+    os.makedirs(os.path.dirname(FRONTEND_OUT), exist_ok=True)
+    shutil.copy2(OUT_FILE, FRONTEND_OUT)
+    print(f"📋 Copié vers {FRONTEND_OUT}")
 
     print(f"\n✅ {len(all_signals)} signaux sauvegardés → {OUT_FILE}")
     print(f"\nTOP 5 SIGNAUX:")

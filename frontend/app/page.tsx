@@ -7,6 +7,7 @@ interface Signal {
   date: string;
   bracket: string;
   direction: "YES" | "NO";
+  condition_id: string;
   gfs_prob: number;
   market_prob: number;
   edge: number;
@@ -93,17 +94,26 @@ export default function Home() {
   const [data, setData] = useState<ScanResult | null>(null);
   const [filter, setFilter] = useState<"ALL" | "YES" | "NO">("ALL");
   const [minEdge, setMinEdge] = useState(10);
+  const [dateFilter, setDateFilter] = useState<string>("ALL");
+  const [cityFilter, setCityFilter] = useState<string>("ALL");
 
-  useEffect(() => {
-    fetch("/signals.json")
+  const loadData = () => {
+    fetch("/api/signals")
       .then((r) => r.json())
       .then(setData)
       .catch(console.error);
-  }, []);
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  const allDates = [...new Set((data?.signals ?? []).map(s => s.date))].sort();
+  const allCities = [...new Set((data?.signals ?? []).map(s => s.city))].sort();
 
   const signals = (data?.signals ?? []).filter((s) => {
     if (filter !== "ALL" && s.direction !== filter) return false;
     if (Math.abs(s.edge) < minEdge) return false;
+    if (dateFilter !== "ALL" && s.date !== dateFilter) return false;
+    if (cityFilter !== "ALL" && s.city !== cityFilter) return false;
     return true;
   });
 
@@ -128,11 +138,19 @@ export default function Home() {
               Polymarket × GFS — {generatedAt ?? "chargement..."}
             </p>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-gray-900">
-              {signals.length}
+          <div className="text-right flex items-center gap-3">
+            <button
+              onClick={loadData}
+              className="text-sm text-blue-500 hover:text-blue-700 transition-colors"
+            >
+              ↻ Actualiser
+            </button>
+            <div>
+              <div className="text-2xl font-bold text-gray-900">
+                {signals.length}
+              </div>
+              <div className="text-xs text-gray-500">signaux</div>
             </div>
-            <div className="text-xs text-gray-500">signaux</div>
           </div>
         </div>
 
@@ -164,6 +182,34 @@ export default function Home() {
                 <option key={v} value={v}>
                   {v}%
                 </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2 bg-white border rounded-lg px-3 py-1">
+            <span className="text-sm text-gray-500">Date</span>
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="text-sm font-medium text-gray-900 bg-transparent outline-none"
+            >
+              <option value="ALL">Toutes</option>
+              {allDates.map(d => (
+                <option key={d} value={d}>
+                  {new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2 bg-white border rounded-lg px-3 py-1">
+            <span className="text-sm text-gray-500">Ville</span>
+            <select
+              value={cityFilter}
+              onChange={(e) => setCityFilter(e.target.value)}
+              className="text-sm font-medium text-gray-900 bg-transparent outline-none"
+            >
+              <option value="ALL">Toutes</option>
+              {allCities.map(c => (
+                <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </div>
