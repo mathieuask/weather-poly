@@ -87,6 +87,7 @@ def fetch_poly_markets(days_ahead=3):
                 "lon": city_info["lon"],
                 "station": city_info["station"],
                 "event_slug": event.get("slug", ""),
+                "event_title": title,
                 "wunderground": f"https://www.wunderground.com/history/daily/{city_info['station']}",
                 "brackets": []
             }
@@ -300,6 +301,7 @@ def compute_signals(market, members_c):
             "wunderground":  f"{market['wunderground']}/date/{market['date']}?units=m",
             "poly_url":      f"https://polymarket.com/event/{event_slug}" if event_slug else "",
             "all_brackets":  market.get("all_brackets", []),
+            "event_title":   market.get("event_title", ""),
             "gfs_min":       round(min(temps), 1),
             "gfs_max":       round(max(temps), 1),
             "gfs_mean":      round(sum(temps) / len(temps), 1),

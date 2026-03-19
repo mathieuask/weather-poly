@@ -25,6 +25,7 @@ interface Signal {
   ev: number;
   liquidity: number;
   question: string;
+  event_title: string;
   wunderground: string;
   poly_url: string;
   all_brackets: BracketContext[];
@@ -122,7 +123,10 @@ function SignalCard({ s }: { s: Signal }) {
             <DirectionBadge direction={s.direction} />
             <EdgeBadge edge={s.edge} />
           </div>
-          <div className="text-sm text-gray-600 mt-0.5 font-medium">{s.question}</div>
+          {s.event_title && (
+            <div className="text-sm text-gray-700 mt-0.5 font-semibold">{s.event_title}</div>
+          )}
+          <div className="text-xs text-gray-400 mt-0.5">{s.question}</div>
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             <span className="text-xs text-gray-400">
               {new Date(s.date).toLocaleDateString("fr-FR", {
