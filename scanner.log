@@ -575,3 +575,210 @@ TOP 5 SIGNAUX:
   Taipei           24°C | YES | GFS=38% vs 6% | Edge=+31.5% | EV=+0.317
   Paris            16°C | YES | GFS=53% vs 22% | Edge=+30.2% | EV=+0.305
 → GitHub: 168 signaux pushés (2026-03-19 23:00 UTC)
+[23:30 UTC] Scanner démarré
+→ Récupération des marchés Polymarket...
+  44 marchés trouvés (313 brackets)
+→ Ensemble Toronto 2026-03-23 (tz=America/Toronto)...
+  Toronto: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=1.4°C | range=-5–10°C
+    🎯     ≥5°C → NO | GFS=7% vs Marché=20% | Edge=-13.5%
+    🎯      3°C → NO | GFS=12% vs Marché=24% | Edge=-12.9%
+    🎯     -3°C → NO | GFS=1% vs Marché=13% | Edge=-12.3%
+→ Ensemble Buenos Aires 2026-03-23 (tz=America/Argentina/Buenos_Aires)...
+  Buenos Aires: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=22.0°C | range=19–27°C
+    🎯    ≥29°C → NO | GFS=0% vs Marché=10% | Edge=-10.0%
+    🎯    ≤19°C → NO | GFS=7% vs Marché=16% | Edge=-8.5%
+    🎯     26°C → NO | GFS=5% vs Marché=22% | Edge=-16.8%
+→ Ensemble Taipei 2026-03-23 (tz=Asia/Taipei)...
+  Taipei: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=25.1°C | range=21–28°C
+    🎯    ≤22°C → NO | GFS=11% vs Marché=22% | Edge=-11.6%
+    🎯    ≥32°C → NO | GFS=0% vs Marché=6% | Edge=-6.5%
+    🎯     29°C → NO | GFS=0% vs Marché=15% | Edge=-15.0%
+→ Ensemble Seoul 2026-03-23 (tz=Asia/Seoul)...
+  Seoul: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=12.5°C | range=10–15°C
+    🎯    ≥16°C → NO | GFS=0% vs Marché=18% | Edge=-18.0%
+    🎯     12°C → YES | GFS=33% vs Marché=12% | Edge=+20.1%
+    🎯     14°C → NO | GFS=9% vs Marché=26% | Edge=-16.2%
+→ Ensemble Chicago 2026-03-23 (tz=America/Chicago)...
+  Chicago: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=43.6°F | range=36–51°F
+    🎯    ≤35°F → NO | GFS=0% vs Marché=19% | Edge=-18.9%
+→ Ensemble Paris 2026-03-23 (tz=Europe/Paris)...
+  Paris: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=14.1°C | range=9–16°C
+    🎯    ≥20°C → NO | GFS=0% vs Marché=14% | Edge=-14.5%
+    🎯     17°C → NO | GFS=0% vs Marché=26% | Edge=-26.5%
+    🎯     14°C → YES | GFS=33% vs Marché=10% | Edge=+22.6%
+→ Ensemble Singapore 2026-03-23 (tz=Asia/Singapore)...
+  Singapore: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=31.9°C | range=29–35°C
+    🎯    ≥36°C → NO | GFS=0% vs Marché=6% | Edge=-5.6%
+    🎯     33°C → NO | GFS=19% vs Marché=30% | Edge=-11.9%
+    🎯     31°C → YES | GFS=20% vs Marché=8% | Edge=+11.7%
+→ Ensemble London 2026-03-23 (tz=Europe/London)...
+  London: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=12.4°C | range=7–16°C
+    🎯     ≤9°C → YES | GFS=7% vs Marché=2% | Edge=+5.5%
+    🎯     15°C → NO | GFS=10% vs Marché=20% | Edge=-10.4%
+    🎯     13°C → NO | GFS=17% vs Marché=24% | Edge=-6.4%
+→ Ensemble Madrid 2026-03-23 (tz=Europe/Madrid)...
+  Madrid: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=17.2°C | range=12–20°C
+    🎯    ≥24°C → NO | GFS=0% vs Marché=7% | Edge=-7.0%
+    🎯     20°C → NO | GFS=4% vs Marché=21% | Edge=-17.1%
+    🎯     21°C → NO | GFS=0% vs Marché=17% | Edge=-17.0%
+→ Ensemble Tokyo 2026-03-23 (tz=Asia/Tokyo)...
+  Tokyo: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=16.9°C | range=12–21°C
+    🎯     15°C → NO | GFS=7% vs Marché=22% | Edge=-15.5%
+    🎯     19°C → YES | GFS=30% vs Marché=18% | Edge=+11.0%
+    🎯     18°C → NO | GFS=9% vs Marché=20% | Edge=-10.7%
+→ Ensemble Miami 2026-03-23 (tz=America/New_York)...
+  Miami: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=80.0°F | range=75–84°F
+    🎯    ≥90°F → NO | GFS=0% vs Marché=8% | Edge=-8.5%
+→ Ensemble London 2026-03-22 (tz=Europe/London)...
+  London: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=13.3°C | range=11–17°C
+    🎯     13°C → YES | GFS=37% vs Marché=20% | Edge=+16.7%
+    🎯     15°C → NO | GFS=6% vs Marché=22% | Edge=-15.3%
+    🎯     12°C → YES | GFS=19% vs Marché=3% | Edge=+15.2%
+→ Ensemble Tokyo 2026-03-22 (tz=Asia/Tokyo)...
+  Tokyo: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=16.3°C | range=15–18°C
+    🎯     16°C → YES | GFS=49% vs Marché=23% | Edge=+25.8%
+    🎯     15°C → NO | GFS=12% vs Marché=26% | Edge=-14.9%
+    🎯     17°C → YES | GFS=30% vs Marché=22% | Edge=+7.0%
+→ Ensemble Singapore 2026-03-22 (tz=Asia/Singapore)...
+  Singapore: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=31.8°C | range=29–35°C
+    🎯     31°C → YES | GFS=28% vs Marché=7% | Edge=+20.9%
+    🎯     33°C → NO | GFS=19% vs Marché=34% | Edge=-14.1%
+    🎯     30°C → YES | GFS=12% vs Marché=2% | Edge=+10.3%
+→ Ensemble Buenos Aires 2026-03-22 (tz=America/Argentina/Buenos_Aires)...
+  Buenos Aires: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=23.1°C | range=21–28°C
+    🎯     22°C → YES | GFS=36% vs Marché=3% | Edge=+33.5%
+    🎯     26°C → NO | GFS=5% vs Marché=21% | Edge=-16.3%
+    🎯     24°C → NO | GFS=17% vs Marché=29% | Edge=-11.9%
+→ Ensemble Seoul 2026-03-22 (tz=Asia/Seoul)...
+  Seoul: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=11.5°C | range=8–15°C
+    🎯    ≥14°C → NO | GFS=14% vs Marché=32% | Edge=-17.5%
+    🎯     10°C → YES | GFS=24% vs Marché=5% | Edge=+19.0%
+    🎯     12°C → NO | GFS=9% vs Marché=18% | Edge=-8.7%
+→ Ensemble Paris 2026-03-22 (tz=Europe/Paris)...
+  Paris: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=13.4°C | range=11–16°C
+    🎯     13°C → YES | GFS=40% vs Marché=16% | Edge=+24.0%
+    🎯     16°C → NO | GFS=2% vs Marché=23% | Edge=-20.7%
+    🎯     15°C → NO | GFS=11% vs Marché=22% | Edge=-11.6%
+→ Ensemble Miami 2026-03-22 (tz=America/New_York)...
+  Miami: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=78.7°F | range=74–83°F
+→ Ensemble Taipei 2026-03-22 (tz=Asia/Taipei)...
+  Taipei: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=24.4°C | range=22–27°C
+    🎯    ≥29°C → NO | GFS=0% vs Marché=12% | Edge=-11.5%
+    🎯     24°C → YES | GFS=33% vs Marché=6% | Edge=+26.8%
+    🎯     21°C → NO | GFS=0% vs Marché=15% | Edge=-15.0%
+→ Ensemble Chicago 2026-03-22 (tz=America/Chicago)...
+  Chicago: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=62.9°F | range=44–79°F
+    🎯    ≤63°F → NO | GFS=59% vs Marché=70% | Edge=-11.1%
+→ Ensemble Toronto 2026-03-22 (tz=America/Toronto)...
+  Toronto: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=4.1°C | range=-1–16°C
+→ Ensemble Madrid 2026-03-22 (tz=Europe/Madrid)...
+  Madrid: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=18.1°C | range=12–21°C
+    🎯     19°C → YES | GFS=34% vs Marché=24% | Edge=+10.6%
+    🎯     20°C → NO | GFS=9% vs Marché=20% | Edge=-10.2%
+    🎯     18°C → YES | GFS=32% vs Marché=25% | Edge=+6.8%
+→ Ensemble Chicago 2026-03-21 (tz=America/Chicago)...
+  Chicago: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=64.8°F | range=48–74°F
+    🎯    ≤59°F → YES | GFS=17% vs Marché=4% | Edge=+13.1%
+→ Ensemble Miami 2026-03-21 (tz=America/New_York)...
+  Miami: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=77.4°F | range=73–81°F
+→ Ensemble London 2026-03-21 (tz=Europe/London)...
+  London: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=12.7°C | range=11–15°C
+    🎯     12°C → YES | GFS=40% vs Marché=10% | Edge=+30.0%
+    🎯     14°C → NO | GFS=14% vs Marché=36% | Edge=-21.5%
+    🎯     15°C → NO | GFS=4% vs Marché=10% | Edge=-6.1%
+→ Ensemble Madrid 2026-03-21 (tz=Europe/Madrid)...
+  Madrid: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=13.1°C | range=9–18°C
+    🎯     13°C → NO | GFS=12% vs Marché=26% | Edge=-13.6%
+    🎯     11°C → NO | GFS=13% vs Marché=20% | Edge=-6.7%
+    🎯     16°C → YES | GFS=11% vs Marché=4% | Edge=+6.5%
+→ Ensemble Tokyo 2026-03-21 (tz=Asia/Tokyo)...
+  Tokyo: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=15.5°C | range=13–18°C
+    🎯     14°C → NO | GFS=11% vs Marché=24% | Edge=-13.1%
+    🎯     17°C → YES | GFS=19% vs Marché=9% | Edge=+10.4%
+    🎯     15°C → YES | GFS=38% vs Marché=30% | Edge=+8.0%
+→ Ensemble Paris 2026-03-21 (tz=Europe/Paris)...
+  Paris: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=15.1°C | range=13–16°C
+    🎯    ≥18°C → NO | GFS=0% vs Marché=26% | Edge=-25.5%
+    🎯     15°C → YES | GFS=61% vs Marché=16% | Edge=+45.2%
+    🎯     17°C → NO | GFS=2% vs Marché=25% | Edge=-22.7%
+→ Ensemble Toronto 2026-03-21 (tz=America/Toronto)...
+  Toronto: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=4.9°C | range=0–10°C
+    🎯      3°C → YES | GFS=17% vs Marché=6% | Edge=+11.4%
+→ Ensemble Buenos Aires 2026-03-21 (tz=America/Argentina/Buenos_Aires)...
+  Buenos Aires: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=24.4°C | range=22–27°C
+    🎯    ≤24°C → YES | GFS=65% vs Marché=54% | Edge=+11.6%
+    🎯     25°C → YES | GFS=29% vs Marché=18% | Edge=+11.2%
+    🎯     27°C → NO | GFS=1% vs Marché=8% | Edge=-7.7%
+→ Ensemble Seoul 2026-03-21 (tz=Asia/Seoul)...
+  Seoul: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=8.6°C | range=6–10°C
+    🎯      9°C → YES | GFS=39% vs Marché=10% | Edge=+29.3%
+    🎯     12°C → NO | GFS=0% vs Marché=26% | Edge=-26.5%
+    🎯     11°C → NO | GFS=0% vs Marché=24% | Edge=-24.5%
+→ Ensemble Taipei 2026-03-21 (tz=Asia/Taipei)...
+  Taipei: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=22.4°C | range=20–24°C
+    🎯     23°C → YES | GFS=33% vs Marché=22% | Edge=+10.6%
+    🎯     21°C → NO | GFS=17% vs Marché=24% | Edge=-7.4%
+    🎯     20°C → NO | GFS=5% vs Marché=10% | Edge=-5.1%
+→ Ensemble Singapore 2026-03-21 (tz=Asia/Singapore)...
+  Singapore: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=31.7°C | range=30–35°C
+    🎯     31°C → YES | GFS=44% vs Marché=8% | Edge=+36.7%
+    🎯     33°C → NO | GFS=17% vs Marché=40% | Edge=-22.9%
+    🎯     32°C → NO | GFS=17% vs Marché=38% | Edge=-20.9%
+→ Ensemble Toronto 2026-03-20 (tz=America/Toronto)...
+  Toronto: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=7.3°C | range=-0–13°C
+    🎯    ≥11°C → YES | GFS=19% vs Marché=13% | Edge=+5.4%
+    🎯      8°C → NO | GFS=16% vs Marché=29% | Edge=-13.2%
+    🎯      7°C → NO | GFS=9% vs Marché=18% | Edge=-9.2%
+→ Ensemble Taipei 2026-03-20 (tz=Asia/Taipei)...
+  Taipei: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=24.1°C | range=22–26°C
+    🎯     22°C → NO | GFS=8% vs Marché=30% | Edge=-22.0%
+    🎯     25°C → YES | GFS=34% vs Marché=16% | Edge=+17.6%
+    🎯     23°C → NO | GFS=20% vs Marché=29% | Edge=-8.8%
+→ Ensemble Tokyo 2026-03-20 (tz=Asia/Tokyo)...
+  Tokyo: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=12.1°C | range=10–14°C
+    🎯    ≤13°C → YES | GFS=96% vs Marché=87% | Edge=+9.1%
+→ Ensemble Buenos Aires 2026-03-20 (tz=America/Argentina/Buenos_Aires)...
+  Buenos Aires: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=27.9°C | range=23–31°C
+    🎯     26°C → YES | GFS=15% vs Marché=1% | Edge=+13.5%
+    🎯     27°C → YES | GFS=14% vs Marché=2% | Edge=+11.6%
+    🎯     30°C → NO | GFS=19% vs Marché=30% | Edge=-11.1%
+→ Ensemble Miami 2026-03-20 (tz=America/New_York)...
+  Miami: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=73.9°F | range=71–78°F
+→ Ensemble Madrid 2026-03-20 (tz=Europe/Madrid)...
+  Madrid: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=14.1°C | range=10–18°C
+    🎯    ≤12°C → NO | GFS=16% vs Marché=21% | Edge=-5.1%
+    🎯     13°C → NO | GFS=19% vs Marché=32% | Edge=-13.9%
+    🎯     15°C → YES | GFS=22% vs Marché=16% | Edge=+5.2%
+→ Ensemble Seoul 2026-03-20 (tz=Asia/Seoul)...
+  Seoul: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=9.6°C | range=7–12°C
+    🎯     12°C → NO | GFS=2% vs Marché=28% | Edge=-26.4%
+    🎯      8°C → YES | GFS=24% vs Marché=2% | Edge=+21.8%
+    🎯     11°C → NO | GFS=25% vs Marché=34% | Edge=-9.7%
+→ Ensemble Chicago 2026-03-20 (tz=America/Chicago)...
+  Chicago: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=62.0°F | range=56–68°F
+→ Ensemble London 2026-03-20 (tz=Europe/London)...
+  London: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=13.9°C | range=12–15°C
+    🎯     14°C → YES | GFS=82% vs Marché=38% | Edge=+44.7%
+    🎯     15°C → NO | GFS=8% vs Marché=38% | Edge=-30.2%
+    🎯     16°C → NO | GFS=0% vs Marché=11% | Edge=-10.8%
+→ Ensemble Paris 2026-03-20 (tz=Europe/Paris)...
+  Paris: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=15.9°C | range=15–17°C
+    🎯     16°C → YES | GFS=64% vs Marché=26% | Edge=+38.8%
+    🎯     17°C → NO | GFS=17% vs Marché=46% | Edge=-28.4%
+    🎯     18°C → NO | GFS=0% vs Marché=28% | Edge=-27.5%
+→ Ensemble Singapore 2026-03-20 (tz=Asia/Singapore)...
+  Singapore: 129 membres (GFS:30+ICON:39+ECMWF:50) | moy=31.8°C | range=30–35°C
+    🎯     31°C → YES | GFS=33% vs Marché=3% | Edge=+29.7%
+    🎯     33°C → NO | GFS=22% vs Marché=44% | Edge=-21.8%
+    🎯     32°C → NO | GFS=26% vs Marché=35% | Edge=-9.4%
+📋 Copié vers /root/weather-poly/backend/../frontend/public/signals.json
+
+✅ 174 signaux sauvegardés → /root/weather-poly/backend/signals.json
+
+TOP 5 SIGNAUX:
+  Paris            15°C | YES | GFS=61% vs 16% | Edge=+45.2% | EV=+0.452
+  London           14°C | YES | GFS=82% vs 38% | Edge=+44.7% | EV=+0.443
+  Paris            16°C | YES | GFS=64% vs 26% | Edge=+38.8% | EV=+0.385
+  Singapore        31°C | YES | GFS=44% vs 8% | Edge=+36.7% | EV=+0.369
+  Buenos Aires     22°C | YES | GFS=36% vs 3% | Edge=+33.5% | EV=+0.335
+→ GitHub: 174 signaux pushés (2026-03-19 23:30 UTC)
