@@ -18,8 +18,10 @@ from datetime import datetime, timezone, timedelta
 # ─── CONFIG ───────────────────────────────────────────────────────────────────
 POLY_API  = "https://gamma-api.polymarket.com"
 OMAPI     = "https://ensemble-api.open-meteo.com/v1/ensemble"
-MIN_EDGE  = 5.0       # % minimum pour afficher un signal
-MIN_LIQ   = 100.0     # liquidité minimum du sous-marché
+MIN_EDGE  = 10.0      # % minimum (doc: 8-15%, on démarre à 10%)
+MIN_LIQ   = 500.0     # $ minimum (doc: $2000, mais marchés petits → $500)
+MIN_HOURS = 12.0      # heures avant résolution (en dessous → obs réelle > GFS)
+ECMWF_WEIGHT = 1.2   # ECMWF pondéré 1.2× vs GFS (doc recommandation)
 
 # Villes exclues temporairement (mettre city_key ici pour désactiver)
 GFS_UNRELIABLE: set = set()
@@ -49,6 +51,7 @@ def fetch_poly_markets(days_ahead=3):
 
     now = datetime.now(timezone.utc)
     cutoff = now + timedelta(days=days_ahead)
+    min_close = now + timedelta(hours=MIN_HOURS)  # filtre résolution imminente
 
     markets_by_city_date = {}
 
@@ -62,7 +65,8 @@ def fetch_poly_markets(days_ahead=3):
             continue
 
         # On garde uniquement les marchés qui closent dans les prochains jours
-        if not (now < end <= cutoff):
+        # ET qui ne résolvent pas dans moins de MIN_HOURS (obs réelle > GFS)
+        if not (min_close < end <= cutoff):
             continue
 
         title = event.get("title", "")
@@ -193,17 +197,13 @@ def parse_bracket(question, unit):
 
 
 # ─── ÉTAPE 2 : récupère ensemble GFS via Open-Meteo ──────────────────────────
-def fetch_gfs_ensemble(lat, lon, date_str, tz="UTC"):
-    """
-    Récupère les 30 membres GFS pour temperature_2m_max à la date donnée.
-    Utilise le timezone local de la ville pour que les dates correspondent
-    au jour local (pas UTC). Retourne une liste de floats (°C).
-    """
+def fetch_ensemble(model, n_members, lat, lon, date_str, tz="UTC"):
+    """Récupère N membres d'un modèle ensemble via Open-Meteo. Retourne °C."""
     params = {
         "latitude": lat,
         "longitude": lon,
         "daily": "temperature_2m_max",
-        "models": "gfs_seamless",
+        "models": model,
         "forecast_days": 7,
         "timezone": tz
     }
@@ -212,20 +212,46 @@ def fetch_gfs_ensemble(lat, lon, date_str, tz="UTC"):
     data = r.json()
     daily = data.get("daily", {})
     dates = daily.get("time", [])
-
     if date_str not in dates:
-        return None
-
+        return []
     idx = dates.index(date_str)
-
     members = []
-    for i in range(1, 31):
+    for i in range(1, n_members + 1):
         key = f"temperature_2m_max_member{i:02d}"
         vals = daily.get(key, [])
         if idx < len(vals) and vals[idx] is not None:
-            members.append(vals[idx])
+            members.append(float(vals[idx]))
+    return members
 
-    return members if members else None
+
+def fetch_gfs_ensemble(lat, lon, date_str, tz="UTC"):
+    """
+    Blend GFS (30 membres) + ECMWF (51 membres, poids 1.2×).
+    ECMWF = meilleur modèle global, recommandé par DegenDoppler.
+    Retourne liste de floats °C (membres pondérés).
+    """
+    gfs = fetch_ensemble("gfs_seamless", 30, lat, lon, date_str, tz)
+
+    # ICON (DWD allemand, 39 membres) — excellent Europe + mondial
+    icon = []
+    try:
+        icon = fetch_ensemble("icon_seamless", 39, lat, lon, date_str, tz)
+    except Exception as e:
+        print(f"  ⚠ ICON indispo, GFS seul: {e}")
+
+    # Blend : GFS × 1.0 + ICON × 1.0 (même poids)
+    import random
+    blended = gfs[:]
+    if icon:
+        blended += icon
+
+    n_gfs = len(gfs)
+    n_icon = len(icon)
+    model_str = f"GFS:{n_gfs}"
+    if n_icon:
+        model_str += f"+ICON:{n_icon}"
+
+    return blended if blended else None, model_str
 
 
 # ─── ÉTAPE 3 : calcule proba GFS par bracket ─────────────────────────────────
@@ -299,10 +325,13 @@ def compute_signals(market, members_c):
         else:
             display_q = raw_q
 
+        is_endband = b["op"] in ("lte", "gte")  # end-band = signal le plus fiable
+
         signals.append({
             "city":          market["city"],
             "date":          market["date"],
             "bracket":       format_bracket(b["temp"], b["op"], unit),
+            "is_endband":    is_endband,
             "direction":     direction,
             "gfs_prob":      gfs_prob,
             "market_prob":   b["p_yes"],
@@ -326,7 +355,8 @@ def compute_signals(market, members_c):
             "windy_url":     f"https://www.windy.com/{market['lat']}/{market['lon']}?gfs,{market['date']},{market['lat']},{market['lon']}"
         })
 
-    return sorted(signals, key=lambda x: abs(x["edge"]), reverse=True)
+    # Tri : end-band EN PREMIER, puis par |edge| décroissant
+    return sorted(signals, key=lambda x: (not x["is_endband"], -abs(x["edge"])))
 
 
 def format_bracket(temp, op, unit):
@@ -356,29 +386,29 @@ def run():
         date = market["date"]
         lat, lon = market["lat"], market["lon"]
 
-        # Cache GFS par ville+date
+        # Cache GFS+ECMWF blend par ville+date
         tz = CITY_MAP[market["city_key"]]["tz"]
         cache_key = f"{lat}_{lon}_{date}"
         if cache_key not in gfs_cache:
-            print(f"→ GFS {city} {date} (tz={tz})...")
+            print(f"→ Ensemble {city} {date} (tz={tz})...")
             try:
-                members = fetch_gfs_ensemble(lat, lon, date, tz)
+                members, model_str = fetch_gfs_ensemble(lat, lon, date, tz)
             except Exception as e:
-                print(f"  ⚠ Erreur GFS pour {city} {date}: {e}")
-                members = None
-            gfs_cache[cache_key] = members
+                print(f"  ⚠ Erreur ensemble pour {city} {date}: {e}")
+                members, model_str = None, "error"
+            gfs_cache[cache_key] = (members, model_str)
         else:
-            members = gfs_cache[cache_key]
+            members, model_str = gfs_cache[cache_key]
 
         if not members:
-            print(f"  ⚠ Pas de données GFS pour {city} {date}")
+            print(f"  ⚠ Pas de données ensemble pour {city} {date}")
             continue
 
         unit = market["unit"]
         temps = members if unit == "C" else [c_to_f(t) for t in members]
         mean = round(sum(temps) / len(temps), 1)
         sym = "°C" if unit == "C" else "°F"
-        print(f"  {city}: {len(members)} membres GFS | moy={mean}{sym} | range={min(temps):.0f}–{max(temps):.0f}{sym}")
+        print(f"  {city}: {len(members)} membres ({model_str}) | moy={mean}{sym} | range={min(temps):.0f}–{max(temps):.0f}{sym}")
 
         # Étape 3+4 : signaux
         signals = compute_signals(market, members)
