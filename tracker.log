@@ -170,3 +170,40 @@
   🔍 Vérification de 51 trade(s) potentiellement résolus...
   📊 254 trades exportés | WR=None% | PnL=+0.00$
   ✓ Tracker terminé
+[10:31 UTC] Tracker démarré
+  📡 149 signaux lus
+  📝 Nouveau paper trade: Paris ≥22°C NO
+  📝 Nouveau paper trade: Toronto ≤-4°C NO
+  📝 Nouveau paper trade: Paris 18°C NO
+  📝 Nouveau paper trade: Paris 19°C NO
+  📝 Nouveau paper trade: Paris 20°C NO
+  📝 Nouveau paper trade: Paris 21°C NO
+  📝 Nouveau paper trade: Toronto -1°C NO
+  📝 Nouveau paper trade: London 18°C NO
+  📝 Nouveau paper trade: Toronto 2°C NO
+  📝 Nouveau paper trade: Toronto -3°C NO
+  📝 Nouveau paper trade: Singapore 27°C NO
+  📝 Nouveau paper trade: Singapore 28°C NO
+  📝 Nouveau paper trade: Toronto -2°C NO
+  📝 Nouveau paper trade: Toronto 0°C NO
+  📝 Nouveau paper trade: London 17°C NO
+  📝 Nouveau paper trade: London 10°C NO
+  📝 Nouveau paper trade: Singapore 33°C NO
+  📝 Nouveau paper trade: Singapore 29°C NO
+  📝 Nouveau paper trade: London 11°C NO
+  📝 Nouveau paper trade: Paris ≤12°C NO
+  📝 Nouveau paper trade: Paris 14°C NO
+  📝 Nouveau paper trade: Singapore 26°C NO
+  📝 Nouveau paper trade: Toronto 5°C NO
+  📝 Nouveau paper trade: London 14°C YES
+  📝 Nouveau paper trade: Paris 16°C YES
+  📝 Nouveau paper trade: Toronto 4°C NO
+  📝 Nouveau paper trade: Paris 13°C NO
+  📝 Nouveau paper trade: Toronto 1°C NO
+  📝 Nouveau paper trade: Singapore 30°C NO
+  📝 Nouveau paper trade: Paris 15°C YES
+  📝 Nouveau paper trade: Singapore 31°C YES
+  ✅ 31 nouveau(x) paper trade(s)
+  🔍 Vérification de 44 trade(s) potentiellement résolus...
+  📊 285 trades exportés | WR=42.9% | PnL=-31.16$
+  ✓ Tracker terminé
