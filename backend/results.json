@@ -1,14 +1,14 @@
 {
-  "updated_at": "2026-03-20 16:31 UTC",
+  "updated_at": "2026-03-20 17:01 UTC",
   "stats": {
     "total_trades": 361,
-    "pending": 353,
+    "pending": 351,
     "wins": 3,
-    "losses": 5,
-    "win_rate": 37.5,
-    "total_invested": 80.0,
-    "total_pnl": -41.16,
-    "roi": -51.4,
+    "losses": 7,
+    "win_rate": 30.0,
+    "total_invested": 100.0,
+    "total_pnl": -61.16,
+    "roi": -61.2,
     "paper_amount": 10.0
   },
   "city_stats": {
@@ -24,13 +24,18 @@
     },
     "Paris": {
       "wins": 0,
-      "losses": 1,
-      "pnl": -10.0
+      "losses": 2,
+      "pnl": -20.0
     },
     "Taipei": {
       "wins": 1,
       "losses": 1,
       "pnl": -9.12
+    },
+    "London": {
+      "wins": 0,
+      "losses": 1,
+      "pnl": -10.0
     }
   },
   "trades": [
@@ -25425,7 +25430,7 @@
     },
     {
       "opened_at": "2026-03-19T21:50:13.175448+00:00",
-      "closed_at": null,
+      "closed_at": "2026-03-20T17:01:31.871649+00:00",
       "condition_id": "0x7c39be47ece361052c22096026cca4d5360c73651530ecb918e9abce1ffef3ed",
       "city": "Paris",
       "date": "2026-03-20",
@@ -25436,8 +25441,8 @@
       "edge": 28.0,
       "entry_price": 0.22,
       "amount": 10.0,
-      "result": "pending",
-      "pnl": null,
+      "result": "loss",
+      "pnl": -10.0,
       "question": "Will the highest temperature in Paris be 16\u00b0C on March 20?",
       "event_title": "Highest temperature in Paris on March 20?",
       "poly_url": "https://polymarket.com/event/highest-temperature-in-paris-on-march-20-2026",
@@ -33730,7 +33735,7 @@
     },
     {
       "opened_at": "2026-03-19T21:50:13.175448+00:00",
-      "closed_at": null,
+      "closed_at": "2026-03-20T17:01:33.280689+00:00",
       "condition_id": "0x9da43fc13052a599af24f739f920b793eedc6614b68486b09e55375b27872724",
       "city": "London",
       "date": "2026-03-20",
@@ -33741,8 +33746,8 @@
       "edge": 6.5,
       "entry_price": 0.135,
       "amount": 10.0,
-      "result": "pending",
-      "pnl": null,
+      "result": "loss",
+      "pnl": -10.0,
       "question": "Will the highest temperature in London be 13\u00b0C on March 20?",
       "event_title": "Highest temperature in London on March 20?",
       "poly_url": "https://polymarket.com/event/highest-temperature-in-london-on-march-20-2026",
