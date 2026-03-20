@@ -178,3 +178,12 @@
     ℹ Aucun signal actif pour Taipei aujourd'hui
 
   💾 0 signaux METAR intraday sauvegardés → metar.json
+[15:00 UTC] METAR scanner démarré
+  📡 Singapore (WSSS) — 23h locale ≥ 15h pic → vérif METAR
+    🌡 Max depuis minuit : 33.0°C
+    ℹ Aucun signal actif pour Singapore aujourd'hui
+  📡 Taipei (RCTP) — 23h locale ≥ 16h pic → vérif METAR
+    🌡 Max depuis minuit : 24.0°C
+    ℹ Aucun signal actif pour Taipei aujourd'hui
+
+  💾 0 signaux METAR intraday sauvegardés → metar.json
