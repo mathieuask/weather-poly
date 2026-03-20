@@ -280,3 +280,16 @@
   ✅ 0 nouveau(x) paper trade(s)
   📊 348 trades exportés | WR=54.9% | PnL=+625.24$
   ✓ Tracker terminé
+[12:31 UTC] Tracker démarré
+  📡 192 signaux lus
+  📝 Nouveau paper trade: London ≥19°C NO
+  📝 Nouveau paper trade: Madrid 18°C YES
+  📝 Nouveau paper trade: Seoul ≥15°C NO
+  📝 Nouveau paper trade: Buenos Aires 24°C NO
+  📝 Nouveau paper trade: London 12°C NO
+  📝 Nouveau paper trade: Taipei 26°C YES
+  📝 Nouveau paper trade: London ≤9°C NO
+  ✅ 7 nouveau(x) paper trade(s)
+  🔍 Vérification de 44 trade(s) potentiellement résolus...
+  📊 355 trades exportés | WR=42.9% | PnL=-31.16$
+  ✓ Tracker terminé
