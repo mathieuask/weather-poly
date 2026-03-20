@@ -177,32 +177,57 @@ def check_resolutions(conn):
 
 
 def fetch_resolution(condition_id):
-    """Récupère l'outcome d'un marché résolu via l'API Polymarket."""
+    """
+    Récupère l'outcome d'un marché résolu via l'API CLOB Polymarket.
+    Le CLOB supporte le condition_id complet (32 bytes hex).
+    """
     try:
+        # ── 1. CLOB API (endpoint correct pour condition_id complet) ──
         r = requests.get(
-            f"{POLY_GAMMA}/markets/{condition_id}",
+            f"https://clob.polymarket.com/markets/{condition_id}",
             timeout=10
         )
         if r.status_code != 200:
             return None
         data = r.json()
 
-        # Marché résolu si resolved=True
-        if not data.get("resolved", False):
+        # Marché résolu quand closed=True ET les tokens ont des prices finales
+        if not data.get("closed", False):
             return None
 
-        # resolutionSource ou winner
-        winner = data.get("winner")
-        if winner in ("YES", "NO"):
-            return winner
+        # Prix via tokens (token YES = index 0 selon l'outcome_index)
+        tokens = data.get("tokens", [])
+        if tokens:
+            # Cherche les last_trade_price ou price dans chaque token
+            for tok in tokens:
+                outcome = tok.get("outcome", "")
+                price   = float(tok.get("price", 0) or 0)
+                if outcome.upper() == "YES" and price >= 0.99:
+                    return "YES"
+                if outcome.upper() == "YES" and price <= 0.01:
+                    return "NO"
 
-        # Sinon, regarder les prices finales
-        prices = data.get("outcomePrices")
-        if isinstance(prices, str):
-            prices = json.loads(prices)
-        if prices:
-            p_yes = float(prices[0])
-            return "YES" if p_yes > 0.5 else "NO"
+        # ── 2. Fallback : Gamma API via conditionId query ──
+        r2 = requests.get(
+            f"{POLY_GAMMA}/markets",
+            params={"conditionIds": condition_id},
+            timeout=10
+        )
+        if r2.status_code == 200:
+            markets = r2.json()
+            if isinstance(markets, list):
+                for m in markets:
+                    if m.get("conditionId","").lower() == condition_id.lower():
+                        if not m.get("resolved", False):
+                            return None
+                        winner = m.get("winner")
+                        if winner in ("YES", "NO"):
+                            return winner
+                        prices = m.get("outcomePrices")
+                        if isinstance(prices, str):
+                            prices = json.loads(prices)
+                        if prices:
+                            return "YES" if float(prices[0]) > 0.5 else "NO"
 
     except Exception as e:
         print(f"  ⚠ fetch_resolution error: {e}")
