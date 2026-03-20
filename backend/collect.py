@@ -375,8 +375,24 @@ def store_markets(conn, events: list[dict]):
 
     for event in events:
         station  = extract_station_from_event(event)
-        end_date = (event.get("endDate") or "")[:10]
         event_id = event.get("id", "")
+
+        # Extract market date from title (more reliable than endDate which can be +1 day)
+        title_str = event.get("title") or ""
+        date_match = re.search(
+            r'on\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d+)',
+            title_str, re.I
+        )
+        if date_match:
+            month_map = {'january':'01','february':'02','march':'03','april':'04','may':'05','june':'06',
+                         'july':'07','august':'08','september':'09','october':'10','november':'11','december':'12'}
+            mo = month_map[date_match.group(1).lower()]
+            day = int(date_match.group(2))
+            end_raw = event.get("endDate") or ""
+            year = 2025 if "2025" in end_raw else 2026
+            end_date = f"{year}-{mo}-{day:02d}"
+        else:
+            end_date = (event.get("endDate") or "")[:10]
 
         if not station or not end_date:
             skipped += 1
