@@ -109,7 +109,7 @@ export default function DataPage() {
 
   return (
     <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+      <div className="max-w-5xl mx-auto">
 
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
