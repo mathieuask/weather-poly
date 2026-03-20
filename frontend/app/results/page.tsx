@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const RESULTS_URL = `https://raw.githubusercontent.com/mathieuask/weather-poly/master/frontend/public/results.json`;
+const RESULTS_URL = "/results.json";
 
 interface Trade {
   condition_id: string;
@@ -98,7 +98,7 @@ export default function ResultsPage() {
 
   return (
     <main className="min-h-screen p-4 md:p-8" style={{ background: "#f3f4f6" }}>
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-5xl mx-auto">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

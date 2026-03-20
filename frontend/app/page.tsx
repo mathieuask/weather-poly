@@ -285,7 +285,7 @@ export default function Home() {
 
   const SIGNALS_URL =
     process.env.NEXT_PUBLIC_SIGNALS_URL ||
-    "https://raw.githubusercontent.com/mathieuask/weather-poly/master/frontend/public/signals.json";
+    "/signals.json";
 
   const loadData = () => {
     setLoading(true);
@@ -339,7 +339,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen p-4 md:p-8" style={{ background: "#f3f4f6" }}>
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-5xl mx-auto">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

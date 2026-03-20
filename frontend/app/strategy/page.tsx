@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const RAW_BS   = "https://raw.githubusercontent.com/mathieuask/weather-poly/master/frontend/public/best_strategy.json";
-const RAW_ALL  = "https://raw.githubusercontent.com/mathieuask/weather-poly/master/frontend/public/all_strategies.json";
+const RAW_BS   = "/best_strategy.json";
+const RAW_ALL  = "/all_strategies.json";
 
 interface BestStrategy {
   updated_at: string; status: string; message?: string; n_markets?: number;
@@ -32,7 +32,7 @@ export default function StrategyPage() {
 
   return (
     <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
-      <div style={{ maxWidth: 960, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
 
         {/* Header */}
         <div style={{ marginBottom: 24 }}>

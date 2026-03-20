@@ -121,12 +121,13 @@ def export():
                 "temp": b["bracket_temp"],
                 "winner": b["winner"],
             }
-            # Add GFS J-1 prediction if available
-            gfs_j1 = gfs_vals.get(1)
-            if gfs_j1 is not None:
-                pred = predict_bracket(gfs_j1, b["bracket_temp"], b["bracket_op"], unit)
-                bkt["gfs_j1_prediction"] = pred
-                bkt["gfs_j1_correct"] = pred == b["winner"]
+            # Add GFS predictions for each horizon
+            for lead in [1, 2, 3]:
+                gfs_val = gfs_vals.get(lead)
+                if gfs_val is not None:
+                    pred = predict_bracket(gfs_val, b["bracket_temp"], b["bracket_op"], unit)
+                    bkt[f"gfs_j{lead}_prediction"] = pred
+                    bkt[f"gfs_j{lead}_correct"] = pred == b["winner"]
             brackets.append(bkt)
 
         # Find winning bracket
