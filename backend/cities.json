@@ -1,14 +1,134 @@
 [
-  { "name": "Madrid",       "lat": 40.4936, "lon": -3.5668, "station": "LEMD", "unit": "C", "poly_name": "Madrid",       "tz": "Europe/Madrid" },
-  { "name": "Paris",        "lat": 49.0097, "lon":  2.5478, "station": "LFPG", "unit": "C", "poly_name": "Paris",        "tz": "Europe/Paris" },
-  { "name": "London",       "lat": 51.5048, "lon": -0.0495, "station": "EGLC", "unit": "C", "poly_name": "London",       "tz": "Europe/London" },
-  { "name": "NYC",          "lat": 40.7769, "lon": -73.8740,"station": "KLGA", "unit": "F", "poly_name": "New York",     "tz": "America/New_York" },
-  { "name": "Chicago",      "lat": 41.9742, "lon": -87.9073,"station": "KMDW", "unit": "F", "poly_name": "Chicago",      "tz": "America/Chicago" },
-  { "name": "Toronto",      "lat": 43.6772, "lon": -79.6306,"station": "CYYZ", "unit": "C", "poly_name": "Toronto",      "tz": "America/Toronto" },
-  { "name": "Seoul",        "lat": 37.4602, "lon": 126.4407,"station": "RKSI", "unit": "C", "poly_name": "Seoul",        "tz": "Asia/Seoul" },
-  { "name": "Tokyo",        "lat": 35.5494, "lon": 139.7798,"station": "RJTT", "unit": "C", "poly_name": "Tokyo",        "tz": "Asia/Tokyo" },
-  { "name": "Singapore",    "lat":  1.3644, "lon": 103.9915,"station": "WSSS", "unit": "C", "poly_name": "Singapore",    "tz": "Asia/Singapore" },
-  { "name": "Buenos Aires", "lat": -34.5597,"lon": -58.4116,"station": "SAEZ", "unit": "C", "poly_name": "Buenos Aires", "tz": "America/Argentina/Buenos_Aires" },
-  { "name": "Miami",        "lat": 25.7959, "lon": -80.2870,"station": "KMIA", "unit": "F", "poly_name": "Miami",        "tz": "America/New_York" },
-  { "name": "Taipei",       "lat": 25.0777, "lon": 121.2331,"station": "RCTP", "unit": "C", "poly_name": "Taipei",       "tz": "Asia/Taipei" }
+  {
+    "name": "Seoul",
+    "key": "seoul",
+    "station": "RKSI",
+    "lat": 37.469,
+    "lon": 126.451,
+    "elev": 7,
+    "tz": "Asia/Seoul",
+    "unit": "C",
+    "note": "Incheon Intl — coastal island, 48km W of city, 1-3°C cooler (UHI)"
+  },
+  {
+    "name": "Tokyo",
+    "key": "tokyo",
+    "station": "RJTT",
+    "lat": 35.553,
+    "lon": 139.781,
+    "elev": 6,
+    "tz": "Asia/Tokyo",
+    "unit": "C",
+    "note": "Haneda — Tokyo Bay coastal, 14km S of city"
+  },
+  {
+    "name": "Paris",
+    "key": "paris",
+    "station": "LFPG",
+    "lat": 49.010,
+    "lon": 2.548,
+    "elev": 119,
+    "tz": "Europe/Paris",
+    "unit": "C",
+    "note": "CDG — suburban/rural, 25km NE, 1-2°C cooler than city"
+  },
+  {
+    "name": "London",
+    "key": "london",
+    "station": "EGLC",
+    "lat": 51.505,
+    "lon": 0.053,
+    "elev": 6,
+    "tz": "Europe/London",
+    "unit": "C",
+    "note": "London City — urban docklands, 11km E, minimal offset"
+  },
+  {
+    "name": "NYC",
+    "key": "new york",
+    "station": "KLGA",
+    "lat": 40.777,
+    "lon": -73.873,
+    "elev": 6,
+    "tz": "America/New_York",
+    "unit": "F",
+    "note": "LaGuardia — waterfront, 13km from Manhattan, maritime moderation"
+  },
+  {
+    "name": "Chicago",
+    "key": "chicago",
+    "station": "KORD",
+    "lat": 41.979,
+    "lon": -87.905,
+    "elev": 205,
+    "tz": "America/Chicago",
+    "unit": "F",
+    "note": "O'Hare — NW suburbs, 27km from Loop (Polymarket uses KORD not KMDW)"
+  },
+  {
+    "name": "Toronto",
+    "key": "toronto",
+    "station": "CYYZ",
+    "lat": 43.678,
+    "lon": -79.625,
+    "elev": 173,
+    "tz": "America/Toronto",
+    "unit": "F",
+    "note": "Pearson — 22km NW, suburban, higher elev than lakefront"
+  },
+  {
+    "name": "Madrid",
+    "key": "madrid",
+    "station": "LEMD",
+    "lat": 40.472,
+    "lon": -3.563,
+    "elev": 609,
+    "tz": "Europe/Madrid",
+    "unit": "C",
+    "note": "Barajas — 12km NE, elevated plateau 609m, similar to city"
+  },
+  {
+    "name": "Singapore",
+    "key": "singapore",
+    "station": "WSSS",
+    "lat": 1.350,
+    "lon": 103.994,
+    "elev": 7,
+    "tz": "Asia/Singapore",
+    "unit": "C",
+    "note": "Changi — coastal eastern tip, 17km E, sea breeze influence"
+  },
+  {
+    "name": "Miami",
+    "key": "miami",
+    "station": "KMIA",
+    "lat": 25.796,
+    "lon": -80.287,
+    "elev": 3,
+    "tz": "America/New_York",
+    "unit": "F",
+    "note": "Miami Intl — 13km NW of downtown, subtropical"
+  },
+  {
+    "name": "Buenos Aires",
+    "key": "buenos aires",
+    "station": "SAEZ",
+    "lat": -34.822,
+    "lon": -58.536,
+    "elev": 20,
+    "tz": "America/Argentina/Buenos_Aires",
+    "unit": "C",
+    "note": "Ezeiza — 35km SW, semi-rural, 1-2°C cooler than city"
+  },
+  {
+    "name": "Taipei",
+    "key": "taipei",
+    "station": "RCTP",
+    "lat": 25.078,
+    "lon": 121.233,
+    "elev": 32,
+    "tz": "Asia/Taipei",
+    "unit": "C",
+    "note": "Taoyuan — 40km SW of Taipei city, coastal plain, different microclimate"
+  }
 ]

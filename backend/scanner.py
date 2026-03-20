@@ -48,7 +48,7 @@ CITIES_F      = os.path.join(os.path.dirname(__file__), "cities.json")
 # ─── CHARGEMENT DES VILLES ────────────────────────────────────────────────────
 with open(CITIES_F) as f:
     CITIES = json.load(f)
-CITY_MAP = {c["poly_name"].lower(): c for c in CITIES}
+CITY_MAP = {c["key"].lower(): c for c in CITIES}
 
 def c_to_f(c): return c * 9/5 + 32
 def f_to_c(f): return (f - 32) * 5/9
@@ -236,7 +236,8 @@ def fetch_ensemble(model, n_members, lat, lon, date_str, tz="UTC"):
         "daily": "temperature_2m_max",
         "models": model,
         "forecast_days": 7,
-        "timezone": tz
+        "timezone": tz,
+        "cell_selection": "nearest"  # Utilise la cellule la plus proche (idéal pour aéroports)
     }
     r = requests.get(OMAPI, params=params, timeout=15)
     r.raise_for_status()
