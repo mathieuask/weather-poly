@@ -57,6 +57,13 @@ STATIONS = {
     "EDDM": (48.354,  11.786, "Europe/Berlin",            "DE", "Munich"),
     "VILK": (26.761,  80.889, "Asia/Kolkata",             "IN", "Lucknow"),
     "EPWA": (52.166,  20.967, "Europe/Warsaw",            "PL", "Warsaw"),
+    # Nouvelles villes (Passe 15)
+    "VHHH": (22.309, 113.915, "Asia/Hong_Kong",           "HK", "Hong Kong"),
+    "ZBAA": (40.080, 116.584, "Asia/Shanghai",            "CN", "Beijing"),
+    "ZGSZ": (22.639, 113.811, "Asia/Shanghai",            "CN", "Shenzhen"),
+    "ZUUU": (30.578, 103.947, "Asia/Shanghai",            "CN", "Chengdu"),
+    "ZUCK": (29.719, 106.642, "Asia/Shanghai",            "CN", "Chongqing"),
+    "ZHHH": (30.784, 114.208, "Asia/Shanghai",            "CN", "Wuhan"),
 }
 
 
@@ -137,6 +144,12 @@ CITY_TO_STATION = {
     "munich":       "EDDM",
     "lucknow":      "VILK",
     "warsaw":       "EPWA",
+    "hong kong":    "VHHH",
+    "beijing":      "ZBAA",
+    "shenzhen":     "ZGSZ",
+    "chengdu":      "ZUUU",
+    "chongqing":    "ZUCK",
+    "wuhan":        "ZHHH",
 }
 
 # Mapping station aéroport Polymarket (via description)

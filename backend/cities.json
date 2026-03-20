@@ -214,5 +214,59 @@
     "lat": 52.166, "lon": 20.967, "elev": 110,
     "tz": "Europe/Warsaw", "unit": "C",
     "note": "Chopin Airport — 10km SW of city center"
+  },
+  {
+    "name": "Hong Kong",
+    "key": "hong kong",
+    "station": "VHHH",
+    "wu_country": "HK",
+    "lat": 22.309, "lon": 113.915, "elev": 9,
+    "tz": "Asia/Hong_Kong", "unit": "C",
+    "note": "Hong Kong International — Chek Lap Kok"
+  },
+  {
+    "name": "Beijing",
+    "key": "beijing",
+    "station": "ZBAA",
+    "wu_country": "CN",
+    "lat": 40.080, "lon": 116.584, "elev": 35,
+    "tz": "Asia/Shanghai", "unit": "C",
+    "note": "Beijing Capital International"
+  },
+  {
+    "name": "Shenzhen",
+    "key": "shenzhen",
+    "station": "ZGSZ",
+    "wu_country": "CN",
+    "lat": 22.639, "lon": 113.811, "elev": 4,
+    "tz": "Asia/Shanghai", "unit": "C",
+    "note": "Shenzhen Bao'an International"
+  },
+  {
+    "name": "Chengdu",
+    "key": "chengdu",
+    "station": "ZUUU",
+    "wu_country": "CN",
+    "lat": 30.578, "lon": 103.947, "elev": 495,
+    "tz": "Asia/Shanghai", "unit": "C",
+    "note": "Chengdu Shuangliu International"
+  },
+  {
+    "name": "Chongqing",
+    "key": "chongqing",
+    "station": "ZUCK",
+    "wu_country": "CN",
+    "lat": 29.719, "lon": 106.642, "elev": 416,
+    "tz": "Asia/Shanghai", "unit": "C",
+    "note": "Chongqing Jiangbei International"
+  },
+  {
+    "name": "Wuhan",
+    "key": "wuhan",
+    "station": "ZHHH",
+    "wu_country": "CN",
+    "lat": 30.784, "lon": 114.208, "elev": 23,
+    "tz": "Asia/Shanghai", "unit": "C",
+    "note": "Wuhan Tianhe International"
   }
 ]
