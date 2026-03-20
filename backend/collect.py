@@ -306,6 +306,22 @@ def fetch_gfs_leadtime(station: str, target_date: str, lead_days: int) -> float 
         return None
 
 
+def fetch_opening_price(token_id: str) -> float | None:
+    """Récupère le prix d'ouverture d'un marché via CLOB prices-history."""
+    try:
+        r = requests.get(
+            "https://clob.polymarket.com/prices-history",
+            params={"market": token_id, "interval": "max", "fidelity": 720},
+            timeout=8
+        )
+        hist = r.json().get("history", [])
+        if hist:
+            return float(hist[0]["p"])  # Premier point = ouverture
+    except Exception:
+        pass
+    return None
+
+
 def store_markets(conn, events: list[dict]):
     """Parse et stocke tous les marchés dans poly_markets."""
     inserted = updated = skipped = 0
@@ -332,21 +348,40 @@ def store_markets(conn, events: list[dict]):
             if bracket_temp is None:
                 continue
 
-            # Prix et résolution
+            # Résolution : winner via outcomePrices final
             prices_raw = market.get("outcomePrices", "[]")
             try:
-                prices = json.loads(prices_raw) if isinstance(prices_raw, str) else prices_raw
-                yes_price = float(prices[0]) if prices else 0.5
+                prices    = json.loads(prices_raw) if isinstance(prices_raw, str) else prices_raw
+                yes_final = float(prices[0]) if prices else 0.5
             except Exception:
-                yes_price = 0.5
+                yes_final = 0.5
 
             winner   = None
             resolved = market.get("closed", False)
             if resolved:
-                if yes_price >= 0.99:
+                if yes_final >= 0.99:
                     winner = "YES"
-                elif yes_price <= 0.01:
+                elif yes_final <= 0.01:
                     winner = "NO"
+
+            # Prix d'ouverture (pour backtest) via CLOB prices-history
+            yes_price = 0.5  # fallback
+            existing = conn.execute(
+                "SELECT market_prob FROM poly_markets WHERE condition_id=?", (cid,)
+            ).fetchone()
+            if existing and existing[0] and 0 < existing[0] < 100:
+                yes_price = existing[0] / 100  # déjà stocké
+            else:
+                clob_ids_raw = market.get("clobTokenIds", "[]")
+                try:
+                    clob_ids = json.loads(clob_ids_raw) if isinstance(clob_ids_raw, str) else clob_ids_raw
+                    if clob_ids:
+                        op = fetch_opening_price(str(clob_ids[0]))
+                        if op is not None and 0.001 < op < 0.999:
+                            yes_price = op
+                        time.sleep(0.05)
+                except Exception:
+                    pass
 
             liquidity = float(market.get("liquidity") or 0)
             unit = "F" if station in ("KLGA", "KORD", "CYYZ", "KMIA", "KSEA", "KDFW", "KATL") else "C"
