@@ -38,7 +38,7 @@ export default function StrategyPage() {
         <div style={{ marginBottom: 24 }}>
           <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111827", margin: 0 }}>🧠 Strategy Arena</h1>
           <p style={{ color: "#6b7280", marginTop: 4, fontSize: 14 }}>
-            Backtest automatique sur 4 217 marchés résolus · Optimisation en continu
+            Backtest automatique · Optimisation en continu
           </p>
         </div>
 
@@ -52,9 +52,9 @@ export default function StrategyPage() {
             </p>
             <div style={{ marginTop: 24, background: "#f3f4f6", borderRadius: 12, padding: 20, display: "inline-block", textAlign: "left" }}>
               <div style={{ fontSize: 13, color: "#374151", fontFamily: "monospace" }}>
-                <div>✅ 4 217 marchés chargés</div>
-                <div>✅ 455 températures WU</div>
-                <div>✅ 1 362 prévisions GFS (J-1/J-2/J-3)</div>
+                <div>✅ {data?.n_markets?.toLocaleString() || "—"} marchés chargés</div>
+                <div>✅ Températures WU collectées</div>
+                <div>✅ Prévisions GFS J-0/J-1/J-2/J-3</div>
                 <div style={{ color: "#ca8a04" }}>⏳ backtest.py — en cours…</div>
               </div>
             </div>

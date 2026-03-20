@@ -417,14 +417,20 @@ def _load_city_bias():
 _CITY_BIAS = _load_city_bias()
 
 
-def _apply_bias_correction(raw_models, city_name):
+def _apply_bias_correction(raw_models, city_name, lead_days=1):
     """
     Corrige le biais GFS sur chaque membre (en °C).
+    Utilise le biais par horizon (j0/j1/j2/j3) si disponible, sinon le global.
     bias_mean = GFS_prédit - réel.
     Si bias_mean = -2.9 → GFS trop froid → on ajoute 2.9°C à chaque membre.
-    Correction prudente : demi-biais si n < 5, plein biais si reliable.
     """
-    bias_info = _CITY_BIAS.get(city_name, {})
+    city_bias = _CITY_BIAS.get(city_name, {})
+    if not city_bias:
+        return raw_models
+
+    # Cherche le biais par horizon, puis fallback global
+    lead_key = f"j{lead_days}"
+    bias_info = city_bias.get(lead_key, city_bias.get("global", {}))
     if not bias_info:
         return raw_models
 
@@ -433,7 +439,7 @@ def _apply_bias_correction(raw_models, city_name):
     reliable = bias_info.get("reliable", False)
 
     if abs(bias_mean) < 0.5:
-        return raw_models  # biais négligeable
+        return raw_models
 
     if reliable:
         correction = bias_mean
@@ -644,8 +650,15 @@ def run():
             print(f"  ⚠ Pas de données ensemble pour {city} {date}")
             continue
 
-        # Correction biais GFS (FIX 3)
-        raw_models = _apply_bias_correction(raw_models, city)
+        # Correction biais GFS par horizon
+        # Estime le lead_days : jours entre aujourd'hui et la date du marché
+        from datetime import date as dt_date
+        try:
+            lead = (dt_date.fromisoformat(date) - datetime.now(timezone.utc).date()).days
+            lead = max(0, min(lead, 3))  # clamp 0-3
+        except Exception:
+            lead = 1
+        raw_models = _apply_bias_correction(raw_models, city, lead_days=lead)
 
         members_flat = _raw_to_flat_members(raw_models)
         unit = market["unit"]
