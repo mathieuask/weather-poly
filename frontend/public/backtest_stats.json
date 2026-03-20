@@ -1,12 +1,45 @@
 {
-  "updated_at": "2026-03-20T19:28:36.356719+00:00",
+  "updated_at": "2026-03-20T23:14:13.249810+00:00",
   "summary": {
-    "n_markets": 4847,
-    "n_wu": 521,
-    "n_gfs": 3600,
+    "n_markets": 4913,
+    "n_wu": 527,
+    "n_gfs": 3612,
     "n_cities": 24
   },
   "cities": {
+    "Seoul": {
+      "station": "RKSI",
+      "unit": "C",
+      "n_dates": 33,
+      "first_date": "2025-12-31",
+      "last_date": "2026-03-20",
+      "bias": {
+        "j0": {
+          "mean": -2.95,
+          "mae": 3.08,
+          "pct_within_1": 0.182,
+          "n": 33
+        },
+        "j1": {
+          "mean": -2.93,
+          "mae": 3.04,
+          "pct_within_1": 0.212,
+          "n": 33
+        },
+        "j2": {
+          "mean": -2.96,
+          "mae": 3.08,
+          "pct_within_1": 0.121,
+          "n": 33
+        },
+        "j3": {
+          "mean": -2.92,
+          "mae": 3.09,
+          "pct_within_1": 0.182,
+          "n": 33
+        }
+      }
+    },
     "NYC": {
       "station": "KLGA",
       "unit": "F",
@@ -135,39 +168,6 @@
           "mean": -1.42,
           "mae": 1.94,
           "pct_within_1": 0.375,
-          "n": 32
-        }
-      }
-    },
-    "Seoul": {
-      "station": "RKSI",
-      "unit": "C",
-      "n_dates": 32,
-      "first_date": "2025-12-31",
-      "last_date": "2026-03-19",
-      "bias": {
-        "j0": {
-          "mean": -2.91,
-          "mae": 3.04,
-          "pct_within_1": 0.188,
-          "n": 32
-        },
-        "j1": {
-          "mean": -2.89,
-          "mae": 3.0,
-          "pct_within_1": 0.219,
-          "n": 32
-        },
-        "j2": {
-          "mean": -2.93,
-          "mae": 3.06,
-          "pct_within_1": 0.125,
-          "n": 32
-        },
-        "j3": {
-          "mean": -2.88,
-          "mae": 3.05,
-          "pct_within_1": 0.188,
           "n": 32
         }
       }
@@ -417,7 +417,7 @@
           "n": 30
         },
         "j1": {
-          "mean": -0.07,
+          "mean": -0.08,
           "mae": 1.92,
           "pct_within_1": 0.467,
           "n": 30
@@ -429,8 +429,8 @@
           "n": 30
         },
         "j3": {
-          "mean": 0.33,
-          "mae": 3.16,
+          "mean": 0.32,
+          "mae": 3.15,
           "pct_within_1": 0.2,
           "n": 30
         }
@@ -505,66 +505,66 @@
     "Lucknow": {
       "station": "VILK",
       "unit": "C",
-      "n_dates": 15,
+      "n_dates": 16,
       "first_date": "2026-03-05",
-      "last_date": "2026-03-19",
+      "last_date": "2026-03-20",
       "bias": {
         "j0": {
-          "mean": 3.07,
-          "mae": 3.07,
+          "mean": 3.01,
+          "mae": 3.01,
           "pct_within_1": 0.0,
-          "n": 15
+          "n": 16
         },
         "j1": {
-          "mean": 4.38,
-          "mae": 4.38,
+          "mean": 4.46,
+          "mae": 4.46,
           "pct_within_1": 0.0,
-          "n": 15
+          "n": 16
         },
         "j2": {
-          "mean": 5.22,
-          "mae": 5.22,
+          "mean": 5.29,
+          "mae": 5.29,
           "pct_within_1": 0.0,
-          "n": 15
+          "n": 16
         },
         "j3": {
-          "mean": 5.59,
-          "mae": 5.59,
+          "mean": 5.79,
+          "mae": 5.79,
           "pct_within_1": 0.0,
-          "n": 15
+          "n": 16
         }
       }
     },
     "Tokyo": {
       "station": "RJTT",
       "unit": "C",
-      "n_dates": 10,
+      "n_dates": 11,
       "first_date": "2026-03-10",
-      "last_date": "2026-03-19",
+      "last_date": "2026-03-20",
       "bias": {
         "j0": {
-          "mean": -0.97,
-          "mae": 1.23,
-          "pct_within_1": 0.4,
-          "n": 10
+          "mean": -0.95,
+          "mae": 1.19,
+          "pct_within_1": 0.455,
+          "n": 11
         },
         "j1": {
-          "mean": -1.46,
-          "mae": 1.7,
-          "pct_within_1": 0.4,
-          "n": 10
+          "mean": -1.44,
+          "mae": 1.65,
+          "pct_within_1": 0.364,
+          "n": 11
         },
         "j2": {
-          "mean": -1.28,
-          "mae": 1.46,
-          "pct_within_1": 0.4,
-          "n": 10
+          "mean": -1.25,
+          "mae": 1.42,
+          "pct_within_1": 0.455,
+          "n": 11
         },
         "j3": {
-          "mean": -1.23,
-          "mae": 1.79,
-          "pct_within_1": 0.3,
-          "n": 10
+          "mean": -1.2,
+          "mae": 1.71,
+          "pct_within_1": 0.364,
+          "n": 11
         }
       }
     },
@@ -604,66 +604,99 @@
     "Singapore": {
       "station": "WSSS",
       "unit": "C",
-      "n_dates": 7,
+      "n_dates": 8,
       "first_date": "2026-03-13",
-      "last_date": "2026-03-19",
+      "last_date": "2026-03-20",
       "bias": {
         "j0": {
-          "mean": -1.1,
-          "mae": 1.19,
-          "pct_within_1": 0.286,
-          "n": 7
+          "mean": -1.02,
+          "mae": 1.1,
+          "pct_within_1": 0.375,
+          "n": 8
         },
         "j1": {
-          "mean": -1.44,
-          "mae": 1.47,
-          "pct_within_1": 0.286,
-          "n": 7
+          "mean": -1.36,
+          "mae": 1.39,
+          "pct_within_1": 0.375,
+          "n": 8
         },
         "j2": {
-          "mean": -1.3,
-          "mae": 1.36,
-          "pct_within_1": 0.286,
-          "n": 7
+          "mean": -1.2,
+          "mae": 1.25,
+          "pct_within_1": 0.375,
+          "n": 8
         },
         "j3": {
-          "mean": -0.96,
-          "mae": 1.33,
-          "pct_within_1": 0.286,
-          "n": 7
+          "mean": -0.9,
+          "mae": 1.22,
+          "pct_within_1": 0.375,
+          "n": 8
         }
       }
     },
     "Shanghai": {
       "station": "ZSPD",
       "unit": "C",
-      "n_dates": 7,
+      "n_dates": 8,
       "first_date": "2026-03-13",
-      "last_date": "2026-03-19",
+      "last_date": "2026-03-20",
       "bias": {
         "j0": {
-          "mean": -0.64,
-          "mae": 0.87,
-          "pct_within_1": 0.571,
-          "n": 7
+          "mean": -0.73,
+          "mae": 0.93,
+          "pct_within_1": 0.5,
+          "n": 8
         },
         "j1": {
-          "mean": -1.11,
-          "mae": 1.11,
-          "pct_within_1": 0.286,
-          "n": 7
+          "mean": -1.14,
+          "mae": 1.14,
+          "pct_within_1": 0.25,
+          "n": 8
         },
         "j2": {
-          "mean": -1.63,
-          "mae": 1.63,
-          "pct_within_1": 0.286,
-          "n": 7
+          "mean": -1.61,
+          "mae": 1.61,
+          "pct_within_1": 0.25,
+          "n": 8
         },
         "j3": {
-          "mean": -1.93,
-          "mae": 1.93,
+          "mean": -1.91,
+          "mae": 1.91,
           "pct_within_1": 0.0,
-          "n": 7
+          "n": 8
+        }
+      }
+    },
+    "Taipei": {
+      "station": "RCTP",
+      "unit": "C",
+      "n_dates": 5,
+      "first_date": "2026-03-16",
+      "last_date": "2026-03-20",
+      "bias": {
+        "j0": {
+          "mean": -2.02,
+          "mae": 2.22,
+          "pct_within_1": 0.4,
+          "n": 5
+        },
+        "j1": {
+          "mean": -2.14,
+          "mae": 2.34,
+          "pct_within_1": 0.2,
+          "n": 5
+        },
+        "j2": {
+          "mean": -2.16,
+          "mae": 2.16,
+          "pct_within_1": 0.2,
+          "n": 5
+        },
+        "j3": {
+          "mean": -2.18,
+          "mae": 2.46,
+          "pct_within_1": 0.4,
+          "n": 5
         }
       }
     },
@@ -672,63 +705,30 @@
       "unit": "C",
       "n_dates": 4,
       "first_date": "2026-03-16",
-      "last_date": "2026-03-20",
+      "last_date": "2026-03-19",
       "bias": {
         "j0": {
-          "mean": 0.15,
-          "mae": 0.5,
+          "mean": -0.05,
+          "mae": 0.6,
           "pct_within_1": 0.75,
           "n": 4
         },
         "j1": {
-          "mean": -0.5,
-          "mae": 0.95,
-          "pct_within_1": 0.75,
+          "mean": -0.27,
+          "mae": 0.73,
+          "pct_within_1": 1.0,
           "n": 4
         },
         "j2": {
-          "mean": -1.55,
-          "mae": 1.55,
+          "mean": -1.67,
+          "mae": 1.67,
           "pct_within_1": 0.5,
           "n": 4
         },
         "j3": {
-          "mean": -3.0,
-          "mae": 3.0,
+          "mean": -2.6,
+          "mae": 2.6,
           "pct_within_1": 0.0,
-          "n": 4
-        }
-      }
-    },
-    "Taipei": {
-      "station": "RCTP",
-      "unit": "C",
-      "n_dates": 4,
-      "first_date": "2026-03-17",
-      "last_date": "2026-03-20",
-      "bias": {
-        "j0": {
-          "mean": -2.4,
-          "mae": 2.65,
-          "pct_within_1": 0.25,
-          "n": 4
-        },
-        "j1": {
-          "mean": -2.4,
-          "mae": 2.65,
-          "pct_within_1": 0.25,
-          "n": 4
-        },
-        "j2": {
-          "mean": -2.42,
-          "mae": 2.42,
-          "pct_within_1": 0.25,
-          "n": 4
-        },
-        "j3": {
-          "mean": -2.12,
-          "mae": 2.48,
-          "pct_within_1": 0.5,
           "n": 4
         }
       }
@@ -738,30 +738,30 @@
       "unit": "C",
       "n_dates": 4,
       "first_date": "2026-03-16",
-      "last_date": "2026-03-20",
+      "last_date": "2026-03-19",
       "bias": {
         "j0": {
-          "mean": -1.37,
-          "mae": 1.37,
+          "mean": -1.65,
+          "mae": 1.65,
           "pct_within_1": 0.25,
           "n": 4
         },
         "j1": {
-          "mean": -2.37,
-          "mae": 2.37,
+          "mean": -2.65,
+          "mae": 2.65,
           "pct_within_1": 0.25,
           "n": 4
         },
         "j2": {
-          "mean": -2.67,
-          "mae": 2.67,
+          "mean": -2.95,
+          "mae": 2.95,
           "pct_within_1": 0.0,
           "n": 4
         },
         "j3": {
-          "mean": -3.52,
-          "mae": 3.52,
-          "pct_within_1": 0.0,
+          "mean": -3.45,
+          "mae": 3.45,
+          "pct_within_1": 0.25,
           "n": 4
         }
       }
@@ -771,30 +771,30 @@
       "unit": "C",
       "n_dates": 4,
       "first_date": "2026-03-16",
-      "last_date": "2026-03-20",
+      "last_date": "2026-03-19",
       "bias": {
         "j0": {
-          "mean": 1.03,
-          "mae": 1.38,
-          "pct_within_1": 0.75,
+          "mean": -0.08,
+          "mae": 0.58,
+          "pct_within_1": 1.0,
           "n": 4
         },
         "j1": {
-          "mean": 1.0,
-          "mae": 1.75,
+          "mean": -0.65,
+          "mae": 0.65,
           "pct_within_1": 0.75,
           "n": 4
         },
         "j2": {
-          "mean": 0.63,
-          "mae": 1.22,
-          "pct_within_1": 0.75,
+          "mean": -0.55,
+          "mae": 0.55,
+          "pct_within_1": 1.0,
           "n": 4
         },
         "j3": {
-          "mean": -0.27,
-          "mae": 0.47,
-          "pct_within_1": 1.0,
+          "mean": -0.63,
+          "mae": 0.82,
+          "pct_within_1": 0.75,
           "n": 4
         }
       }
@@ -803,302 +803,103 @@
   "horizon_summary": {
     "j0": {
       "mae": 1.33,
-      "bias": -0.55,
-      "n_dates": 521,
-      "bracket_accuracy": 0.8739,
-      "n_brackets": 4847
+      "bias": -0.57,
+      "n_dates": 527,
+      "bracket_accuracy": 0.8754,
+      "n_brackets": 4913
     },
     "j1": {
       "mae": 1.86,
-      "bias": -0.85,
-      "n_dates": 521,
-      "bracket_accuracy": 0.8387,
-      "n_brackets": 4847
+      "bias": -0.86,
+      "n_dates": 527,
+      "bracket_accuracy": 0.8396,
+      "n_brackets": 4913
     },
     "j2": {
       "mae": 1.93,
-      "bias": -0.67,
-      "n_dates": 521,
-      "bracket_accuracy": 0.8413,
-      "n_brackets": 4847
+      "bias": -0.68,
+      "n_dates": 527,
+      "bracket_accuracy": 0.8421,
+      "n_brackets": 4913
     },
     "j3": {
-      "mae": 2.15,
-      "bias": -0.72,
-      "n_dates": 521,
-      "bracket_accuracy": 0.8387,
-      "n_brackets": 4847
+      "mae": 2.16,
+      "bias": -0.71,
+      "n_dates": 527,
+      "bracket_accuracy": 0.8388,
+      "n_brackets": 4913
     }
   },
   "daily_detail": [
     {
-      "station": "LEMD",
-      "city": "Madrid",
+      "station": "VILK",
+      "city": "Lucknow",
       "date": "2026-03-20",
-      "actual_temp": 11.0,
+      "actual_temp": 26.0,
       "unit": "C",
-      "winning_bracket": "18\u00b0C",
+      "winning_bracket": "32\u00b0C or below",
       "n_brackets": 11,
-      "gfs_j0": 14.8,
-      "error_j0": 3.8,
-      "gfs_j1": 16.5,
-      "error_j1": 5.5,
-      "gfs_j2": 14.7,
-      "error_j2": 3.7,
-      "gfs_j3": 10.4,
-      "error_j3": -0.6,
+      "gfs_j0": 28.1,
+      "error_j0": 2.1,
+      "gfs_j1": 31.7,
+      "error_j1": 5.7,
+      "gfs_j2": 32.3,
+      "error_j2": 6.3,
+      "gfs_j3": 34.8,
+      "error_j3": 8.8,
       "brackets": [
         {
-          "bracket": "13\u00b0C or below",
+          "bracket": "32\u00b0C or below",
           "op": "lte",
-          "temp": 13.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "YES",
-          "gfs_j3_correct": false
-        },
-        {
-          "bracket": "14\u00b0C",
-          "op": "exact",
-          "temp": 14.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "15\u00b0C",
-          "op": "exact",
-          "temp": 15.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "YES",
-          "gfs_j2_correct": false,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "16\u00b0C",
-          "op": "exact",
-          "temp": 16.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "17\u00b0C",
-          "op": "exact",
-          "temp": 17.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "18\u00b0C",
-          "op": "exact",
-          "temp": 18.0,
+          "temp": 32.0,
           "winner": "YES",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": false,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": false,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": false
-        },
-        {
-          "bracket": "19\u00b0C",
-          "op": "exact",
-          "temp": 19.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "20\u00b0C",
-          "op": "exact",
-          "temp": 20.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "21\u00b0C",
-          "op": "exact",
-          "temp": 21.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "22\u00b0C",
-          "op": "exact",
-          "temp": 22.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "23\u00b0C or higher",
-          "op": "gte",
-          "temp": 23.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        }
-      ]
-    },
-    {
-      "station": "LIMC",
-      "city": "Milan",
-      "date": "2026-03-20",
-      "actual_temp": 16.0,
-      "unit": "C",
-      "winning_bracket": "18\u00b0C or higher",
-      "n_brackets": 11,
-      "gfs_j0": 14.8,
-      "error_j0": -1.2,
-      "gfs_j1": 14.8,
-      "error_j1": -1.2,
-      "gfs_j2": 14.9,
-      "error_j2": -1.1,
-      "gfs_j3": 14.8,
-      "error_j3": -1.2,
-      "brackets": [
-        {
-          "bracket": "8\u00b0C or below",
-          "op": "lte",
-          "temp": 8.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "9\u00b0C",
-          "op": "exact",
-          "temp": 9.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "10\u00b0C",
-          "op": "exact",
-          "temp": 10.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "11\u00b0C",
-          "op": "exact",
-          "temp": 11.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "12\u00b0C",
-          "op": "exact",
-          "temp": 12.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "13\u00b0C",
-          "op": "exact",
-          "temp": 13.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "14\u00b0C",
-          "op": "exact",
-          "temp": 14.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "15\u00b0C",
-          "op": "exact",
-          "temp": 15.0,
-          "winner": "NO",
           "gfs_j1_prediction": "YES",
-          "gfs_j1_correct": false,
-          "gfs_j2_prediction": "YES",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
           "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "33\u00b0C",
+          "op": "exact",
+          "temp": 33.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "34\u00b0C",
+          "op": "exact",
+          "temp": 34.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "35\u00b0C",
+          "op": "exact",
+          "temp": 35.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
           "gfs_j3_prediction": "YES",
           "gfs_j3_correct": false
         },
         {
-          "bracket": "16\u00b0C",
+          "bracket": "36\u00b0C",
           "op": "exact",
-          "temp": 16.0,
+          "temp": 36.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -1108,9 +909,9 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "17\u00b0C",
+          "bracket": "37\u00b0C",
           "op": "exact",
-          "temp": 17.0,
+          "temp": 37.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -1120,16 +921,64 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "18\u00b0C or higher",
+          "bracket": "38\u00b0C",
+          "op": "exact",
+          "temp": 38.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "39\u00b0C",
+          "op": "exact",
+          "temp": 39.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "40\u00b0C",
+          "op": "exact",
+          "temp": 40.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "41\u00b0C",
+          "op": "exact",
+          "temp": 41.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "42\u00b0C or higher",
           "op": "gte",
-          "temp": 18.0,
-          "winner": "YES",
+          "temp": 42.0,
+          "winner": "NO",
           "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": false,
+          "gfs_j1_correct": true,
           "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": false,
+          "gfs_j2_correct": true,
           "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": false
+          "gfs_j3_correct": true
         }
       ]
     },
@@ -1285,12 +1134,465 @@
       ]
     },
     {
+      "station": "RKSI",
+      "city": "Seoul",
+      "date": "2026-03-20",
+      "actual_temp": 11.0,
+      "unit": "C",
+      "winning_bracket": "11\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 6.6,
+      "error_j0": -4.4,
+      "gfs_j1": 6.7,
+      "error_j1": -4.3,
+      "gfs_j2": 7.2,
+      "error_j2": -3.8,
+      "gfs_j3": 6.6,
+      "error_j3": -4.4,
+      "brackets": [
+        {
+          "bracket": "5\u00b0C or below",
+          "op": "lte",
+          "temp": 5.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "6\u00b0C",
+          "op": "exact",
+          "temp": 6.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "7\u00b0C",
+          "op": "exact",
+          "temp": 7.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "8\u00b0C",
+          "op": "exact",
+          "temp": 8.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "9\u00b0C",
+          "op": "exact",
+          "temp": 9.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "10\u00b0C",
+          "op": "exact",
+          "temp": 10.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "11\u00b0C",
+          "op": "exact",
+          "temp": 11.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "12\u00b0C",
+          "op": "exact",
+          "temp": 12.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "13\u00b0C",
+          "op": "exact",
+          "temp": 13.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "14\u00b0C",
+          "op": "exact",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C or higher",
+          "op": "gte",
+          "temp": 15.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "ZSPD",
+      "city": "Shanghai",
+      "date": "2026-03-20",
+      "actual_temp": 14.0,
+      "unit": "C",
+      "winning_bracket": "14\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 12.7,
+      "error_j0": -1.3,
+      "gfs_j1": 12.7,
+      "error_j1": -1.3,
+      "gfs_j2": 12.5,
+      "error_j2": -1.5,
+      "gfs_j3": 12.2,
+      "error_j3": -1.8,
+      "brackets": [
+        {
+          "bracket": "6\u00b0C or below",
+          "op": "lte",
+          "temp": 6.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "7\u00b0C",
+          "op": "exact",
+          "temp": 7.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "8\u00b0C",
+          "op": "exact",
+          "temp": 8.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "9\u00b0C",
+          "op": "exact",
+          "temp": 9.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "10\u00b0C",
+          "op": "exact",
+          "temp": 10.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "11\u00b0C",
+          "op": "exact",
+          "temp": 11.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "12\u00b0C",
+          "op": "exact",
+          "temp": 12.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "13\u00b0C",
+          "op": "exact",
+          "temp": 13.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "14\u00b0C",
+          "op": "exact",
+          "temp": 14.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "16\u00b0C or higher",
+          "op": "gte",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "WSSS",
+      "city": "Singapore",
+      "date": "2026-03-20",
+      "actual_temp": 33.0,
+      "unit": "C",
+      "winning_bracket": "33\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 32.5,
+      "error_j0": -0.5,
+      "gfs_j1": 32.2,
+      "error_j1": -0.8,
+      "gfs_j2": 32.5,
+      "error_j2": -0.5,
+      "gfs_j3": 32.5,
+      "error_j3": -0.5,
+      "brackets": [
+        {
+          "bracket": "26\u00b0C or below",
+          "op": "lte",
+          "temp": 26.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "27\u00b0C",
+          "op": "exact",
+          "temp": 27.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "28\u00b0C",
+          "op": "exact",
+          "temp": 28.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "29\u00b0C",
+          "op": "exact",
+          "temp": 29.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "30\u00b0C",
+          "op": "exact",
+          "temp": 30.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "31\u00b0C",
+          "op": "exact",
+          "temp": 31.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "32\u00b0C",
+          "op": "exact",
+          "temp": 32.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "33\u00b0C",
+          "op": "exact",
+          "temp": 33.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "34\u00b0C",
+          "op": "exact",
+          "temp": 34.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "35\u00b0C",
+          "op": "exact",
+          "temp": 35.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "36\u00b0C or higher",
+          "op": "gte",
+          "temp": 36.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
       "station": "RCTP",
       "city": "Taipei",
       "date": "2026-03-20",
       "actual_temp": 24.0,
       "unit": "C",
-      "winning_bracket": "21\u00b0C",
+      "winning_bracket": "23\u00b0C",
       "n_brackets": 11,
       "gfs_j0": 19.8,
       "error_j0": -4.2,
@@ -1302,8 +1604,20 @@
       "error_j3": -4.0,
       "brackets": [
         {
-          "bracket": "19\u00b0C or below",
+          "bracket": "18\u00b0C or below",
           "op": "lte",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
           "temp": 19.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
@@ -1329,13 +1643,13 @@
           "bracket": "21\u00b0C",
           "op": "exact",
           "temp": 21.0,
-          "winner": "YES",
+          "winner": "NO",
           "gfs_j1_prediction": "YES",
-          "gfs_j1_correct": true,
+          "gfs_j1_correct": false,
           "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": false,
+          "gfs_j2_correct": true,
           "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": false
+          "gfs_j3_correct": true
         },
         {
           "bracket": "22\u00b0C",
@@ -1353,13 +1667,13 @@
           "bracket": "23\u00b0C",
           "op": "exact",
           "temp": 23.0,
-          "winner": "NO",
+          "winner": "YES",
           "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
+          "gfs_j1_correct": false,
           "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
+          "gfs_j2_correct": false,
           "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
+          "gfs_j3_correct": false
         },
         {
           "bracket": "24\u00b0C",
@@ -1410,21 +1724,9 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "28\u00b0C",
-          "op": "exact",
-          "temp": 28.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "29\u00b0C or higher",
+          "bracket": "28\u00b0C or higher",
           "op": "gte",
-          "temp": 29.0,
+          "temp": 28.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -1436,113 +1738,29 @@
       ]
     },
     {
-      "station": "EPWA",
-      "city": "Warsaw",
+      "station": "RJTT",
+      "city": "Tokyo",
       "date": "2026-03-20",
-      "actual_temp": 11.0,
+      "actual_temp": 13.0,
       "unit": "C",
-      "winning_bracket": "13\u00b0C or higher",
+      "winning_bracket": "13\u00b0C",
       "n_brackets": 11,
-      "gfs_j0": 11.2,
-      "error_j0": 0.2,
-      "gfs_j1": 9.6,
-      "error_j1": -1.4,
-      "gfs_j2": 10.5,
-      "error_j2": -0.5,
-      "gfs_j3": 8.2,
-      "error_j3": -2.8,
+      "gfs_j0": 12.2,
+      "error_j0": -0.8,
+      "gfs_j1": 11.8,
+      "error_j1": -1.2,
+      "gfs_j2": 12.0,
+      "error_j2": -1.0,
+      "gfs_j3": 12.1,
+      "error_j3": -0.9,
       "brackets": [
         {
-          "bracket": "3\u00b0C or below",
+          "bracket": "10\u00b0C or below",
           "op": "lte",
-          "temp": 3.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "4\u00b0C",
-          "op": "exact",
-          "temp": 4.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "5\u00b0C",
-          "op": "exact",
-          "temp": 5.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "6\u00b0C",
-          "op": "exact",
-          "temp": 6.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "7\u00b0C",
-          "op": "exact",
-          "temp": 7.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "8\u00b0C",
-          "op": "exact",
-          "temp": 8.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "YES",
-          "gfs_j3_correct": false
-        },
-        {
-          "bracket": "9\u00b0C",
-          "op": "exact",
-          "temp": 9.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "10\u00b0C",
-          "op": "exact",
           "temp": 10.0,
           "winner": "NO",
-          "gfs_j1_prediction": "YES",
-          "gfs_j1_correct": false,
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
           "gfs_j2_prediction": "NO",
           "gfs_j2_correct": true,
           "gfs_j3_prediction": "NO",
@@ -1565,16 +1783,16 @@
           "op": "exact",
           "temp": 12.0,
           "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
         },
         {
-          "bracket": "13\u00b0C or higher",
-          "op": "gte",
+          "bracket": "13\u00b0C",
+          "op": "exact",
           "temp": 13.0,
           "winner": "YES",
           "gfs_j1_prediction": "NO",
@@ -1583,6 +1801,90 @@
           "gfs_j2_correct": false,
           "gfs_j3_prediction": "NO",
           "gfs_j3_correct": false
+        },
+        {
+          "bracket": "14\u00b0C",
+          "op": "exact",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "16\u00b0C",
+          "op": "exact",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C",
+          "op": "exact",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C or higher",
+          "op": "gte",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
         }
       ]
     },
@@ -3102,7 +3404,7 @@
       "date": "2026-03-19",
       "actual_temp": 18.0,
       "unit": "C",
-      "winning_bracket": "14\u00b0C",
+      "winning_bracket": "18\u00b0C or higher",
       "n_brackets": 11,
       "gfs_j0": 16.3,
       "error_j0": -1.7,
@@ -3114,32 +3416,8 @@
       "error_j3": -3.5,
       "brackets": [
         {
-          "bracket": "6\u00b0C or below",
+          "bracket": "8\u00b0C or below",
           "op": "lte",
-          "temp": 6.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "7\u00b0C",
-          "op": "exact",
-          "temp": 7.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "8\u00b0C",
-          "op": "exact",
           "temp": 8.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
@@ -3213,13 +3491,13 @@
           "bracket": "14\u00b0C",
           "op": "exact",
           "temp": 14.0,
-          "winner": "YES",
+          "winner": "NO",
           "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": false,
+          "gfs_j1_correct": true,
           "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": false,
+          "gfs_j2_correct": true,
           "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": false
+          "gfs_j3_correct": true
         },
         {
           "bracket": "15\u00b0C",
@@ -3234,8 +3512,8 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "16\u00b0C or higher",
-          "op": "gte",
+          "bracket": "16\u00b0C",
+          "op": "exact",
           "temp": 16.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
@@ -3244,6 +3522,30 @@
           "gfs_j2_correct": true,
           "gfs_j3_prediction": "NO",
           "gfs_j3_correct": true
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C or higher",
+          "op": "gte",
+          "temp": 18.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
         }
       ]
     },
@@ -4461,7 +4763,7 @@
       "date": "2026-03-19",
       "actual_temp": 22.0,
       "unit": "C",
-      "winning_bracket": "28\u00b0C",
+      "winning_bracket": "21\u00b0C",
       "n_brackets": 11,
       "gfs_j0": 20.9,
       "error_j0": -1.1,
@@ -4473,16 +4775,40 @@
       "error_j3": 0.1,
       "brackets": [
         {
-          "bracket": "21\u00b0C or below",
+          "bracket": "19\u00b0C or below",
           "op": "lte",
-          "temp": 21.0,
+          "temp": 19.0,
           "winner": "NO",
-          "gfs_j1_prediction": "YES",
-          "gfs_j1_correct": false,
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
           "gfs_j2_prediction": "YES",
           "gfs_j2_correct": false,
           "gfs_j3_prediction": "NO",
           "gfs_j3_correct": true
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
         },
         {
           "bracket": "22\u00b0C",
@@ -4560,18 +4886,6 @@
           "bracket": "28\u00b0C",
           "op": "exact",
           "temp": 28.0,
-          "winner": "YES",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": false,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": false,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": false
-        },
-        {
-          "bracket": "29\u00b0C",
-          "op": "exact",
-          "temp": 29.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -4581,21 +4895,9 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "30\u00b0C",
-          "op": "exact",
-          "temp": 30.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "31\u00b0C or higher",
+          "bracket": "29\u00b0C or higher",
           "op": "gte",
-          "temp": 31.0,
+          "temp": 29.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -5065,7 +5367,7 @@
       "date": "2026-03-19",
       "actual_temp": 13.0,
       "unit": "C",
-      "winning_bracket": "14\u00b0C",
+      "winning_bracket": "13\u00b0C or higher",
       "n_brackets": 11,
       "gfs_j0": 12.5,
       "error_j0": -0.5,
@@ -5077,8 +5379,44 @@
       "error_j3": -4.0,
       "brackets": [
         {
-          "bracket": "6\u00b0C or below",
+          "bracket": "3\u00b0C or below",
           "op": "lte",
+          "temp": 3.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "4\u00b0C",
+          "op": "exact",
+          "temp": 4.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "5\u00b0C",
+          "op": "exact",
+          "temp": 5.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "6\u00b0C",
+          "op": "exact",
           "temp": 6.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
@@ -5161,21 +5499,9 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "13\u00b0C",
-          "op": "exact",
+          "bracket": "13\u00b0C or higher",
+          "op": "gte",
           "temp": 13.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "14\u00b0C",
-          "op": "exact",
-          "temp": 14.0,
           "winner": "YES",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": false,
@@ -5183,30 +5509,6 @@
           "gfs_j2_correct": false,
           "gfs_j3_prediction": "NO",
           "gfs_j3_correct": false
-        },
-        {
-          "bracket": "15\u00b0C",
-          "op": "exact",
-          "temp": 15.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "16\u00b0C or higher",
-          "op": "gte",
-          "temp": 16.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
         }
       ]
     },
@@ -6424,7 +6726,7 @@
       "date": "2026-03-18",
       "actual_temp": 18.0,
       "unit": "C",
-      "winning_bracket": "22\u00b0C",
+      "winning_bracket": "18\u00b0C",
       "n_brackets": 11,
       "gfs_j0": 18.7,
       "error_j0": 0.7,
@@ -6436,8 +6738,44 @@
       "error_j3": 0.0,
       "brackets": [
         {
-          "bracket": "16\u00b0C or below",
+          "bracket": "13\u00b0C or below",
           "op": "lte",
+          "temp": 13.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "14\u00b0C",
+          "op": "exact",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "16\u00b0C",
+          "op": "exact",
           "temp": 16.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
@@ -6463,13 +6801,13 @@
           "bracket": "18\u00b0C",
           "op": "exact",
           "temp": 18.0,
-          "winner": "NO",
+          "winner": "YES",
           "gfs_j1_prediction": "YES",
-          "gfs_j1_correct": false,
+          "gfs_j1_correct": true,
           "gfs_j2_prediction": "YES",
-          "gfs_j2_correct": false,
+          "gfs_j2_correct": true,
           "gfs_j3_prediction": "YES",
-          "gfs_j3_correct": false
+          "gfs_j3_correct": true
         },
         {
           "bracket": "19\u00b0C",
@@ -6511,18 +6849,6 @@
           "bracket": "22\u00b0C",
           "op": "exact",
           "temp": 22.0,
-          "winner": "YES",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": false,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": false,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": false
-        },
-        {
-          "bracket": "23\u00b0C",
-          "op": "exact",
-          "temp": 23.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -6532,33 +6858,9 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "24\u00b0C",
-          "op": "exact",
-          "temp": 24.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "25\u00b0C",
-          "op": "exact",
-          "temp": 25.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "26\u00b0C or higher",
+          "bracket": "23\u00b0C or higher",
           "op": "gte",
-          "temp": 26.0,
+          "temp": 23.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -6726,7 +7028,7 @@
       "date": "2026-03-18",
       "actual_temp": 14.0,
       "unit": "C",
-      "winning_bracket": "17\u00b0C",
+      "winning_bracket": "14\u00b0C",
       "n_brackets": 11,
       "gfs_j0": 13.6,
       "error_j0": -0.4,
@@ -6738,8 +7040,32 @@
       "error_j3": -3.4,
       "brackets": [
         {
-          "bracket": "8\u00b0C or below",
+          "bracket": "6\u00b0C or below",
           "op": "lte",
+          "temp": 6.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "7\u00b0C",
+          "op": "exact",
+          "temp": 7.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "8\u00b0C",
+          "op": "exact",
           "temp": 8.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
@@ -6813,13 +7139,13 @@
           "bracket": "14\u00b0C",
           "op": "exact",
           "temp": 14.0,
-          "winner": "NO",
+          "winner": "YES",
           "gfs_j1_prediction": "YES",
-          "gfs_j1_correct": false,
+          "gfs_j1_correct": true,
           "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
+          "gfs_j2_correct": false,
           "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
+          "gfs_j3_correct": false
         },
         {
           "bracket": "15\u00b0C",
@@ -6834,33 +7160,9 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "16\u00b0C",
-          "op": "exact",
-          "temp": 16.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "17\u00b0C",
-          "op": "exact",
-          "temp": 17.0,
-          "winner": "YES",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": false,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": false,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": false
-        },
-        {
-          "bracket": "18\u00b0C or higher",
+          "bracket": "16\u00b0C or higher",
           "op": "gte",
-          "temp": 18.0,
+          "temp": 16.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -8085,7 +8387,7 @@
       "date": "2026-03-18",
       "actual_temp": 27.0,
       "unit": "C",
-      "winning_bracket": "26\u00b0C",
+      "winning_bracket": "28\u00b0C",
       "n_brackets": 11,
       "gfs_j0": 22.2,
       "error_j0": -4.8,
@@ -8097,20 +8399,8 @@
       "error_j3": -5.2,
       "brackets": [
         {
-          "bracket": "20\u00b0C or below",
+          "bracket": "21\u00b0C or below",
           "op": "lte",
-          "temp": 20.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "21\u00b0C",
-          "op": "exact",
           "temp": 21.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
@@ -8172,13 +8462,13 @@
           "bracket": "26\u00b0C",
           "op": "exact",
           "temp": 26.0,
-          "winner": "YES",
+          "winner": "NO",
           "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": false,
+          "gfs_j1_correct": true,
           "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": false,
+          "gfs_j2_correct": true,
           "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": false
+          "gfs_j3_correct": true
         },
         {
           "bracket": "27\u00b0C",
@@ -8196,13 +8486,13 @@
           "bracket": "28\u00b0C",
           "op": "exact",
           "temp": 28.0,
-          "winner": "NO",
+          "winner": "YES",
           "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
+          "gfs_j1_correct": false,
           "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
+          "gfs_j2_correct": false,
           "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
+          "gfs_j3_correct": false
         },
         {
           "bracket": "29\u00b0C",
@@ -8217,9 +8507,21 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "30\u00b0C or higher",
-          "op": "gte",
+          "bracket": "30\u00b0C",
+          "op": "exact",
           "temp": 30.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "31\u00b0C or higher",
+          "op": "gte",
+          "temp": 31.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -8689,7 +8991,7 @@
       "date": "2026-03-18",
       "actual_temp": 14.0,
       "unit": "C",
-      "winning_bracket": "11\u00b0C",
+      "winning_bracket": "14\u00b0C",
       "n_brackets": 11,
       "gfs_j0": 13.8,
       "error_j0": -0.2,
@@ -8701,20 +9003,8 @@
       "error_j3": -2.3,
       "brackets": [
         {
-          "bracket": "5\u00b0C or below",
+          "bracket": "6\u00b0C or below",
           "op": "lte",
-          "temp": 5.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "6\u00b0C",
-          "op": "exact",
           "temp": 6.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
@@ -8776,13 +9066,13 @@
           "bracket": "11\u00b0C",
           "op": "exact",
           "temp": 11.0,
-          "winner": "YES",
+          "winner": "NO",
           "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": false,
+          "gfs_j1_correct": true,
           "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": false,
+          "gfs_j2_correct": true,
           "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": false
+          "gfs_j3_correct": true
         },
         {
           "bracket": "12\u00b0C",
@@ -8812,6 +9102,18 @@
           "bracket": "14\u00b0C",
           "op": "exact",
           "temp": 14.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -8821,9 +9123,9 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "15\u00b0C or higher",
+          "bracket": "16\u00b0C or higher",
           "op": "gte",
-          "temp": 15.0,
+          "temp": 16.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -10043,6 +10345,157 @@
       ]
     },
     {
+      "station": "LEMD",
+      "city": "Madrid",
+      "date": "2026-03-17",
+      "actual_temp": 22.0,
+      "unit": "C",
+      "winning_bracket": "22\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 21.4,
+      "error_j0": -0.6,
+      "gfs_j1": 20.9,
+      "error_j1": -1.1,
+      "gfs_j2": 21.0,
+      "error_j2": -1.0,
+      "gfs_j3": 20.0,
+      "error_j3": -2.0,
+      "brackets": [
+        {
+          "bracket": "16\u00b0C or below",
+          "op": "lte",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C",
+          "op": "exact",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "22\u00b0C",
+          "op": "exact",
+          "temp": 22.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "23\u00b0C",
+          "op": "exact",
+          "temp": 23.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "24\u00b0C",
+          "op": "exact",
+          "temp": 24.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "25\u00b0C",
+          "op": "exact",
+          "temp": 25.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "26\u00b0C or higher",
+          "op": "gte",
+          "temp": 26.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
       "station": "KMIA",
       "city": "Miami",
       "date": "2026-03-17",
@@ -10183,6 +10636,157 @@
           "bracket": "82\u00b0F or higher",
           "op": "gte",
           "temp": 82.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "LIMC",
+      "city": "Milan",
+      "date": "2026-03-17",
+      "actual_temp": 17.0,
+      "unit": "C",
+      "winning_bracket": "17\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 14.7,
+      "error_j0": -2.3,
+      "gfs_j1": 14.7,
+      "error_j1": -2.3,
+      "gfs_j2": 14.8,
+      "error_j2": -2.2,
+      "gfs_j3": 16.1,
+      "error_j3": -0.9,
+      "brackets": [
+        {
+          "bracket": "8\u00b0C or below",
+          "op": "lte",
+          "temp": 8.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "9\u00b0C",
+          "op": "exact",
+          "temp": 9.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "10\u00b0C",
+          "op": "exact",
+          "temp": 10.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "11\u00b0C",
+          "op": "exact",
+          "temp": 11.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "12\u00b0C",
+          "op": "exact",
+          "temp": 12.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "13\u00b0C",
+          "op": "exact",
+          "temp": 13.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "14\u00b0C",
+          "op": "exact",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "16\u00b0C",
+          "op": "exact",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "18\u00b0C or higher",
+          "op": "gte",
+          "temp": 18.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -11407,7 +12011,7 @@
       "date": "2026-03-17",
       "actual_temp": 22.0,
       "unit": "C",
-      "winning_bracket": "23\u00b0C or higher",
+      "winning_bracket": "26\u00b0C",
       "n_brackets": 11,
       "gfs_j0": 22.5,
       "error_j0": 0.5,
@@ -11419,92 +12023,8 @@
       "error_j3": 0.6,
       "brackets": [
         {
-          "bracket": "13\u00b0C or below",
+          "bracket": "20\u00b0C or below",
           "op": "lte",
-          "temp": 13.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "14\u00b0C",
-          "op": "exact",
-          "temp": 14.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "15\u00b0C",
-          "op": "exact",
-          "temp": 15.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "16\u00b0C",
-          "op": "exact",
-          "temp": 16.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "17\u00b0C",
-          "op": "exact",
-          "temp": 17.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "18\u00b0C",
-          "op": "exact",
-          "temp": 18.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "19\u00b0C",
-          "op": "exact",
-          "temp": 19.0,
-          "winner": "NO",
-          "gfs_j1_prediction": "NO",
-          "gfs_j1_correct": true,
-          "gfs_j2_prediction": "NO",
-          "gfs_j2_correct": true,
-          "gfs_j3_prediction": "NO",
-          "gfs_j3_correct": true
-        },
-        {
-          "bracket": "20\u00b0C",
-          "op": "exact",
           "temp": 20.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
@@ -11539,9 +12059,45 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "23\u00b0C or higher",
-          "op": "gte",
+          "bracket": "23\u00b0C",
+          "op": "exact",
           "temp": 23.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "24\u00b0C",
+          "op": "exact",
+          "temp": 24.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "25\u00b0C",
+          "op": "exact",
+          "temp": 25.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "26\u00b0C",
+          "op": "exact",
+          "temp": 26.0,
           "winner": "YES",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": false,
@@ -11549,6 +12105,54 @@
           "gfs_j2_correct": false,
           "gfs_j3_prediction": "NO",
           "gfs_j3_correct": false
+        },
+        {
+          "bracket": "27\u00b0C",
+          "op": "exact",
+          "temp": 27.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "28\u00b0C",
+          "op": "exact",
+          "temp": 28.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "29\u00b0C",
+          "op": "exact",
+          "temp": 29.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "30\u00b0C or higher",
+          "op": "gte",
+          "temp": 30.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
         }
       ]
     },
@@ -11995,6 +12599,157 @@
           "bracket": "-1\u00b0C or higher",
           "op": "gte",
           "temp": -1.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "EPWA",
+      "city": "Warsaw",
+      "date": "2026-03-17",
+      "actual_temp": 11.0,
+      "unit": "C",
+      "winning_bracket": "11\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 10.4,
+      "error_j0": -0.6,
+      "gfs_j1": 10.5,
+      "error_j1": -0.5,
+      "gfs_j2": 10.0,
+      "error_j2": -1.0,
+      "gfs_j3": 9.8,
+      "error_j3": -1.2,
+      "brackets": [
+        {
+          "bracket": "5\u00b0C or below",
+          "op": "lte",
+          "temp": 5.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "6\u00b0C",
+          "op": "exact",
+          "temp": 6.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "7\u00b0C",
+          "op": "exact",
+          "temp": 7.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "8\u00b0C",
+          "op": "exact",
+          "temp": 8.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "9\u00b0C",
+          "op": "exact",
+          "temp": 9.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "10\u00b0C",
+          "op": "exact",
+          "temp": 10.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "11\u00b0C",
+          "op": "exact",
+          "temp": 11.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "12\u00b0C",
+          "op": "exact",
+          "temp": 12.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "13\u00b0C",
+          "op": "exact",
+          "temp": 13.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "14\u00b0C",
+          "op": "exact",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C or higher",
+          "op": "gte",
+          "temp": 15.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -14871,6 +15626,157 @@
           "gfs_j2_correct": true,
           "gfs_j3_prediction": "NO",
           "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "RCTP",
+      "city": "Taipei",
+      "date": "2026-03-16",
+      "actual_temp": 24.0,
+      "unit": "C",
+      "winning_bracket": "23\u00b0C or higher",
+      "n_brackets": 11,
+      "gfs_j0": 23.5,
+      "error_j0": -0.5,
+      "gfs_j1": 22.9,
+      "error_j1": -1.1,
+      "gfs_j2": 22.9,
+      "error_j2": -1.1,
+      "gfs_j3": 21.6,
+      "error_j3": -2.4,
+      "brackets": [
+        {
+          "bracket": "13\u00b0C or below",
+          "op": "lte",
+          "temp": 13.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "14\u00b0C",
+          "op": "exact",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "16\u00b0C",
+          "op": "exact",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C",
+          "op": "exact",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "22\u00b0C",
+          "op": "exact",
+          "temp": 22.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "23\u00b0C or higher",
+          "op": "gte",
+          "temp": 23.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
         }
       ]
     },
@@ -25924,14 +26830,14 @@
       "unit": "F",
       "winning_bracket": "46-47\u00b0F",
       "n_brackets": 9,
-      "gfs_j0": 6.3,
-      "error_j0": -1.7,
-      "gfs_j1": 6.3,
-      "error_j1": -1.7,
-      "gfs_j2": 12.5,
-      "error_j2": 4.5,
-      "gfs_j3": 9.3,
-      "error_j3": 1.3,
+      "gfs_j0": 6.2,
+      "error_j0": -1.8,
+      "gfs_j1": 6.2,
+      "error_j1": -1.8,
+      "gfs_j2": 12.4,
+      "error_j2": 4.4,
+      "gfs_j3": 9.1,
+      "error_j3": 1.1,
       "brackets": [
         {
           "bracket": "39\u00b0F or below",
@@ -26030,7 +26936,7 @@
           "gfs_j3_correct": true
         },
         {
-          "bracket": "54\u00b0F or above",
+          "bracket": "54\u00b0F or higher",
           "op": "gte",
           "temp": 54.0,
           "winner": "NO",
@@ -68895,10 +69801,42 @@
       ]
     }
   ],
-  "n_markets": 4847,
-  "n_actual_temps": 521,
-  "n_gfs": 3600,
+  "n_markets": 4913,
+  "n_actual_temps": 527,
+  "n_gfs": 3612,
   "gfs_accuracy": [
+    {
+      "city": "Seoul",
+      "lead_days": 0,
+      "n": 33,
+      "mae": 3.08,
+      "bias": -2.95,
+      "pct_within_1c": 18.2
+    },
+    {
+      "city": "Seoul",
+      "lead_days": 1,
+      "n": 33,
+      "mae": 3.04,
+      "bias": -2.93,
+      "pct_within_1c": 21.2
+    },
+    {
+      "city": "Seoul",
+      "lead_days": 2,
+      "n": 33,
+      "mae": 3.08,
+      "bias": -2.96,
+      "pct_within_1c": 12.1
+    },
+    {
+      "city": "Seoul",
+      "lead_days": 3,
+      "n": 33,
+      "mae": 3.09,
+      "bias": -2.92,
+      "pct_within_1c": 18.2
+    },
     {
       "city": "NYC",
       "lead_days": 0,
@@ -69026,38 +69964,6 @@
       "mae": 1.94,
       "bias": -1.42,
       "pct_within_1c": 37.5
-    },
-    {
-      "city": "Seoul",
-      "lead_days": 0,
-      "n": 32,
-      "mae": 3.04,
-      "bias": -2.91,
-      "pct_within_1c": 18.8
-    },
-    {
-      "city": "Seoul",
-      "lead_days": 1,
-      "n": 32,
-      "mae": 3.0,
-      "bias": -2.89,
-      "pct_within_1c": 21.9
-    },
-    {
-      "city": "Seoul",
-      "lead_days": 2,
-      "n": 32,
-      "mae": 3.06,
-      "bias": -2.93,
-      "pct_within_1c": 12.5
-    },
-    {
-      "city": "Seoul",
-      "lead_days": 3,
-      "n": 32,
-      "mae": 3.05,
-      "bias": -2.88,
-      "pct_within_1c": 18.8
     },
     {
       "city": "Seattle",
@@ -69296,7 +70202,7 @@
       "lead_days": 1,
       "n": 30,
       "mae": 1.92,
-      "bias": -0.07,
+      "bias": -0.08,
       "pct_within_1c": 46.7
     },
     {
@@ -69311,8 +70217,8 @@
       "city": "Chicago",
       "lead_days": 3,
       "n": 30,
-      "mae": 3.16,
-      "bias": 0.33,
+      "mae": 3.15,
+      "bias": 0.32,
       "pct_within_1c": 20.0
     },
     {
@@ -69382,66 +70288,66 @@
     {
       "city": "Lucknow",
       "lead_days": 0,
-      "n": 15,
-      "mae": 3.07,
-      "bias": 3.07,
+      "n": 16,
+      "mae": 3.01,
+      "bias": 3.01,
       "pct_within_1c": 0.0
     },
     {
       "city": "Lucknow",
       "lead_days": 1,
-      "n": 15,
-      "mae": 4.38,
-      "bias": 4.38,
+      "n": 16,
+      "mae": 4.46,
+      "bias": 4.46,
       "pct_within_1c": 0.0
     },
     {
       "city": "Lucknow",
       "lead_days": 2,
-      "n": 15,
-      "mae": 5.22,
-      "bias": 5.22,
+      "n": 16,
+      "mae": 5.29,
+      "bias": 5.29,
       "pct_within_1c": 0.0
     },
     {
       "city": "Lucknow",
       "lead_days": 3,
-      "n": 15,
-      "mae": 5.59,
-      "bias": 5.59,
+      "n": 16,
+      "mae": 5.79,
+      "bias": 5.79,
       "pct_within_1c": 0.0
     },
     {
       "city": "Tokyo",
       "lead_days": 0,
-      "n": 10,
-      "mae": 1.23,
-      "bias": -0.97,
-      "pct_within_1c": 40.0
+      "n": 11,
+      "mae": 1.19,
+      "bias": -0.95,
+      "pct_within_1c": 45.5
     },
     {
       "city": "Tokyo",
       "lead_days": 1,
-      "n": 10,
-      "mae": 1.7,
-      "bias": -1.46,
-      "pct_within_1c": 40.0
+      "n": 11,
+      "mae": 1.65,
+      "bias": -1.44,
+      "pct_within_1c": 36.4
     },
     {
       "city": "Tokyo",
       "lead_days": 2,
-      "n": 10,
-      "mae": 1.46,
-      "bias": -1.28,
-      "pct_within_1c": 40.0
+      "n": 11,
+      "mae": 1.42,
+      "bias": -1.25,
+      "pct_within_1c": 45.5
     },
     {
       "city": "Tokyo",
       "lead_days": 3,
-      "n": 10,
-      "mae": 1.79,
-      "bias": -1.23,
-      "pct_within_1c": 30.0
+      "n": 11,
+      "mae": 1.71,
+      "bias": -1.2,
+      "pct_within_1c": 36.4
     },
     {
       "city": "Tel Aviv",
@@ -69478,194 +70384,194 @@
     {
       "city": "Singapore",
       "lead_days": 0,
-      "n": 7,
-      "mae": 1.19,
-      "bias": -1.1,
-      "pct_within_1c": 28.6
+      "n": 8,
+      "mae": 1.1,
+      "bias": -1.02,
+      "pct_within_1c": 37.5
     },
     {
       "city": "Singapore",
       "lead_days": 1,
-      "n": 7,
-      "mae": 1.47,
-      "bias": -1.44,
-      "pct_within_1c": 28.6
+      "n": 8,
+      "mae": 1.39,
+      "bias": -1.36,
+      "pct_within_1c": 37.5
     },
     {
       "city": "Singapore",
       "lead_days": 2,
-      "n": 7,
-      "mae": 1.36,
-      "bias": -1.3,
-      "pct_within_1c": 28.6
+      "n": 8,
+      "mae": 1.25,
+      "bias": -1.2,
+      "pct_within_1c": 37.5
     },
     {
       "city": "Singapore",
       "lead_days": 3,
-      "n": 7,
-      "mae": 1.33,
-      "bias": -0.96,
-      "pct_within_1c": 28.6
-    },
-    {
-      "city": "Shanghai",
-      "lead_days": 0,
-      "n": 7,
-      "mae": 0.87,
-      "bias": -0.64,
-      "pct_within_1c": 57.1
-    },
-    {
-      "city": "Shanghai",
-      "lead_days": 1,
-      "n": 7,
-      "mae": 1.11,
-      "bias": -1.11,
-      "pct_within_1c": 28.6
-    },
-    {
-      "city": "Shanghai",
-      "lead_days": 2,
-      "n": 7,
-      "mae": 1.63,
-      "bias": -1.63,
-      "pct_within_1c": 28.6
-    },
-    {
-      "city": "Shanghai",
-      "lead_days": 3,
-      "n": 7,
-      "mae": 1.93,
-      "bias": -1.93,
-      "pct_within_1c": 0.0
-    },
-    {
-      "city": "Warsaw",
-      "lead_days": 0,
-      "n": 4,
-      "mae": 0.5,
-      "bias": 0.15,
-      "pct_within_1c": 75.0
-    },
-    {
-      "city": "Warsaw",
-      "lead_days": 1,
-      "n": 4,
-      "mae": 0.95,
-      "bias": -0.5,
-      "pct_within_1c": 75.0
-    },
-    {
-      "city": "Warsaw",
-      "lead_days": 2,
-      "n": 4,
-      "mae": 1.55,
-      "bias": -1.55,
-      "pct_within_1c": 50.0
-    },
-    {
-      "city": "Warsaw",
-      "lead_days": 3,
-      "n": 4,
-      "mae": 3.0,
-      "bias": -3.0,
-      "pct_within_1c": 0.0
-    },
-    {
-      "city": "Taipei",
-      "lead_days": 0,
-      "n": 4,
-      "mae": 2.65,
-      "bias": -2.4,
-      "pct_within_1c": 25.0
-    },
-    {
-      "city": "Taipei",
-      "lead_days": 1,
-      "n": 4,
-      "mae": 2.65,
-      "bias": -2.4,
-      "pct_within_1c": 25.0
-    },
-    {
-      "city": "Taipei",
-      "lead_days": 2,
-      "n": 4,
-      "mae": 2.42,
-      "bias": -2.42,
-      "pct_within_1c": 25.0
-    },
-    {
-      "city": "Taipei",
-      "lead_days": 3,
-      "n": 4,
-      "mae": 2.48,
-      "bias": -2.12,
-      "pct_within_1c": 50.0
-    },
-    {
-      "city": "Milan",
-      "lead_days": 0,
-      "n": 4,
-      "mae": 1.37,
-      "bias": -1.37,
-      "pct_within_1c": 25.0
-    },
-    {
-      "city": "Milan",
-      "lead_days": 1,
-      "n": 4,
-      "mae": 2.37,
-      "bias": -2.37,
-      "pct_within_1c": 25.0
-    },
-    {
-      "city": "Milan",
-      "lead_days": 2,
-      "n": 4,
-      "mae": 2.67,
-      "bias": -2.67,
-      "pct_within_1c": 0.0
-    },
-    {
-      "city": "Milan",
-      "lead_days": 3,
-      "n": 4,
-      "mae": 3.52,
-      "bias": -3.52,
-      "pct_within_1c": 0.0
-    },
-    {
-      "city": "Madrid",
-      "lead_days": 0,
-      "n": 4,
-      "mae": 1.38,
-      "bias": 1.03,
-      "pct_within_1c": 75.0
-    },
-    {
-      "city": "Madrid",
-      "lead_days": 1,
-      "n": 4,
-      "mae": 1.75,
-      "bias": 1.0,
-      "pct_within_1c": 75.0
-    },
-    {
-      "city": "Madrid",
-      "lead_days": 2,
-      "n": 4,
+      "n": 8,
       "mae": 1.22,
-      "bias": 0.63,
+      "bias": -0.9,
+      "pct_within_1c": 37.5
+    },
+    {
+      "city": "Shanghai",
+      "lead_days": 0,
+      "n": 8,
+      "mae": 0.93,
+      "bias": -0.73,
+      "pct_within_1c": 50.0
+    },
+    {
+      "city": "Shanghai",
+      "lead_days": 1,
+      "n": 8,
+      "mae": 1.14,
+      "bias": -1.14,
+      "pct_within_1c": 25.0
+    },
+    {
+      "city": "Shanghai",
+      "lead_days": 2,
+      "n": 8,
+      "mae": 1.61,
+      "bias": -1.61,
+      "pct_within_1c": 25.0
+    },
+    {
+      "city": "Shanghai",
+      "lead_days": 3,
+      "n": 8,
+      "mae": 1.91,
+      "bias": -1.91,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Taipei",
+      "lead_days": 0,
+      "n": 5,
+      "mae": 2.22,
+      "bias": -2.02,
+      "pct_within_1c": 40.0
+    },
+    {
+      "city": "Taipei",
+      "lead_days": 1,
+      "n": 5,
+      "mae": 2.34,
+      "bias": -2.14,
+      "pct_within_1c": 20.0
+    },
+    {
+      "city": "Taipei",
+      "lead_days": 2,
+      "n": 5,
+      "mae": 2.16,
+      "bias": -2.16,
+      "pct_within_1c": 20.0
+    },
+    {
+      "city": "Taipei",
+      "lead_days": 3,
+      "n": 5,
+      "mae": 2.46,
+      "bias": -2.18,
+      "pct_within_1c": 40.0
+    },
+    {
+      "city": "Warsaw",
+      "lead_days": 0,
+      "n": 4,
+      "mae": 0.6,
+      "bias": -0.05,
       "pct_within_1c": 75.0
     },
     {
-      "city": "Madrid",
-      "lead_days": 3,
+      "city": "Warsaw",
+      "lead_days": 1,
       "n": 4,
-      "mae": 0.47,
+      "mae": 0.73,
       "bias": -0.27,
       "pct_within_1c": 100.0
+    },
+    {
+      "city": "Warsaw",
+      "lead_days": 2,
+      "n": 4,
+      "mae": 1.67,
+      "bias": -1.67,
+      "pct_within_1c": 50.0
+    },
+    {
+      "city": "Warsaw",
+      "lead_days": 3,
+      "n": 4,
+      "mae": 2.6,
+      "bias": -2.6,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Milan",
+      "lead_days": 0,
+      "n": 4,
+      "mae": 1.65,
+      "bias": -1.65,
+      "pct_within_1c": 25.0
+    },
+    {
+      "city": "Milan",
+      "lead_days": 1,
+      "n": 4,
+      "mae": 2.65,
+      "bias": -2.65,
+      "pct_within_1c": 25.0
+    },
+    {
+      "city": "Milan",
+      "lead_days": 2,
+      "n": 4,
+      "mae": 2.95,
+      "bias": -2.95,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Milan",
+      "lead_days": 3,
+      "n": 4,
+      "mae": 3.45,
+      "bias": -3.45,
+      "pct_within_1c": 25.0
+    },
+    {
+      "city": "Madrid",
+      "lead_days": 0,
+      "n": 4,
+      "mae": 0.58,
+      "bias": -0.08,
+      "pct_within_1c": 100.0
+    },
+    {
+      "city": "Madrid",
+      "lead_days": 1,
+      "n": 4,
+      "mae": 0.65,
+      "bias": -0.65,
+      "pct_within_1c": 75.0
+    },
+    {
+      "city": "Madrid",
+      "lead_days": 2,
+      "n": 4,
+      "mae": 0.55,
+      "bias": -0.55,
+      "pct_within_1c": 100.0
+    },
+    {
+      "city": "Madrid",
+      "lead_days": 3,
+      "n": 4,
+      "mae": 0.82,
+      "bias": -0.63,
+      "pct_within_1c": 75.0
     }
   ]
 }
