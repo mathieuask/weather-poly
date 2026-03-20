@@ -189,8 +189,10 @@ def run():
 
         print(f"  📡 {city_name} ({station}) — {local_hour}h locale ≥ {peak_hour}h pic → vérif METAR")
 
-        # Max depuis minuit via Iowa Mesonet
-        daily_max = fetch_daily_max(station, tz_name)
+        # Max depuis minuit via Wunderground (même source que Polymarket)
+        from wunderground import get_current_max
+        wu_country = city.get("wu_country", "")
+        daily_max = get_current_max(station, wu_country, tz_name)
         if daily_max is None:
             print(f"    ⚠ Pas de données IEM pour {station}")
             continue

@@ -91,27 +91,14 @@ def update_actual_temps(conn):
             continue
 
         try:
-            r = requests.get(
-                "https://archive-api.open-meteo.com/v1/archive",
-                params={
-                    "latitude": city_info["lat"],
-                    "longitude": city_info["lon"],
-                    "start_date": date,
-                    "end_date": date,
-                    "daily": "temperature_2m_max",
-                    "timezone": city_info["tz"]
-                },
-                timeout=10
-            )
-            data = r.json()
-            temps = data.get("daily", {}).get("temperature_2m_max", [])
-            if not temps or temps[0] is None:
-                continue
+            from wunderground import get_daily_max
+            wu_country = city_info.get("wu_country", "")
+            date_wu = date.replace("-", "")  # YYYYMMDD
+            actual_temp = get_daily_max(station, wu_country, date_wu)
 
-            actual_temp = float(temps[0])
-            # Convertit en °F si nécessaire
-            if city_info["unit"] == "F":
-                actual_temp = actual_temp * 9/5 + 32
+            if actual_temp is None:
+                print(f"    ⚠ {city} {date}: pas de données WU")
+                continue
 
             for cid in cids:
                 conn.execute(
@@ -119,7 +106,7 @@ def update_actual_temps(conn):
                     (round(actual_temp, 1), cid)
                 )
             conn.commit()
-            print(f"    ✅ {city} {date}: temp réelle = {actual_temp:.1f}°{'F' if city_info['unit']=='F' else 'C'}")
+            print(f"    ✅ {city} {date}: temp réelle WU = {actual_temp:.1f}°C")
 
         except Exception as e:
             print(f"    ⚠ {city} {date}: {e}")
