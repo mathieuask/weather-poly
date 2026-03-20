@@ -1,14 +1,14 @@
 {
-  "updated_at": "2026-03-20 15:01 UTC",
+  "updated_at": "2026-03-20 15:31 UTC",
   "stats": {
     "total_trades": 361,
-    "pending": 354,
+    "pending": 353,
     "wins": 3,
-    "losses": 4,
-    "win_rate": 42.9,
-    "total_invested": 70.0,
-    "total_pnl": -31.16,
-    "roi": -44.5,
+    "losses": 5,
+    "win_rate": 37.5,
+    "total_invested": 80.0,
+    "total_pnl": -41.16,
+    "roi": -51.4,
     "paper_amount": 10.0
   },
   "city_stats": {
@@ -21,6 +21,11 @@
       "wins": 1,
       "losses": 1,
       "pnl": -5.29
+    },
+    "Paris": {
+      "wins": 0,
+      "losses": 1,
+      "pnl": -10.0
     },
     "Taipei": {
       "wins": 1,
@@ -24485,7 +24490,7 @@
     },
     {
       "opened_at": "2026-03-19T21:50:13.175448+00:00",
-      "closed_at": null,
+      "closed_at": "2026-03-20T15:31:32.159556+00:00",
       "condition_id": "0xc94fe5ab4a5d05a0f9eb119a3d9bc17b1738f380ff10444e0af90804b74048b1",
       "city": "Paris",
       "date": "2026-03-20",
@@ -24496,8 +24501,8 @@
       "edge": 41.8,
       "entry_price": 0.015,
       "amount": 10.0,
-      "result": "pending",
-      "pnl": null,
+      "result": "loss",
+      "pnl": -10.0,
       "question": "Will the highest temperature in Paris be 15\u00b0C on March 20?",
       "event_title": "Highest temperature in Paris on March 20?",
       "poly_url": "https://polymarket.com/event/highest-temperature-in-paris-on-march-20-2026",
