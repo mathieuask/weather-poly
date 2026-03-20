@@ -103,6 +103,16 @@ def fetch_poly_markets(days_ahead=3):
         key = f"{city_key}_{date_str}"
 
         if key not in markets_by_city_date:
+            # Extrait le vrai code station depuis la description Polymarket
+            desc = event.get("description", "") or ""
+            wu_match = re.search(r'wunderground\.com/history/daily/([^"\'>\s]+)', desc)
+            if wu_match:
+                wu_path = wu_match.group(1).rstrip("/.\"' ")
+                station_code = wu_path.split("/")[-1].upper().strip(".")
+            else:
+                station_code = city_info["station"]
+                wu_path = f"{'kr/incheon' if station_code == 'RKSI' else station_code}/{station_code}"
+
             markets_by_city_date[key] = {
                 "city": city_info["name"],
                 "city_key": city_key,
@@ -110,10 +120,11 @@ def fetch_poly_markets(days_ahead=3):
                 "unit": city_info["unit"],
                 "lat": city_info["lat"],
                 "lon": city_info["lon"],
-                "station": city_info["station"],
+                "station": station_code,
+                "wu_path": wu_path,
                 "event_slug": event.get("slug", ""),
                 "event_title": title,
-                "wunderground": f"https://www.wunderground.com/history/daily/{city_info['station']}",
+                "wunderground": f"https://www.wunderground.com/history/daily/{wu_path}",
                 "brackets": []
             }
 
@@ -391,6 +402,7 @@ def compute_signals(market, members_c):
             "liquidity":     b["liquidity"],
             "question":      display_q,
             "condition_id":  b["condition_id"],
+            "station":       market.get("station", ""),
             "wunderground":  f"{market['wunderground']}/date/{market['date']}?units=m",
             "poly_url":      f"https://polymarket.com/event/{event_slug}" if event_slug else "",
             "all_brackets":  market.get("all_brackets", []),
