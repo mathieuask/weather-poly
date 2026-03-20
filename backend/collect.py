@@ -46,12 +46,17 @@ STATIONS = {
     "LLBG": (32.011,  34.886, "Asia/Jerusalem",           "IL", "Tel Aviv"),
     "NZWN": (-41.327, 174.805,"Pacific/Auckland",         "NZ", "Wellington"),
     "KSEA": (47.449,-122.309, "America/Los_Angeles",      "US", "Seattle"),
-    "KDFW": (32.897, -97.038, "America/Chicago",          "US", "Dallas"),
+    "KDAL": (32.847, -96.852, "America/Chicago",          "US", "Dallas"),
     "KATL": (33.636, -84.428, "America/New_York",         "US", "Atlanta"),
-    "LIML": (45.445,   9.277, "Europe/Rome",              "IT", "Milan"),
-    "LTBA": (40.976,  28.814, "Europe/Istanbul",          "TR", "Ankara"),
+    "LIMC": (45.630,   8.723, "Europe/Rome",              "IT", "Milan"),
+    "LTAC": (40.128,  32.995, "Europe/Istanbul",          "TR", "Ankara"),
     "NZAA": (-37.008, 174.791,"Pacific/Auckland",         "NZ", "Auckland"),
-    "ZSSS": (31.197, 121.336, "Asia/Shanghai",            "CN", "Shanghai"),
+    "ZSPD": (31.143, 121.805, "Asia/Shanghai",            "CN", "Shanghai"),
+    # Nouvelles villes (Passe 5)
+    "SBGR": (-23.432, -46.470,"America/Sao_Paulo",        "BR", "Sao Paulo"),
+    "EDDM": (48.354,  11.786, "Europe/Berlin",            "DE", "Munich"),
+    "VILK": (26.761,  80.889, "Asia/Kolkata",             "IN", "Lucknow"),
+    "EPWA": (52.166,  20.967, "Europe/Warsaw",            "PL", "Warsaw"),
 }
 
 
@@ -122,12 +127,16 @@ CITY_TO_STATION = {
     "tel aviv":     "LLBG",
     "wellington":   "NZWN",
     "seattle":      "KSEA",
-    "dallas":       "KDFW",  # Dallas Love Field → KDAL or KDFW
+    "dallas":       "KDAL",
     "atlanta":      "KATL",
-    "milan":        "LIML",
-    "ankara":       "LTBA",
+    "milan":        "LIMC",
+    "ankara":       "LTAC",
     "auckland":     "NZAA",
-    "shanghai":     "ZSSS",
+    "shanghai":     "ZSPD",
+    "sao paulo":    "SBGR",
+    "munich":       "EDDM",
+    "lucknow":      "VILK",
+    "warsaw":       "EPWA",
 }
 
 # Mapping station aéroport Polymarket (via description)
@@ -148,12 +157,16 @@ AIRPORT_KEYWORDS = {
     "ben gurion":  "LLBG",
     "wellington":  "NZWN",
     "sea-tac":     "KSEA",
-    "love field":  "KDFW",
+    "love field":  "KDAL",
     "hartsfield":  "KATL",
-    "malpensa":    "LIML",
-    "esenboga":    "LTBA",
+    "malpensa":    "LIMC",
+    "esenboga":    "LTAC",  "esenboğa": "LTAC",
     "auckland":    "NZAA",
-    "pudong":      "ZSSS",
+    "pudong":      "ZSPD",
+    "guarulhos":   "SBGR",
+    "munich":      "EDDM",  "franz josef": "EDDM",
+    "lucknow":     "VILK",
+    "chopin":      "EPWA",  "warsaw":  "EPWA",
 }
 
 
@@ -180,7 +193,8 @@ def extract_station_from_event(event: dict) -> str | None:
 def parse_bracket(title: str) -> tuple[float | None, str]:
     """
     Parse le titre d'un bracket market.
-    Retourne (temp, op) où op = 'exact', 'lte', 'gte'
+    Retourne (temp, op) où op = 'exact', 'lte', 'gte', 'range'
+    Pour les ranges (24-25°F): retourne (24.0, 'range') — borne basse.
     """
     title = title.strip()
 
@@ -200,7 +214,18 @@ def parse_bracket(title: str) -> tuple[float | None, str]:
     if m:
         return float(m.group(1)), 'gte'
 
-    # Exact
+    # Range: "24-25°F" or "between 24-25°F"
+    m = re.search(r'(\d+)\s*[-–]\s*(\d+)\s*°[CF]', title)
+    if m:
+        low = float(m.group(1))
+        return low, 'range'
+
+    # Exact single value: "-7°C" or "15°C"
+    m = re.search(r'(-?\d+(?:\.\d+)?)\s*°[CF]', title)
+    if m:
+        return float(m.group(1)), 'exact'
+
+    # Fallback
     m = re.search(r'(-?\d+(?:\.\d+)?)\s*°?[CF]?$', title)
     if m:
         return float(m.group(1)), 'exact'
@@ -260,22 +285,17 @@ def fetch_all_poly_markets(days_back: int | None = None) -> list[dict]:
     return all_events
 
 
-def fetch_gfs_leadtime(station: str, target_date: str, lead_days: int) -> float | None:
+def fetch_gfs_all_leadtimes(station: str, start_date: str, end_date: str) -> dict:
     """
-    Récupère la prévision GFS faite lead_days jours avant target_date.
-    Utilise Previous Runs API d'Open-Meteo.
-    target_date = 'YYYY-MM-DD'
+    Récupère les prévisions GFS à J-0/J-1/J-2/J-3 via l'API Previous Runs.
+    Utilise les variables HOURLY (_previous_dayN) puis calcule le max journalier.
 
-    Méthode : start_date = target - lead_days, end_date = target
-    → L'API retourne ce que GFS prédisait depuis lead_days jours en avance.
-    On récupère la valeur pour target_date dans la réponse.
+    Retourne { date_str: {0: max_temp, 1: max_temp, 2: max_temp, 3: max_temp} }
     """
     if station not in STATIONS:
-        return None
+        return {}
 
     lat, lon, tz, _, _ = STATIONS[station]
-    target    = datetime.strptime(target_date, "%Y-%m-%d")
-    from_date = (target - timedelta(days=lead_days)).strftime("%Y-%m-%d")
 
     try:
         r = requests.get(
@@ -283,27 +303,53 @@ def fetch_gfs_leadtime(station: str, target_date: str, lead_days: int) -> float 
             params={
                 "latitude":       lat,
                 "longitude":      lon,
-                "start_date":     from_date,
-                "end_date":       target_date,
-                "daily":          "temperature_2m_max",
+                "start_date":     start_date,
+                "end_date":       end_date,
+                "hourly":         "temperature_2m,temperature_2m_previous_day1,temperature_2m_previous_day2,temperature_2m_previous_day3",
                 "timezone":       tz,
                 "models":         "gfs_seamless",
                 "cell_selection": "nearest"
             },
-            timeout=TIMEOUT
+            timeout=60
         )
         data = r.json()
         if data.get("error"):
-            return None
-        dates = data.get("daily", {}).get("time", [])
-        temps = data.get("daily", {}).get("temperature_2m_max", [])
-        if target_date in dates:
-            idx = dates.index(target_date)
-            v = temps[idx]
-            return float(v) if v is not None else None
-        return None
-    except Exception:
-        return None
+            return {}
+
+        hourly = data.get("hourly", {})
+        times = hourly.get("time", [])
+        d0_vals = hourly.get("temperature_2m", [])
+        d1_vals = hourly.get("temperature_2m_previous_day1", [])
+        d2_vals = hourly.get("temperature_2m_previous_day2", [])
+        d3_vals = hourly.get("temperature_2m_previous_day3", [])
+
+        if not times:
+            return {}
+
+        # Group by date and compute daily max for each lead time
+        from collections import defaultdict
+        by_date = defaultdict(lambda: {0: [], 1: [], 2: [], 3: []})
+        for i, t in enumerate(times):
+            date = t[:10]
+            if i < len(d0_vals) and d0_vals[i] is not None:
+                by_date[date][0].append(d0_vals[i])
+            if i < len(d1_vals) and d1_vals[i] is not None:
+                by_date[date][1].append(d1_vals[i])
+            if i < len(d2_vals) and d2_vals[i] is not None:
+                by_date[date][2].append(d2_vals[i])
+            if i < len(d3_vals) and d3_vals[i] is not None:
+                by_date[date][3].append(d3_vals[i])
+
+        result = {}
+        for date, leads in by_date.items():
+            result[date] = {}
+            for lead in [0, 1, 2, 3]:
+                result[date][lead] = round(max(leads[lead]), 1) if leads[lead] else None
+        return result
+
+    except Exception as e:
+        print(f"  ⚠ GFS leadtime error {station}: {e}")
+        return {}
 
 
 def fetch_opening_price(token_id: str) -> float | None:
@@ -384,7 +430,7 @@ def store_markets(conn, events: list[dict]):
                     pass
 
             liquidity = float(market.get("liquidity") or 0)
-            unit = "F" if station in ("KLGA", "KORD", "CYYZ", "KMIA", "KSEA", "KDFW", "KATL") else "C"
+            unit = "F" if station in ("KLGA", "KORD", "KMIA", "KSEA", "KDAL", "KATL") else "C"
 
             try:
                 conn.execute("""
@@ -446,36 +492,47 @@ def fetch_actual_temps(conn):
 
 
 def fetch_gfs_history(conn):
-    """Récupère les prévisions GFS J-1/J-2/J-3 pour tous les marchés."""
+    """Récupère les prévisions GFS J-0/J-1/J-2/J-3 via hourly Previous Runs API."""
+    # Group dates by station
     rows = conn.execute("""
-        SELECT DISTINCT pm.station, pm.date
+        SELECT DISTINCT pm.station, MIN(pm.date) as min_date, MAX(pm.date) as max_date
         FROM poly_markets pm
-        LEFT JOIN gfs_forecasts gf ON gf.station=pm.station AND gf.target_date=pm.date AND gf.lead_days=1
-        WHERE pm.resolved=1 AND gf.id IS NULL
-        ORDER BY pm.date DESC
+        WHERE pm.resolved=1
+        GROUP BY pm.station
+        ORDER BY pm.station
     """).fetchall()
 
-    print(f"\n📡 Récupération prévisions GFS ({len(rows)} station-dates × 3 horizons)...")
+    print(f"\n📡 Récupération prévisions GFS (hourly → daily max, {len(rows)} stations)...")
     now = datetime.now(timezone.utc).isoformat()
     ok = fail = 0
 
-    for i, (station, date) in enumerate(rows):
-        for lead in [1, 2, 3]:
-            temp = fetch_gfs_leadtime(station, date, lead)
-            if temp is not None:
-                conn.execute("""
-                    INSERT OR IGNORE INTO gfs_forecasts
-                    (station, target_date, lead_days, model, temp_max_c, fetched_at)
-                    VALUES (?,?,?,?,?,?)
-                """, (station, date, lead, "gfs_seamless", temp, now))
-                ok += 1
-            else:
-                fail += 1
-            time.sleep(0.1)
+    for station, min_date, max_date in rows:
+        # Delete old (identical) data for this station
+        conn.execute("DELETE FROM gfs_forecasts WHERE station=?", (station,))
 
-        if (i + 1) % 20 == 0:
-            conn.commit()
-            print(f"  {i+1}/{len(rows)} | ✅{ok} ❌{fail}", end="\r")
+        # Fetch all lead times in one batch call per station
+        result = fetch_gfs_all_leadtimes(station, min_date, max_date)
+        if not result:
+            print(f"  ⚠ {station}: no data")
+            continue
+
+        for date_str, leads in result.items():
+            for lead_days in [0, 1, 2, 3]:
+                temp = leads.get(lead_days)
+                if temp is not None:
+                    conn.execute("""
+                        INSERT OR REPLACE INTO gfs_forecasts
+                        (station, target_date, lead_days, model, temp_max_c, fetched_at)
+                        VALUES (?,?,?,?,?,?)
+                    """, (station, date_str, lead_days, "gfs_seamless", temp, now))
+                    ok += 1
+                else:
+                    fail += 1
+
+        conn.commit()
+        n_dates = len(result)
+        print(f"  {station}: {n_dates} dates fetched")
+        time.sleep(0.3)
 
     conn.commit()
     print(f"\n  ✅ {ok} prévisions GFS stockées | ❌ {fail} non disponibles")

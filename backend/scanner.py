@@ -2,10 +2,11 @@
 weather-poly scanner
 --------------------
 1. Récupère tous les marchés météo actifs sur Polymarket (tag: temperature)
-2. Pour chaque ville, récupère les 30 membres GFS via Open-Meteo
-3. Calcule la probabilité par bracket
-4. Compare au prix AMM → edge = GFS_prob - marché
-5. Sauvegarde dans signals.json
+2. Pour chaque ville, récupère les membres GFS (30) + ICON (39) + ECMWF (50) via Open-Meteo
+3. Calcule la probabilité pondérée par bracket (GFS 0.8× / ICON 1.0× / ECMWF 1.2×)
+4. Applique la correction de biais GFS par ville (city_bias.json)
+5. Compare au prix AMM → edge = model_prob - marché
+6. Sauvegarde dans signals.json
 """
 
 import json
@@ -26,15 +27,27 @@ MODEL_WEIGHTS = {"gfs_seamless": 0.8, "icon_seamless": 1.0, "ecmwf_ifs025": 1.2}
 
 # Confiance GFS par ville (high/medium/low) — pour badge et futur filtre live
 CITY_CONFIDENCE = {
-    "new york":      "high",
+    "nyc":           "high",
     "chicago":       "high",
     "toronto":       "high",
     "london":        "high",
     "paris":         "high",
+    "dallas":        "high",
+    "atlanta":       "high",
+    "seattle":       "high",
+    "munich":        "high",
+    "warsaw":        "medium",
     "madrid":        "medium",
     "miami":         "medium",
     "buenos aires":  "medium",
     "tokyo":         "medium",
+    "milan":         "medium",
+    "tel aviv":      "medium",
+    "wellington":    "medium",
+    "ankara":        "medium",
+    "shanghai":      "medium",
+    "sao paulo":     "medium",
+    "lucknow":       "medium",
     "seoul":         "low",    # biais froid suspecté +3-4°C
     "singapore":     "low",    # biais froid tropical +2-3°C
     "taipei":        "low",    # subtropical
@@ -44,14 +57,37 @@ GFS_UNRELIABLE: set = set()  # blacklist manuelle (vide = toutes actives)
 OUT_FILE      = os.path.join(os.path.dirname(__file__), "signals.json")
 FRONTEND_OUT  = os.path.join(os.path.dirname(__file__), "..", "frontend", "public", "signals.json")
 CITIES_F      = os.path.join(os.path.dirname(__file__), "cities.json")
+TRACKER_DB    = os.path.join(os.path.dirname(__file__), "tracker.db")
 
 # ─── CHARGEMENT DES VILLES ────────────────────────────────────────────────────
 with open(CITIES_F) as f:
     CITIES = json.load(f)
 CITY_MAP = {c["key"].lower(): c for c in CITIES}
+# Reverse map: station ICAO → city info (pour matching via resolutionSource)
+STATION_MAP = {c["station"]: c for c in CITIES}
 
 def c_to_f(c): return c * 9/5 + 32
 def f_to_c(f): return (f - 32) * 5/9
+
+
+def _log_price_snapshots(brackets):
+    """Stocke un snapshot de prix dans tracker.db pour backtest futur."""
+    import sqlite3
+    try:
+        conn = sqlite3.connect(TRACKER_DB)
+        ts = datetime.now(timezone.utc).isoformat()
+        for b in brackets:
+            conn.execute("""
+                INSERT OR IGNORE INTO price_snapshots
+                (condition_id, timestamp, price_yes, best_bid, best_ask, liquidity)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (b.get("condition_id", ""), ts,
+                  b.get("p_yes", 0) / 100, b.get("best_bid", 0),
+                  b.get("best_ask", 0), b.get("liquidity", 0)))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass  # don't break scanner if DB issue
 
 
 # ─── ÉTAPE 1 : récupère marchés Polymarket ────────────────────────────────────
@@ -88,34 +124,49 @@ def fetch_poly_markets(days_ahead=3):
         title = event.get("title", "")
         date_str = end.strftime("%Y-%m-%d")
 
-        # Identifie la ville depuis le titre
+        # ── Identification de la ville ──
+        # Priorité 1 : extraire la station ICAO depuis resolutionSource (source de vérité)
         city_key = None
-        for cname in CITY_MAP:
-            if cname in title.lower():
-                city_key = cname
-                break
+        city_info = None
+        station_code = None
+        wu_path = None
+
+        res_source = event.get("resolutionSource", "") or ""
+        wu_match = re.search(r'wunderground\.com/history/daily/([a-z]{2})/.+?/([A-Z]{4})', res_source)
+        if wu_match:
+            station_code = wu_match.group(2)  # ICAO code
+            wu_path = res_source.split("wunderground.com/history/daily/")[-1].rstrip("/")
+            if station_code in STATION_MAP:
+                city_info = STATION_MAP[station_code]
+                city_key = city_info["key"].lower()
+            else:
+                # Station trouvée mais pas dans cities.json — log et skip
+                city_title = re.search(r'[Hh]ighest temperature in (.+?) on ', title)
+                city_name = city_title.group(1) if city_title else title
+                print(f"  ⚠ Ville détectée mais non configurée: {city_name} ({station_code})")
+                continue
+
+        # Priorité 2 : fallback matching par nom dans le titre
+        if not city_key:
+            for cname in CITY_MAP:
+                if cname in title.lower():
+                    city_key = cname
+                    city_info = CITY_MAP[city_key]
+                    break
+
         if not city_key:
             continue
         if city_key in GFS_UNRELIABLE:
-            continue  # GFS peu fiable en zone tropicale
+            continue
 
-        city_info = CITY_MAP[city_key]
         key = f"{city_key}_{date_str}"
 
         if key not in markets_by_city_date:
-            # Extrait le vrai code station depuis la description Polymarket
-            desc = event.get("description", "") or ""
-            wu_match = re.search(r'wunderground\.com/history/daily/([^"\'>\s]+)', desc)
-            if wu_match:
-                wu_path = wu_match.group(1).rstrip("/.\"' ")
-                parts = [p for p in wu_path.split("/") if p]
-                station_code = parts[-1].upper().strip(".")
-                # Évite les doublons genre /RCTP/RCTP
-                if len(parts) >= 2 and parts[-1].upper() == parts[-2].upper():
-                    wu_path = "/".join(parts[:-1])
-            else:
+            # Station code : priorité resolutionSource, fallback cities.json
+            if not station_code:
                 station_code = city_info["station"]
-                wu_path = f"{'kr/incheon' if station_code == 'RKSI' else station_code}/{station_code}"
+            if not wu_path:
+                wu_path = f"{station_code}/{station_code}"
 
             markets_by_city_date[key] = {
                 "city": city_info["name"],
@@ -155,13 +206,19 @@ def fetch_poly_markets(days_ahead=3):
             bracket = parse_bracket(question, city_info["unit"])
             if bracket is None:
                 continue
+            # Spread data from Gamma API
+            best_bid = float(m.get("bestBid") or 0)
+            best_ask = float(m.get("bestAsk") or 0)
+
             all_raw.append({
                 "question": question,
                 "temp": bracket["temp"],
                 "op": bracket["op"],
                 "p_yes": round(p_yes * 100, 1),
                 "liquidity": round(liq, 0),
-                "condition_id": m.get("conditionId", "")
+                "condition_id": m.get("conditionId", ""),
+                "best_bid": round(best_bid, 4),
+                "best_ask": round(best_ask, 4),
             })
 
         if not all_raw:
@@ -192,6 +249,13 @@ def fetch_poly_markets(days_ahead=3):
             if b["p_yes"] >= 99 or b["p_yes"] <= 1:
                 continue
             markets_by_city_date[key]["brackets"].append(b)
+
+    # Log price snapshots pour backtest futur
+    all_brackets = []
+    for mkt in markets_by_city_date.values():
+        all_brackets.extend(mkt.get("brackets", []))
+    if all_brackets:
+        _log_price_snapshots(all_brackets)
 
     return list(markets_by_city_date.values())
 
@@ -258,12 +322,10 @@ def fetch_ensemble(model, n_members, lat, lon, date_str, tz="UTC"):
 
 def fetch_gfs_ensemble(lat, lon, date_str, tz="UTC"):
     """
-    Blend pondéré GFS 0.8× + ICON 1.0× + ECMWF 1.2×
-    Chaque membre est répété proportionnellement à son poids.
-    Retourne (blended: list[float], model_str: str, model_stats: dict).
+    Récupère les membres de chaque modèle ensemble.
+    Retourne (raw_models: dict, model_str: str, model_stats: dict).
+    raw_models = {model_name: (members_list, weight)}
     """
-    import random, math
-
     raw = {}
     for model, weight in MODEL_WEIGHTS.items():
         n_max = {"gfs_seamless": 30, "icon_seamless": 39, "ecmwf_ifs025": 50}[model]
@@ -277,43 +339,132 @@ def fetch_gfs_ensemble(lat, lon, date_str, tz="UTC"):
     if not raw:
         return None, "no_data", {}
 
-    blended = []
     stats = {}
+    all_members = []
     for model, (members, weight) in raw.items():
         mean = sum(members) / len(members)
         std  = (sum((x - mean)**2 for x in members) / len(members)) ** 0.5
         stats[model] = {"n": len(members), "mean": round(mean, 1), "std": round(std, 2)}
-        # Pondération : répète les membres proportionnellement
-        n_effective = max(len(members), round(len(members) * weight))
-        if n_effective > len(members):
-            extra = random.choices(members, k=n_effective - len(members))
-            blended += members + extra
-        else:
-            blended += random.choices(members, k=n_effective)
+        all_members.extend(members)
 
     parts = []
     for m, key in [("GFS","gfs_seamless"),("ICON","icon_seamless"),("ECMWF","ecmwf_ifs025")]:
         if key in raw:
-            parts.append(f"{m}:{raw[key][0].__len__()}")
+            parts.append(f"{m}:{len(raw[key][0])}")
     model_str = "+".join(parts)
 
-    return blended if blended else None, model_str, stats
+    # Stocke raw_models pour le calcul pondéré dans gfs_bracket_prob
+    return raw, model_str, stats
+
+
+def _weighted_prob(raw_models, temp, op, unit):
+    """
+    Calcule la probabilité pondérée à partir de chaque modèle.
+    P = Σ(weight_i × P_i) / Σ(weight_i)
+    Déterministe, pas de random.
+    """
+    def single_model_prob(members_c, temp, op, unit):
+        n = len(members_c)
+        if n == 0:
+            return None
+        if unit == "F":
+            members = [c_to_f(t) for t in members_c]
+        else:
+            members = members_c[:]
+        if op == "lte":
+            count = sum(1 for t in members if t <= temp + 0.5)
+        elif op == "gte":
+            count = sum(1 for t in members if t >= temp - 0.5)
+        else:
+            count = sum(1 for t in members if temp - 0.5 <= t < temp + 0.5)
+        return count / n
+
+    total_weight = 0.0
+    weighted_sum = 0.0
+    for model, (members, weight) in raw_models.items():
+        p = single_model_prob(members, temp, op, unit)
+        if p is not None:
+            weighted_sum += weight * p
+            total_weight += weight
+
+    if total_weight == 0:
+        return None
+    return round(weighted_sum / total_weight * 100, 1)
+
+
+def _raw_to_flat_members(raw_models):
+    """Flatten raw_models to a simple list of members (°C) for stats/display."""
+    members = []
+    for model, (m, w) in raw_models.items():
+        members.extend(m)
+    return members
+
+
+# ─── CORRECTION BIAIS GFS ────────────────────────────────────────────────────
+BIAS_FILE = os.path.join(os.path.dirname(__file__), "city_bias.json")
+
+def _load_city_bias():
+    """Charge city_bias.json (calculé par calibrate.py)."""
+    if not os.path.exists(BIAS_FILE):
+        return {}
+    try:
+        with open(BIAS_FILE) as f:
+            data = json.load(f)
+        return data.get("cities", {})
+    except Exception:
+        return {}
+
+_CITY_BIAS = _load_city_bias()
+
+
+def _apply_bias_correction(raw_models, city_name):
+    """
+    Corrige le biais GFS sur chaque membre (en °C).
+    bias_mean = GFS_prédit - réel.
+    Si bias_mean = -2.9 → GFS trop froid → on ajoute 2.9°C à chaque membre.
+    Correction prudente : demi-biais si n < 5, plein biais si reliable.
+    """
+    bias_info = _CITY_BIAS.get(city_name, {})
+    if not bias_info:
+        return raw_models
+
+    bias_mean = bias_info.get("bias_mean", 0)
+    n = bias_info.get("n", 0)
+    reliable = bias_info.get("reliable", False)
+
+    if abs(bias_mean) < 0.5:
+        return raw_models  # biais négligeable
+
+    if reliable:
+        correction = bias_mean
+    elif n >= 3 and abs(bias_mean) > 1.5:
+        correction = bias_mean * 0.5  # prudent : demi-correction
+    else:
+        return raw_models  # pas assez de données
+
+    print(f"    🔧 Correction biais {city_name}: {correction:+.1f}°C (n={n}, reliable={reliable})")
+
+    corrected = {}
+    for model, (members, weight) in raw_models.items():
+        corrected[model] = ([m - correction for m in members], weight)
+    return corrected
 
 
 # ─── ÉTAPE 3 : calcule proba GFS par bracket ─────────────────────────────────
-def gfs_bracket_prob(members_c, temp, op, unit):
+def gfs_bracket_prob(raw_models_or_members, temp, op, unit):
     """
     Calcule la probabilité (%) que la température tombe dans le bracket.
-    members_c : températures en °C
-    temp      : seuil du bracket
-    op        : 'exact' | 'lte' | 'gte'
-    unit      : 'C' | 'F'
+    Accepte soit un dict raw_models (pondéré) soit une liste de membres (legacy).
     """
+    if isinstance(raw_models_or_members, dict):
+        return _weighted_prob(raw_models_or_members, temp, op, unit)
+
+    # Legacy fallback: simple list of members
+    members_c = raw_models_or_members
     n = len(members_c)
     if n == 0:
         return None
 
-    # Convertit les membres en l'unité du marché
     if unit == "F":
         members = [c_to_f(t) for t in members_c]
     else:
@@ -323,23 +474,30 @@ def gfs_bracket_prob(members_c, temp, op, unit):
         count = sum(1 for t in members if t <= temp + 0.5)
     elif op == "gte":
         count = sum(1 for t in members if t >= temp - 0.5)
-    else:  # exact: bracket [temp-0.5, temp+0.5)
+    else:
         count = sum(1 for t in members if temp - 0.5 <= t < temp + 0.5)
 
     return round(count / n * 100, 1)
 
 
 # ─── ÉTAPE 4 : calcule les signaux ───────────────────────────────────────────
-def compute_signals(market, members_c):
+def compute_signals(market, raw_models):
     """
     Pour chaque bracket d'un marché, calcule l'edge et génère un signal.
+    raw_models: dict {model: (members, weight)} ou list (legacy).
     Retourne une liste de signaux triés par |edge| décroissant.
     """
     signals = []
     unit = market["unit"]
 
+    # Flat members pour les stats d'affichage
+    if isinstance(raw_models, dict):
+        members_c_flat = _raw_to_flat_members(raw_models)
+    else:
+        members_c_flat = raw_models
+
     for b in market["brackets"]:
-        gfs_prob = gfs_bracket_prob(members_c, b["temp"], b["op"], unit)
+        gfs_prob = gfs_bracket_prob(raw_models, b["temp"], b["op"], unit)
         if gfs_prob is None:
             continue
 
@@ -352,14 +510,27 @@ def compute_signals(market, members_c):
         entry_price = b["p_yes"] / 100 if direction == "YES" else (100 - b["p_yes"]) / 100
         payout = round(1 - entry_price, 2)
 
-        # EV: prob_win × gain - prob_lose × mise
-        # Pour YES : prob_win = gfs_prob
-        # Pour NO  : prob_win = 1 - gfs_prob (on gagne si la temp N'est PAS dans ce bracket)
         prob_win = gfs_prob / 100 if direction == "YES" else (100 - gfs_prob) / 100
         ev = round(prob_win * payout - (1 - prob_win) * entry_price, 3)
 
+        # Edge réel tenant compte du spread bid/ask
+        best_bid = b.get("best_bid", 0)
+        best_ask = b.get("best_ask", 0)
+        spread = round(best_ask - best_bid, 4) if best_ask and best_bid else None
+        if direction == "YES" and best_ask > 0:
+            # On achète YES au ask → edge réel = gfs_prob - ask*100
+            entry_real = best_ask
+            edge_real = round(gfs_prob - best_ask * 100, 1)
+        elif direction == "NO" and best_bid > 0:
+            # On achète NO = on vend YES au bid → entry = 1-bid, edge réel = (100-gfs_prob) - (1-bid)*100
+            entry_real = 1 - best_bid
+            edge_real = round((100 - gfs_prob) - (1 - best_bid) * 100, 1)
+        else:
+            entry_real = entry_price
+            edge_real = edge
+
         event_slug = market.get("event_slug", "")
-        temps = members_c if unit == "C" else [c_to_f(t) for t in members_c]
+        temps = members_c_flat if unit == "C" else [c_to_f(t) for t in members_c_flat]
         sym = "°C" if unit == "C" else "°F"
 
         # Réécrire la question pour les brackets extrêmes (lte/gte)
@@ -401,7 +572,10 @@ def compute_signals(market, members_c):
             "gfs_prob":      gfs_prob,
             "market_prob":   b["p_yes"],
             "edge":          edge,
+            "edge_real":     edge_real,
+            "spread":        spread,
             "entry_price":   round(entry_price, 3),
+            "entry_real":    round(entry_real, 3),
             "payout":        payout,
             "ev":            ev,
             "liquidity":     b["liquidity"],
@@ -458,26 +632,30 @@ def run():
         if cache_key not in gfs_cache:
             print(f"→ Ensemble {city} {date} (tz={tz})...")
             try:
-                members, model_str, model_stats = fetch_gfs_ensemble(lat, lon, date, tz)
+                raw_models, model_str, model_stats = fetch_gfs_ensemble(lat, lon, date, tz)
             except Exception as e:
                 print(f"  ⚠ Erreur ensemble pour {city} {date}: {e}")
-                members, model_str, model_stats = None, "error", {}
-            gfs_cache[cache_key] = (members, model_str, model_stats)
+                raw_models, model_str, model_stats = None, "error", {}
+            gfs_cache[cache_key] = (raw_models, model_str, model_stats)
         else:
-            members, model_str, model_stats = gfs_cache[cache_key]
+            raw_models, model_str, model_stats = gfs_cache[cache_key]
 
-        if not members:
+        if not raw_models:
             print(f"  ⚠ Pas de données ensemble pour {city} {date}")
             continue
 
+        # Correction biais GFS (FIX 3)
+        raw_models = _apply_bias_correction(raw_models, city)
+
+        members_flat = _raw_to_flat_members(raw_models)
         unit = market["unit"]
-        temps = members if unit == "C" else [c_to_f(t) for t in members]
+        temps = members_flat if unit == "C" else [c_to_f(t) for t in members_flat]
         mean = round(sum(temps) / len(temps), 1)
         sym = "°C" if unit == "C" else "°F"
-        print(f"  {city}: {len(members)} membres ({model_str}) | moy={mean}{sym} | range={min(temps):.0f}–{max(temps):.0f}{sym}")
+        print(f"  {city}: {len(members_flat)} membres ({model_str}) | moy={mean}{sym} | range={min(temps):.0f}–{max(temps):.0f}{sym}")
 
         # Étape 3+4 : signaux
-        signals = compute_signals(market, members)
+        signals = compute_signals(market, raw_models)
         all_signals.extend(signals)
 
         for s in signals[:3]:

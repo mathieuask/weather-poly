@@ -1,0 +1,256 @@
+{
+  "Beijing": {
+    "station": "ZBAA",
+    "country": "CN",
+    "unit": "C",
+    "n_events": 5,
+    "wu_url": "https://www.wunderground.com/history/daily/cn/beijing/ZBAA"
+  },
+  "Shenzhen": {
+    "station": "ZGSZ",
+    "country": "CN",
+    "unit": "C",
+    "n_events": 6,
+    "wu_url": "https://www.wunderground.com/history/daily/cn/shenzhen/ZGSZ"
+  },
+  "Wuhan": {
+    "station": "ZHHH",
+    "country": "CN",
+    "unit": "C",
+    "n_events": 5,
+    "wu_url": "https://www.wunderground.com/history/daily/cn/wuhan/ZHHH"
+  },
+  "Chongqing": {
+    "station": "ZUCK",
+    "country": "CN",
+    "unit": "C",
+    "n_events": 5,
+    "wu_url": "https://www.wunderground.com/history/daily/cn/chongqing/ZUCK"
+  },
+  "Chengdu": {
+    "station": "ZUUU",
+    "country": "CN",
+    "unit": "C",
+    "n_events": 4,
+    "wu_url": "https://www.wunderground.com/history/daily/cn/chengdu/ZUUU"
+  },
+  "Munich": {
+    "station": "EDDM",
+    "country": "DE",
+    "unit": "C",
+    "n_events": 35,
+    "wu_url": "https://www.wunderground.com/history/daily/de/munich/EDDM"
+  },
+  "Toronto": {
+    "station": "CYYZ",
+    "country": "CA",
+    "unit": "C",
+    "n_events": 66,
+    "wu_url": "https://www.wunderground.com/history/daily/ca/mississauga/CYYZ"
+  },
+  "San Francisco": {
+    "station": "KSFO",
+    "country": "US",
+    "unit": "F",
+    "n_events": 1,
+    "wu_url": "https://www.wunderground.com/history/daily/us/ca/san-francisco/KSFO"
+  },
+  "Chicago": {
+    "station": "KORD",
+    "country": "US",
+    "unit": "F",
+    "n_events": 66,
+    "wu_url": "https://www.wunderground.com/history/daily/us/il/chicago/KORD"
+  },
+  "Shanghai": {
+    "station": "ZSPD",
+    "country": "CN",
+    "unit": "C",
+    "n_events": 19,
+    "wu_url": "https://www.wunderground.com/history/daily/cn/shanghai/ZSPD",
+    "lat": 31.143,
+    "lon": 121.805,
+    "elev": 4,
+    "note": "Pudong — 30km E of city center"
+  },
+  "Lucknow": {
+    "station": "VILK",
+    "country": "IN",
+    "unit": "C",
+    "n_events": 34,
+    "wu_url": "https://www.wunderground.com/history/daily/in/lucknow/VILK"
+  },
+  "Denver": {
+    "station": "KDEN",
+    "country": "US",
+    "unit": "F",
+    "n_events": 1,
+    "wu_url": "https://www.wunderground.com/history/daily/us/co/denver/KDEN"
+  },
+  "Ankara": {
+    "station": "LTAC",
+    "country": "TR",
+    "unit": "C",
+    "n_events": 66,
+    "wu_url": "https://www.wunderground.com/history/daily/tr/%C3%A7ubuk/LTAC",
+    "lat": 40.128,
+    "lon": 32.995,
+    "elev": 953,
+    "note": "Ankara Esenboğa — 28km NE of city"
+  },
+  "Singapore": {
+    "station": "WSSS",
+    "country": "SG",
+    "unit": "C",
+    "n_events": 19,
+    "wu_url": "https://www.wunderground.com/history/daily/sg/singapore/WSSS"
+  },
+  "Atlanta": {
+    "station": "KATL",
+    "country": "US",
+    "unit": "F",
+    "n_events": 67,
+    "wu_url": "https://www.wunderground.com/history/daily/us/ga/atlanta/KATL"
+  },
+  "Dallas": {
+    "station": "KDAL",
+    "country": "US",
+    "unit": "F",
+    "n_events": 66,
+    "wu_url": "https://www.wunderground.com/history/daily/us/tx/dallas/KDAL",
+    "lat": 32.847,
+    "lon": -96.852,
+    "elev": 148,
+    "note": "Dallas Love Field — 10km NW of downtown"
+  },
+  "Seoul": {
+    "station": "RKSI",
+    "country": "KR",
+    "unit": "C",
+    "n_events": 66,
+    "wu_url": "https://www.wunderground.com/history/daily/kr/incheon/RKSI"
+  },
+  "Milan": {
+    "station": "LIMC",
+    "country": "IT",
+    "unit": "C",
+    "n_events": 13,
+    "wu_url": "https://www.wunderground.com/history/daily/it/milan/LIMC",
+    "lat": 45.63,
+    "lon": 8.723,
+    "elev": 234,
+    "note": "Malpensa — 49km NW of city center"
+  },
+  "Houston": {
+    "station": "KHOU",
+    "country": "US",
+    "unit": "F",
+    "n_events": 1,
+    "wu_url": "https://www.wunderground.com/history/daily/us/tx/houston/KHOU"
+  },
+  "Paris": {
+    "station": "LFPG",
+    "country": "FR",
+    "unit": "C",
+    "n_events": 65,
+    "wu_url": "https://www.wunderground.com/history/daily/fr/paris/LFPG"
+  },
+  "London": {
+    "station": "EGLC",
+    "country": "GB",
+    "unit": "C",
+    "n_events": 66,
+    "wu_url": "https://www.wunderground.com/history/daily/gb/london/EGLC"
+  },
+  "NYC": {
+    "station": "KLGA",
+    "country": "US",
+    "unit": "F",
+    "n_events": 65,
+    "wu_url": "https://www.wunderground.com/history/daily/us/ny/new-york-city/KLGA"
+  },
+  "Miami": {
+    "station": "KMIA",
+    "country": "US",
+    "unit": "F",
+    "n_events": 67,
+    "wu_url": "https://www.wunderground.com/history/daily/us/fl/miami/KMIA"
+  },
+  "Buenos Aires": {
+    "station": "SAEZ",
+    "country": "AR",
+    "unit": "C",
+    "n_events": 66,
+    "wu_url": "https://www.wunderground.com/history/daily/ar/ezeiza/SAEZ"
+  },
+  "Tokyo": {
+    "station": "RJTT",
+    "country": "JP",
+    "unit": "C",
+    "n_events": 24,
+    "wu_url": "https://www.wunderground.com/history/daily/jp/tokyo/RJTT"
+  },
+  "Wellington": {
+    "station": "NZWN",
+    "country": "NZ",
+    "unit": "C",
+    "n_events": 66,
+    "wu_url": "https://www.wunderground.com/history/daily/nz/wellington/NZWN"
+  },
+  "Seattle": {
+    "station": "KSEA",
+    "country": "US",
+    "unit": "F",
+    "n_events": 67,
+    "wu_url": "https://www.wunderground.com/history/daily/us/wa/seatac/KSEA"
+  },
+  "Sao Paulo": {
+    "station": "SBGR",
+    "country": "BR",
+    "unit": "C",
+    "n_events": 66,
+    "wu_url": "https://www.wunderground.com/history/daily/br/guarulhos/SBGR"
+  },
+  "Warsaw": {
+    "station": "EPWA",
+    "country": "PL",
+    "unit": "C",
+    "n_events": 12,
+    "wu_url": "https://www.wunderground.com/history/daily/pl/warsaw/EPWA"
+  },
+  "Los Angeles": {
+    "station": "KLAX",
+    "country": "US",
+    "unit": "F",
+    "n_events": 1,
+    "wu_url": "https://www.wunderground.com/history/daily/us/ca/los-angeles/KLAX"
+  },
+  "Austin": {
+    "station": "KAUS",
+    "country": "US",
+    "unit": "F",
+    "n_events": 1,
+    "wu_url": "https://www.wunderground.com/history/daily/us/tx/austin/KAUS"
+  },
+  "Madrid": {
+    "station": "LEMD",
+    "country": "ES",
+    "unit": "C",
+    "n_events": 13,
+    "wu_url": "https://www.wunderground.com/history/daily/es/madrid/LEMD"
+  },
+  "Tel Aviv": {
+    "station": "LLBG",
+    "country": "IL",
+    "unit": "C",
+    "n_events": 23,
+    "wu_url": "https://www.wunderground.com/history/daily/il/tel-aviv/LLBG"
+  },
+  "Hong Kong": {
+    "station": "VHHH",
+    "country": "HK",
+    "unit": "C",
+    "n_events": 4,
+    "wu_url": "https://www.wunderground.com/history/daily/hk/hong-kong/VHHH"
+  }
+}

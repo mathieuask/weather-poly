@@ -26,7 +26,7 @@ CITY_STATIONS = {
     "Paris":        "LFPG",
     "London":       "EGLC",
     "NYC":          "KLGA",
-    "Chicago":      "KMDW",
+    "Chicago":      "KORD",
     "Toronto":      "CYYZ",
     "Seoul":        "RKSI",
     "Tokyo":        "RJTT",
@@ -34,6 +34,18 @@ CITY_STATIONS = {
     "Buenos Aires": "SAEZ",
     "Miami":        "KMIA",
     "Taipei":       "RCTP",
+    "Dallas":       "KDAL",
+    "Atlanta":      "KATL",
+    "Seattle":      "KSEA",
+    "Wellington":   "NZWN",
+    "Tel Aviv":     "LLBG",
+    "Shanghai":     "ZSPD",
+    "Milan":        "LIMC",
+    "Ankara":       "LTAC",
+    "Sao Paulo":    "SBGR",
+    "Munich":       "EDDM",
+    "Lucknow":      "VILK",
+    "Warsaw":       "EPWA",
 }
 
 BIAS_WARN_THRESHOLD = 1.5   # °C — biais > 1.5°C = alerte
@@ -94,7 +106,7 @@ def update_actual_temps(conn):
             from wunderground import get_daily_max
             wu_country = city_info.get("wu_country", "")
             date_wu = date.replace("-", "")  # YYYYMMDD
-            actual_temp = get_daily_max(station, wu_country, date_wu)
+            actual_temp = get_daily_max(city_info["station"], wu_country, date_wu)
 
             if actual_temp is None:
                 print(f"    ⚠ {city} {date}: pas de données WU")

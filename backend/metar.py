@@ -51,6 +51,18 @@ PEAK_CONFIRMED_HOUR = {
     "KMIA": 16,   # Miami
     "SAEZ": 16,   # Buenos Aires
     "RCTP": 16,   # Taipei
+    "KDAL": 17,   # Dallas
+    "KATL": 16,   # Atlanta
+    "KSEA": 17,   # Seattle
+    "NZWN": 16,   # Wellington
+    "LLBG": 16,   # Tel Aviv
+    "ZSPD": 16,   # Shanghai
+    "LIMC": 17,   # Milan
+    "LTAC": 17,   # Ankara
+    "SBGR": 16,   # Sao Paulo
+    "EDDM": 17,   # Munich
+    "VILK": 16,   # Lucknow
+    "EPWA": 16,   # Warsaw
 }
 
 
@@ -87,72 +99,6 @@ def fetch_metar(stations: list[str]) -> dict:
                 "raw": raw
             }
     return result
-
-
-def fetch_daily_max(station: str, tz_name: str) -> float | None:
-    """
-    Récupère le max de temp observé depuis minuit heure locale via Iowa State Mesonet.
-    Retourne la température max en °C ou None si indisponible.
-    """
-    tz = pytz.timezone(tz_name)
-    now_local = datetime.now(tz)
-    midnight_local = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
-    midnight_utc = midnight_local.astimezone(timezone.utc)
-    now_utc = datetime.now(timezone.utc)
-
-    start = midnight_utc.strftime("%Y-%m-%dT%H:%M")
-    end   = now_utc.strftime("%Y-%m-%dT%H:%M")
-
-    try:
-        r = requests.get(
-            "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
-            params={
-                "data": "tmpf",
-                "station": station,
-                "year1": midnight_utc.year,
-                "month1": midnight_utc.month,
-                "day1": midnight_utc.day,
-                "hour1": 0,
-                "minute1": 0,
-                "year2": now_utc.year,
-                "month2": now_utc.month,
-                "day2": now_utc.day,
-                "hour2": now_utc.hour,
-                "minute2": now_utc.minute,
-                "tz": "Etc/UTC",
-                "format": "onlycomma",
-                "latlon": "no",
-                "elev": "no",
-                "missing": "null",
-                "trace": "null",
-                "direct": "no",
-                "report_type": "3"
-            },
-            timeout=15
-        )
-        r.raise_for_status()
-        lines = r.text.strip().split("\n")
-        temps_f = []
-        for line in lines:
-            if line.startswith("#") or "station" in line.lower():
-                continue
-            parts = line.split(",")
-            if len(parts) >= 3 and parts[2].strip() not in ("null", "", "M"):
-                try:
-                    temps_f.append(float(parts[2].strip()))
-                except ValueError:
-                    pass
-
-        if not temps_f:
-            return None
-
-        max_f = max(temps_f)
-        max_c = (max_f - 32) * 5 / 9  # tmpf est en Fahrenheit
-        return round(max_c, 1)
-
-    except Exception as e:
-        print(f"  ⚠ IEM Mesonet error {station}: {e}")
-        return None
 
 
 def run():
