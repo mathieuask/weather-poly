@@ -5,8 +5,10 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 
 const nav = [
-  { href: "/",        icon: "📡", label: "Signaux",   desc: "Opportunités en temps réel" },
-  { href: "/results", icon: "📋", label: "Résultats", desc: "Paper trades & performance" },
+  { href: "/",          icon: "📡", label: "Signaux",   desc: "Opportunités en temps réel" },
+  { href: "/results",   icon: "📋", label: "Résultats", desc: "Paper trades & performance" },
+  { href: "/data",      icon: "📊", label: "Data",      desc: "Historique marchés & biais GFS" },
+  { href: "/strategy",  icon: "🧠", label: "Strategy",  desc: "Backtest & stratégie optimale" },
 ];
 
 export default function Navbar() {
