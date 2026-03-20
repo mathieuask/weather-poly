@@ -14,3 +14,11 @@
     ⚠️ Singapore      : -2.4°C ± 0.0 (N=2) (2/5)
     ⚠️ Taipei         : -1.9°C ± 0.0 (N=2) (2/5)
   ✓ Calibrate terminé
+[17:30 UTC] Calibrate démarré
+  🌡 Récupération des températures réelles pour 5 ville-dates...
+    ⚠ Seoul 2026-03-20: name 'station' is not defined
+    ⚠ Singapore 2026-03-20: name 'station' is not defined
+    ⚠ Paris 2026-03-20: name 'station' is not defined
+    ⚠ Taipei 2026-03-20: name 'station' is not defined
+    ⚠ London 2026-03-20: name 'station' is not defined
+  ℹ Pas encore assez de données pour calculer les biais

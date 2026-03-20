@@ -348,3 +348,11 @@
   🔍 Vérification de 43 trade(s) potentiellement résolus...
   📊 361 trades exportés | WR=37.5% | PnL=-41.16$
   ✓ Tracker terminé
+[17:01 UTC] Tracker démarré
+  📡 179 signaux lus
+  ✅ 0 nouveau(x) paper trade(s)
+  🔍 Vérification de 43 trade(s) potentiellement résolus...
+  ❌ Résolu: 0x7c39be... → loss PnL=-10.00$
+  ❌ Résolu: 0x9da43f... → loss PnL=-10.00$
+  📊 361 trades exportés | WR=30.0% | PnL=-61.16$
+  ✓ Tracker terminé
