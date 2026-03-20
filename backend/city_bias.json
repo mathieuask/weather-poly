@@ -1,0 +1,26 @@
+{
+  "updated_at": "2026-03-20T11:30:01.676319+00:00",
+  "cities": {
+    "Seoul": {
+      "n": 3,
+      "bias_mean": -2.9,
+      "bias_std": 0.0,
+      "reliable": false,
+      "status": "\u26a0\ufe0f"
+    },
+    "Singapore": {
+      "n": 2,
+      "bias_mean": -2.4,
+      "bias_std": 0.0,
+      "reliable": false,
+      "status": "\u26a0\ufe0f"
+    },
+    "Taipei": {
+      "n": 2,
+      "bias_mean": -1.9,
+      "bias_std": 0.0,
+      "reliable": false,
+      "status": "\u26a0\ufe0f"
+    }
+  }
+}
