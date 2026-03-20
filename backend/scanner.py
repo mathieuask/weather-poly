@@ -108,7 +108,11 @@ def fetch_poly_markets(days_ahead=3):
             wu_match = re.search(r'wunderground\.com/history/daily/([^"\'>\s]+)', desc)
             if wu_match:
                 wu_path = wu_match.group(1).rstrip("/.\"' ")
-                station_code = wu_path.split("/")[-1].upper().strip(".")
+                parts = [p for p in wu_path.split("/") if p]
+                station_code = parts[-1].upper().strip(".")
+                # Évite les doublons genre /RCTP/RCTP
+                if len(parts) >= 2 and parts[-1].upper() == parts[-2].upper():
+                    wu_path = "/".join(parts[:-1])
             else:
                 station_code = city_info["station"]
                 wu_path = f"{'kr/incheon' if station_code == 'RKSI' else station_code}/{station_code}"
