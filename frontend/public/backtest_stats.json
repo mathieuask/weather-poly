@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-03-20T23:14:13.249810+00:00",
+  "updated_at": "2026-03-20T23:18:08.234605+00:00",
   "summary": {
-    "n_markets": 4913,
-    "n_wu": 527,
-    "n_gfs": 3612,
-    "n_cities": 24
+    "n_markets": 5030,
+    "n_wu": 538,
+    "n_gfs": 3660,
+    "n_cities": 30
   },
   "cities": {
     "Seoul": {
@@ -667,6 +667,39 @@
         }
       }
     },
+    "Hong Kong": {
+      "station": "VHHH",
+      "unit": "C",
+      "n_dates": 6,
+      "first_date": "2026-03-13",
+      "last_date": "2026-03-19",
+      "bias": {
+        "j0": {
+          "mean": -4.58,
+          "mae": 4.58,
+          "pct_within_1": 0.0,
+          "n": 6
+        },
+        "j1": {
+          "mean": -4.93,
+          "mae": 4.93,
+          "pct_within_1": 0.0,
+          "n": 6
+        },
+        "j2": {
+          "mean": -5.02,
+          "mae": 5.02,
+          "pct_within_1": 0.0,
+          "n": 6
+        },
+        "j3": {
+          "mean": -5.15,
+          "mae": 5.15,
+          "pct_within_1": 0.0,
+          "n": 6
+        }
+      }
+    },
     "Taipei": {
       "station": "RCTP",
       "unit": "C",
@@ -798,39 +831,657 @@
           "n": 4
         }
       }
+    },
+    "Wuhan": {
+      "station": "ZHHH",
+      "unit": "C",
+      "n_dates": 1,
+      "first_date": "2026-03-20",
+      "last_date": "2026-03-20",
+      "bias": {
+        "j0": {
+          "mean": -1.3,
+          "mae": 1.3,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j1": {
+          "mean": -2.0,
+          "mae": 2.0,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j2": {
+          "mean": -2.9,
+          "mae": 2.9,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j3": {
+          "mean": 0.0,
+          "mae": 0.0,
+          "pct_within_1": 1.0,
+          "n": 1
+        }
+      }
+    },
+    "Shenzhen": {
+      "station": "ZGSZ",
+      "unit": "C",
+      "n_dates": 1,
+      "first_date": "2026-03-20",
+      "last_date": "2026-03-20",
+      "bias": {
+        "j0": {
+          "mean": -5.8,
+          "mae": 5.8,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j1": {
+          "mean": -4.9,
+          "mae": 4.9,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j2": {
+          "mean": -6.0,
+          "mae": 6.0,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j3": {
+          "mean": -5.9,
+          "mae": 5.9,
+          "pct_within_1": 0.0,
+          "n": 1
+        }
+      }
+    },
+    "Chongqing": {
+      "station": "ZUCK",
+      "unit": "C",
+      "n_dates": 1,
+      "first_date": "2026-03-20",
+      "last_date": "2026-03-20",
+      "bias": {
+        "j0": {
+          "mean": -3.6,
+          "mae": 3.6,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j1": {
+          "mean": -3.6,
+          "mae": 3.6,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j2": {
+          "mean": -4.9,
+          "mae": 4.9,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j3": {
+          "mean": -3.5,
+          "mae": 3.5,
+          "pct_within_1": 0.0,
+          "n": 1
+        }
+      }
+    },
+    "Chengdu": {
+      "station": "ZUUU",
+      "unit": "C",
+      "n_dates": 1,
+      "first_date": "2026-03-20",
+      "last_date": "2026-03-20",
+      "bias": {
+        "j0": {
+          "mean": -2.1,
+          "mae": 2.1,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j1": {
+          "mean": -2.4,
+          "mae": 2.4,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j2": {
+          "mean": -1.7,
+          "mae": 1.7,
+          "pct_within_1": 0.0,
+          "n": 1
+        },
+        "j3": {
+          "mean": -3.6,
+          "mae": 3.6,
+          "pct_within_1": 0.0,
+          "n": 1
+        }
+      }
+    },
+    "Beijing": {
+      "station": "ZBAA",
+      "unit": "C",
+      "n_dates": 1,
+      "first_date": "2026-03-20",
+      "last_date": "2026-03-20",
+      "bias": {
+        "j0": {
+          "mean": -0.5,
+          "mae": 0.5,
+          "pct_within_1": 1.0,
+          "n": 1
+        },
+        "j1": {
+          "mean": -0.5,
+          "mae": 0.5,
+          "pct_within_1": 1.0,
+          "n": 1
+        },
+        "j2": {
+          "mean": -0.4,
+          "mae": 0.4,
+          "pct_within_1": 1.0,
+          "n": 1
+        },
+        "j3": {
+          "mean": 1.0,
+          "mae": 1.0,
+          "pct_within_1": 1.0,
+          "n": 1
+        }
+      }
     }
   },
   "horizon_summary": {
     "j0": {
-      "mae": 1.33,
-      "bias": -0.57,
-      "n_dates": 527,
-      "bracket_accuracy": 0.8754,
-      "n_brackets": 4913
+      "mae": 1.38,
+      "bias": -0.63,
+      "n_dates": 538,
+      "bracket_accuracy": 0.8742,
+      "n_brackets": 5030
     },
     "j1": {
-      "mae": 1.86,
-      "bias": -0.86,
-      "n_dates": 527,
-      "bracket_accuracy": 0.8396,
-      "n_brackets": 4913
+      "mae": 1.9,
+      "bias": -0.92,
+      "n_dates": 538,
+      "bracket_accuracy": 0.8394,
+      "n_brackets": 5030
     },
     "j2": {
-      "mae": 1.93,
-      "bias": -0.68,
-      "n_dates": 527,
-      "bracket_accuracy": 0.8421,
-      "n_brackets": 4913
+      "mae": 1.98,
+      "bias": -0.75,
+      "n_dates": 538,
+      "bracket_accuracy": 0.8417,
+      "n_brackets": 5030
     },
     "j3": {
-      "mae": 2.16,
-      "bias": -0.71,
-      "n_dates": 527,
-      "bracket_accuracy": 0.8388,
-      "n_brackets": 4913
+      "mae": 2.19,
+      "bias": -0.78,
+      "n_dates": 538,
+      "bracket_accuracy": 0.8392,
+      "n_brackets": 5030
     }
   },
   "daily_detail": [
+    {
+      "station": "ZBAA",
+      "city": "Beijing",
+      "date": "2026-03-20",
+      "actual_temp": 15.0,
+      "unit": "C",
+      "winning_bracket": "15\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 14.5,
+      "error_j0": -0.5,
+      "gfs_j1": 14.5,
+      "error_j1": -0.5,
+      "gfs_j2": 14.6,
+      "error_j2": -0.4,
+      "gfs_j3": 16.0,
+      "error_j3": 1.0,
+      "brackets": [
+        {
+          "bracket": "10\u00b0C or below",
+          "op": "lte",
+          "temp": 10.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "11\u00b0C",
+          "op": "exact",
+          "temp": 11.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "12\u00b0C",
+          "op": "exact",
+          "temp": 12.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "13\u00b0C",
+          "op": "exact",
+          "temp": 13.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "14\u00b0C",
+          "op": "exact",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "16\u00b0C",
+          "op": "exact",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C",
+          "op": "exact",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C or higher",
+          "op": "gte",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "ZUUU",
+      "city": "Chengdu",
+      "date": "2026-03-20",
+      "actual_temp": 22.0,
+      "unit": "C",
+      "winning_bracket": "22\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 19.9,
+      "error_j0": -2.1,
+      "gfs_j1": 19.6,
+      "error_j1": -2.4,
+      "gfs_j2": 20.3,
+      "error_j2": -1.7,
+      "gfs_j3": 18.4,
+      "error_j3": -3.6,
+      "brackets": [
+        {
+          "bracket": "14\u00b0C or below",
+          "op": "lte",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "16\u00b0C",
+          "op": "exact",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C",
+          "op": "exact",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "22\u00b0C",
+          "op": "exact",
+          "temp": 22.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "23\u00b0C",
+          "op": "exact",
+          "temp": 23.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "24\u00b0C or higher",
+          "op": "gte",
+          "temp": 24.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "ZUCK",
+      "city": "Chongqing",
+      "date": "2026-03-20",
+      "actual_temp": 17.0,
+      "unit": "C",
+      "winning_bracket": "17\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 13.4,
+      "error_j0": -3.6,
+      "gfs_j1": 13.4,
+      "error_j1": -3.6,
+      "gfs_j2": 12.1,
+      "error_j2": -4.9,
+      "gfs_j3": 13.5,
+      "error_j3": -3.5,
+      "brackets": [
+        {
+          "bracket": "9\u00b0C or below",
+          "op": "lte",
+          "temp": 9.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "10\u00b0C",
+          "op": "exact",
+          "temp": 10.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "11\u00b0C",
+          "op": "exact",
+          "temp": 11.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "12\u00b0C",
+          "op": "exact",
+          "temp": 12.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "13\u00b0C",
+          "op": "exact",
+          "temp": 13.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "14\u00b0C",
+          "op": "exact",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "16\u00b0C",
+          "op": "exact",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "18\u00b0C",
+          "op": "exact",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C or higher",
+          "op": "gte",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
     {
       "station": "VILK",
       "city": "Lucknow",
@@ -1436,6 +2087,157 @@
       ]
     },
     {
+      "station": "ZGSZ",
+      "city": "Shenzhen",
+      "date": "2026-03-20",
+      "actual_temp": 29.0,
+      "unit": "C",
+      "winning_bracket": "29\u00b0C or higher",
+      "n_brackets": 11,
+      "gfs_j0": 23.2,
+      "error_j0": -5.8,
+      "gfs_j1": 24.1,
+      "error_j1": -4.9,
+      "gfs_j2": 23.0,
+      "error_j2": -6.0,
+      "gfs_j3": 23.1,
+      "error_j3": -5.9,
+      "brackets": [
+        {
+          "bracket": "19\u00b0C or below",
+          "op": "lte",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "22\u00b0C",
+          "op": "exact",
+          "temp": 22.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "23\u00b0C",
+          "op": "exact",
+          "temp": 23.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "24\u00b0C",
+          "op": "exact",
+          "temp": 24.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "25\u00b0C",
+          "op": "exact",
+          "temp": 25.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "26\u00b0C",
+          "op": "exact",
+          "temp": 26.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "27\u00b0C",
+          "op": "exact",
+          "temp": 27.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "28\u00b0C",
+          "op": "exact",
+          "temp": 28.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "29\u00b0C or higher",
+          "op": "gte",
+          "temp": 29.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        }
+      ]
+    },
+    {
       "station": "WSSS",
       "city": "Singapore",
       "date": "2026-03-20",
@@ -2029,6 +2831,157 @@
           "bracket": "23\u00b0C or higher",
           "op": "gte",
           "temp": 23.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "ZHHH",
+      "city": "Wuhan",
+      "date": "2026-03-20",
+      "actual_temp": 15.0,
+      "unit": "C",
+      "winning_bracket": "15\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 13.7,
+      "error_j0": -1.3,
+      "gfs_j1": 13.0,
+      "error_j1": -2.0,
+      "gfs_j2": 12.1,
+      "error_j2": -2.9,
+      "gfs_j3": 15.0,
+      "error_j3": 0.0,
+      "brackets": [
+        {
+          "bracket": "8\u00b0C or below",
+          "op": "lte",
+          "temp": 8.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "9\u00b0C",
+          "op": "exact",
+          "temp": 9.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "10\u00b0C",
+          "op": "exact",
+          "temp": 10.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "11\u00b0C",
+          "op": "exact",
+          "temp": 11.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "12\u00b0C",
+          "op": "exact",
+          "temp": 12.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "13\u00b0C",
+          "op": "exact",
+          "temp": 13.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "14\u00b0C",
+          "op": "exact",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "16\u00b0C",
+          "op": "exact",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C or higher",
+          "op": "gte",
+          "temp": 18.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -2791,6 +3744,157 @@
           "gfs_j2_correct": true,
           "gfs_j3_prediction": "NO",
           "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "VHHH",
+      "city": "Hong Kong",
+      "date": "2026-03-19",
+      "actual_temp": 28.0,
+      "unit": "C",
+      "winning_bracket": "28\u00b0C or higher",
+      "n_brackets": 11,
+      "gfs_j0": 23.0,
+      "error_j0": -5.0,
+      "gfs_j1": 22.5,
+      "error_j1": -5.5,
+      "gfs_j2": 22.1,
+      "error_j2": -5.9,
+      "gfs_j3": 21.9,
+      "error_j3": -6.1,
+      "brackets": [
+        {
+          "bracket": "18\u00b0C or below",
+          "op": "lte",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "22\u00b0C",
+          "op": "exact",
+          "temp": 22.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "23\u00b0C",
+          "op": "exact",
+          "temp": 23.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "24\u00b0C",
+          "op": "exact",
+          "temp": 24.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "25\u00b0C",
+          "op": "exact",
+          "temp": 25.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "26\u00b0C",
+          "op": "exact",
+          "temp": 26.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "27\u00b0C",
+          "op": "exact",
+          "temp": 27.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "28\u00b0C or higher",
+          "op": "gte",
+          "temp": 28.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
         }
       ]
     },
@@ -6408,6 +7512,157 @@
           "bracket": "82\u00b0F or higher",
           "op": "gte",
           "temp": 82.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "VHHH",
+      "city": "Hong Kong",
+      "date": "2026-03-18",
+      "actual_temp": 28.0,
+      "unit": "C",
+      "winning_bracket": "27\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 22.4,
+      "error_j0": -5.6,
+      "gfs_j1": 21.7,
+      "error_j1": -6.3,
+      "gfs_j2": 22.2,
+      "error_j2": -5.8,
+      "gfs_j3": 21.6,
+      "error_j3": -6.4,
+      "brackets": [
+        {
+          "bracket": "18\u00b0C or below",
+          "op": "lte",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "22\u00b0C",
+          "op": "exact",
+          "temp": 22.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "23\u00b0C",
+          "op": "exact",
+          "temp": 23.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "24\u00b0C",
+          "op": "exact",
+          "temp": 24.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "25\u00b0C",
+          "op": "exact",
+          "temp": 25.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "26\u00b0C",
+          "op": "exact",
+          "temp": 26.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "27\u00b0C",
+          "op": "exact",
+          "temp": 27.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "28\u00b0C or higher",
+          "op": "gte",
+          "temp": 28.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -10043,6 +11298,157 @@
       ]
     },
     {
+      "station": "VHHH",
+      "city": "Hong Kong",
+      "date": "2026-03-17",
+      "actual_temp": 25.0,
+      "unit": "C",
+      "winning_bracket": "24\u00b0C",
+      "n_brackets": 11,
+      "gfs_j0": 21.3,
+      "error_j0": -3.7,
+      "gfs_j1": 21.3,
+      "error_j1": -3.7,
+      "gfs_j2": 21.1,
+      "error_j2": -3.9,
+      "gfs_j3": 20.8,
+      "error_j3": -4.2,
+      "brackets": [
+        {
+          "bracket": "17\u00b0C or below",
+          "op": "lte",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C",
+          "op": "exact",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "22\u00b0C",
+          "op": "exact",
+          "temp": 22.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "23\u00b0C",
+          "op": "exact",
+          "temp": 23.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "24\u00b0C",
+          "op": "exact",
+          "temp": 24.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "25\u00b0C",
+          "op": "exact",
+          "temp": 25.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "26\u00b0C",
+          "op": "exact",
+          "temp": 26.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "27\u00b0C or higher",
+          "op": "gte",
+          "temp": 27.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
       "station": "EGLC",
       "city": "London",
       "date": "2026-03-17",
@@ -13663,6 +15069,157 @@
           "gfs_j2_correct": true,
           "gfs_j3_prediction": "NO",
           "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "VHHH",
+      "city": "Hong Kong",
+      "date": "2026-03-16",
+      "actual_temp": 27.0,
+      "unit": "C",
+      "winning_bracket": "24\u00b0C or higher",
+      "n_brackets": 11,
+      "gfs_j0": 20.6,
+      "error_j0": -6.4,
+      "gfs_j1": 20.7,
+      "error_j1": -6.3,
+      "gfs_j2": 20.4,
+      "error_j2": -6.6,
+      "gfs_j3": 20.5,
+      "error_j3": -6.5,
+      "brackets": [
+        {
+          "bracket": "14\u00b0C or below",
+          "op": "lte",
+          "temp": 14.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "15\u00b0C",
+          "op": "exact",
+          "temp": 15.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "16\u00b0C",
+          "op": "exact",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C",
+          "op": "exact",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "22\u00b0C",
+          "op": "exact",
+          "temp": 22.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "23\u00b0C",
+          "op": "exact",
+          "temp": 23.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "24\u00b0C or higher",
+          "op": "gte",
+          "temp": 24.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
         }
       ]
     },
@@ -19711,6 +21268,133 @@
       ]
     },
     {
+      "station": "VHHH",
+      "city": "Hong Kong",
+      "date": "2026-03-14",
+      "actual_temp": 23.0,
+      "unit": "C",
+      "winning_bracket": "16\u00b0C or below",
+      "n_brackets": 9,
+      "gfs_j0": 20.0,
+      "error_j0": -3.0,
+      "gfs_j1": 19.3,
+      "error_j1": -3.7,
+      "gfs_j2": 19.4,
+      "error_j2": -3.6,
+      "gfs_j3": 19.5,
+      "error_j3": -3.5,
+      "brackets": [
+        {
+          "bracket": "16\u00b0C or below",
+          "op": "lte",
+          "temp": 16.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C",
+          "op": "exact",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "22\u00b0C",
+          "op": "exact",
+          "temp": 22.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "23\u00b0C",
+          "op": "exact",
+          "temp": 23.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "24\u00b0C or higher",
+          "op": "gte",
+          "temp": 24.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
       "station": "EGLC",
       "city": "London",
       "date": "2026-03-14",
@@ -22240,6 +23924,133 @@
           "bracket": "84\u00b0F or higher",
           "op": "gte",
           "temp": 84.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        }
+      ]
+    },
+    {
+      "station": "VHHH",
+      "city": "Hong Kong",
+      "date": "2026-03-13",
+      "actual_temp": 23.0,
+      "unit": "C",
+      "winning_bracket": "15\u00b0C or below",
+      "n_brackets": 9,
+      "gfs_j0": 19.2,
+      "error_j0": -3.8,
+      "gfs_j1": 18.9,
+      "error_j1": -4.1,
+      "gfs_j2": 18.7,
+      "error_j2": -4.3,
+      "gfs_j3": 18.8,
+      "error_j3": -4.2,
+      "brackets": [
+        {
+          "bracket": "15\u00b0C or below",
+          "op": "lte",
+          "temp": 15.0,
+          "winner": "YES",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "16\u00b0C",
+          "op": "exact",
+          "temp": 16.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "17\u00b0C",
+          "op": "exact",
+          "temp": 17.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "18\u00b0C",
+          "op": "exact",
+          "temp": 18.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "19\u00b0C",
+          "op": "exact",
+          "temp": 19.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "YES",
+          "gfs_j1_correct": false,
+          "gfs_j2_prediction": "YES",
+          "gfs_j2_correct": false,
+          "gfs_j3_prediction": "YES",
+          "gfs_j3_correct": false
+        },
+        {
+          "bracket": "20\u00b0C",
+          "op": "exact",
+          "temp": 20.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "21\u00b0C",
+          "op": "exact",
+          "temp": 21.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "22\u00b0C",
+          "op": "exact",
+          "temp": 22.0,
+          "winner": "NO",
+          "gfs_j1_prediction": "NO",
+          "gfs_j1_correct": true,
+          "gfs_j2_prediction": "NO",
+          "gfs_j2_correct": true,
+          "gfs_j3_prediction": "NO",
+          "gfs_j3_correct": true
+        },
+        {
+          "bracket": "23\u00b0C or higher",
+          "op": "gte",
+          "temp": 23.0,
           "winner": "NO",
           "gfs_j1_prediction": "NO",
           "gfs_j1_correct": true,
@@ -69801,9 +71612,9 @@
       ]
     }
   ],
-  "n_markets": 4913,
-  "n_actual_temps": 527,
-  "n_gfs": 3612,
+  "n_markets": 5030,
+  "n_actual_temps": 538,
+  "n_gfs": 3660,
   "gfs_accuracy": [
     {
       "city": "Seoul",
@@ -70446,6 +72257,38 @@
       "pct_within_1c": 0.0
     },
     {
+      "city": "Hong Kong",
+      "lead_days": 0,
+      "n": 6,
+      "mae": 4.58,
+      "bias": -4.58,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Hong Kong",
+      "lead_days": 1,
+      "n": 6,
+      "mae": 4.93,
+      "bias": -4.93,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Hong Kong",
+      "lead_days": 2,
+      "n": 6,
+      "mae": 5.02,
+      "bias": -5.02,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Hong Kong",
+      "lead_days": 3,
+      "n": 6,
+      "mae": 5.15,
+      "bias": -5.15,
+      "pct_within_1c": 0.0
+    },
+    {
       "city": "Taipei",
       "lead_days": 0,
       "n": 5,
@@ -70572,6 +72415,166 @@
       "mae": 0.82,
       "bias": -0.63,
       "pct_within_1c": 75.0
+    },
+    {
+      "city": "Wuhan",
+      "lead_days": 0,
+      "n": 1,
+      "mae": 1.3,
+      "bias": -1.3,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Wuhan",
+      "lead_days": 1,
+      "n": 1,
+      "mae": 2.0,
+      "bias": -2.0,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Wuhan",
+      "lead_days": 2,
+      "n": 1,
+      "mae": 2.9,
+      "bias": -2.9,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Wuhan",
+      "lead_days": 3,
+      "n": 1,
+      "mae": 0.0,
+      "bias": 0.0,
+      "pct_within_1c": 100.0
+    },
+    {
+      "city": "Shenzhen",
+      "lead_days": 0,
+      "n": 1,
+      "mae": 5.8,
+      "bias": -5.8,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Shenzhen",
+      "lead_days": 1,
+      "n": 1,
+      "mae": 4.9,
+      "bias": -4.9,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Shenzhen",
+      "lead_days": 2,
+      "n": 1,
+      "mae": 6.0,
+      "bias": -6.0,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Shenzhen",
+      "lead_days": 3,
+      "n": 1,
+      "mae": 5.9,
+      "bias": -5.9,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Chongqing",
+      "lead_days": 0,
+      "n": 1,
+      "mae": 3.6,
+      "bias": -3.6,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Chongqing",
+      "lead_days": 1,
+      "n": 1,
+      "mae": 3.6,
+      "bias": -3.6,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Chongqing",
+      "lead_days": 2,
+      "n": 1,
+      "mae": 4.9,
+      "bias": -4.9,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Chongqing",
+      "lead_days": 3,
+      "n": 1,
+      "mae": 3.5,
+      "bias": -3.5,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Chengdu",
+      "lead_days": 0,
+      "n": 1,
+      "mae": 2.1,
+      "bias": -2.1,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Chengdu",
+      "lead_days": 1,
+      "n": 1,
+      "mae": 2.4,
+      "bias": -2.4,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Chengdu",
+      "lead_days": 2,
+      "n": 1,
+      "mae": 1.7,
+      "bias": -1.7,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Chengdu",
+      "lead_days": 3,
+      "n": 1,
+      "mae": 3.6,
+      "bias": -3.6,
+      "pct_within_1c": 0.0
+    },
+    {
+      "city": "Beijing",
+      "lead_days": 0,
+      "n": 1,
+      "mae": 0.5,
+      "bias": -0.5,
+      "pct_within_1c": 100.0
+    },
+    {
+      "city": "Beijing",
+      "lead_days": 1,
+      "n": 1,
+      "mae": 0.5,
+      "bias": -0.5,
+      "pct_within_1c": 100.0
+    },
+    {
+      "city": "Beijing",
+      "lead_days": 2,
+      "n": 1,
+      "mae": 0.4,
+      "bias": -0.4,
+      "pct_within_1c": 100.0
+    },
+    {
+      "city": "Beijing",
+      "lead_days": 3,
+      "n": 1,
+      "mae": 1.0,
+      "bias": 1.0,
+      "pct_within_1c": 100.0
     }
   ]
 }
