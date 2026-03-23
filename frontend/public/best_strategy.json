@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-03-20T14:52:38.431606+00:00",
+  "updated_at": "2026-03-23T11:47:21.789641+00:00",
   "status": "ready",
-  "n_markets": 4217,
+  "n_markets": 5030,
   "n_strategies": 126,
   "note": "WR principal \u00b7 Prix CLOB non disponibles pour march\u00e9s anciens",
   "best_strategy": {
@@ -13,168 +13,238 @@
     "bracket_type": "exact_only",
     "direction": "all",
     "min_gfs_dist": 2,
-    "win_rate": 0.979,
-    "sharpe": 3.382,
-    "n_trades": 2438,
+    "win_rate": 0.947,
+    "sharpe": 1.992,
+    "n_trades": 2428,
     "max_drawdown": 1.0,
-    "test_win_rate": 0.982
+    "test_win_rate": 0.95
   },
   "horizon_analysis": {
     "Tous": {
-      "win_rate": 0.909,
-      "n": 4217,
+      "win_rate": 0.85,
+      "n": 5030,
       "pnl": 0
     },
     "End-bands": {
-      "win_rate": 0.955,
-      "n": 910,
+      "win_rate": 0.918,
+      "n": 1076,
       "pnl": 0
     },
     "Exacts": {
-      "win_rate": 0.897,
-      "n": 3307,
+      "win_rate": 0.831,
+      "n": 3954,
       "pnl": 0
     }
   },
   "by_city": {
     "Atlanta": {
-      "win_rate": 0.99,
+      "win_rate": 0.9,
       "n": 299,
       "pnl": 0,
-      "bias": -0.57,
+      "bias": -3.19,
       "best_lead": 1
     },
     "Dallas": {
-      "win_rate": 0.99,
+      "win_rate": 0.913,
       "n": 299,
       "pnl": 0,
-      "bias": 0.21,
+      "bias": -1.52,
       "best_lead": 1
     },
     "NYC": {
-      "win_rate": 0.99,
+      "win_rate": 0.906,
       "n": 299,
       "pnl": 0,
-      "bias": 0.64,
+      "bias": -0.73,
       "best_lead": 1
     },
     "Buenos Aires": {
-      "win_rate": 0.873,
+      "win_rate": 0.863,
       "n": 292,
       "pnl": 0,
-      "bias": -0.08,
+      "bias": 0.67,
       "best_lead": 1
     },
     "London": {
-      "win_rate": 0.877,
+      "win_rate": 0.825,
       "n": 292,
       "pnl": 0,
-      "bias": -0.16,
+      "bias": -0.28,
       "best_lead": 1
     },
     "Seattle": {
-      "win_rate": 0.986,
-      "n": 281,
+      "win_rate": 0.866,
+      "n": 292,
       "pnl": 0,
-      "bias": -1.28,
+      "bias": -1.92,
       "best_lead": 1
     },
     "Seoul": {
-      "win_rate": 0.808,
-      "n": 292,
+      "win_rate": 0.799,
+      "n": 303,
       "pnl": 0,
-      "bias": -2.97,
+      "bias": -3.0,
       "best_lead": 1
     },
     "Toronto": {
-      "win_rate": 0.904,
+      "win_rate": 0.87,
       "n": 292,
       "pnl": 0,
-      "bias": -0.02,
+      "bias": -0.8,
       "best_lead": 1
     },
     "Ankara": {
-      "win_rate": 0.871,
+      "win_rate": 0.809,
       "n": 278,
       "pnl": 0,
-      "bias": -0.77,
+      "bias": -1.18,
       "best_lead": 1
     },
     "Chicago": {
-      "win_rate": 0.993,
+      "win_rate": 0.906,
       "n": 278,
       "pnl": 0,
-      "bias": 0.75,
+      "bias": -0.19,
       "best_lead": 1
     },
     "Miami": {
-      "win_rate": 0.993,
+      "win_rate": 0.878,
       "n": 278,
       "pnl": 0,
-      "bias": -0.34,
+      "bias": -1.41,
       "best_lead": 1
     },
     "Paris": {
-      "win_rate": 0.849,
+      "win_rate": 0.824,
       "n": 278,
       "pnl": 0,
-      "bias": -0.53,
+      "bias": -0.8,
+      "best_lead": 1
+    },
+    "Sao Paulo": {
+      "win_rate": 0.835,
+      "n": 278,
+      "pnl": 0,
+      "bias": -0.42,
       "best_lead": 1
     },
     "Wellington": {
-      "win_rate": 0.775,
+      "win_rate": 0.785,
       "n": 289,
       "pnl": 0,
-      "bias": -3.07,
+      "bias": -3.01,
+      "best_lead": 1
+    },
+    "Lucknow": {
+      "win_rate": 0.792,
+      "n": 154,
+      "pnl": 0,
+      "bias": 4.4,
+      "best_lead": 1
+    },
+    "Munich": {
+      "win_rate": 0.805,
+      "n": 154,
+      "pnl": 0,
+      "bias": -1.61,
       "best_lead": 1
     },
     "Tel Aviv": {
-      "win_rate": 0.857,
+      "win_rate": 0.816,
       "n": 98,
       "pnl": 0,
-      "bias": -0.82,
+      "bias": -1.0,
       "best_lead": 1
     },
     "Tokyo": {
-      "win_rate": 0.837,
-      "n": 98,
+      "win_rate": 0.817,
+      "n": 109,
       "pnl": 0,
-      "bias": -1.03,
+      "bias": -1.5,
+      "best_lead": 1
+    },
+    "Hong Kong": {
+      "win_rate": 0.79,
+      "n": 62,
+      "pnl": 0,
+      "bias": -5.0,
       "best_lead": 1
     },
     "Shanghai": {
-      "win_rate": 0.915,
-      "n": 71,
+      "win_rate": 0.854,
+      "n": 82,
       "pnl": 0,
-      "bias": -0.62,
+      "bias": -1.09,
       "best_lead": 1
     },
     "Singapore": {
-      "win_rate": 0.859,
-      "n": 71,
+      "win_rate": 0.829,
+      "n": 82,
       "pnl": 0,
-      "bias": -1.12,
+      "bias": -1.37,
       "best_lead": 1
     },
     "Madrid": {
-      "win_rate": 0.864,
+      "win_rate": 0.886,
       "n": 44,
       "pnl": 0,
-      "bias": 1.03,
+      "bias": -0.65,
       "best_lead": 1
     },
     "Milan": {
       "win_rate": 0.864,
       "n": 44,
       "pnl": 0,
-      "bias": -1.3,
+      "bias": -2.65,
       "best_lead": 1
     },
     "Taipei": {
-      "win_rate": 0.841,
+      "win_rate": 0.855,
+      "n": 55,
+      "pnl": 0,
+      "bias": -2.14,
+      "best_lead": 1
+    },
+    "Warsaw": {
+      "win_rate": 0.864,
       "n": 44,
       "pnl": 0,
+      "bias": -0.27,
+      "best_lead": 1
+    },
+    "Beijing": {
+      "win_rate": 0.909,
+      "n": 11,
+      "pnl": 0,
+      "bias": -0.5,
+      "best_lead": 1
+    },
+    "Chengdu": {
+      "win_rate": 0.818,
+      "n": 11,
+      "pnl": 0,
       "bias": -2.4,
+      "best_lead": 1
+    },
+    "Chongqing": {
+      "win_rate": 0.818,
+      "n": 11,
+      "pnl": 0,
+      "bias": -3.6,
+      "best_lead": 1
+    },
+    "Shenzhen": {
+      "win_rate": 0.818,
+      "n": 11,
+      "pnl": 0,
+      "bias": -4.9,
+      "best_lead": 1
+    },
+    "Wuhan": {
+      "win_rate": 0.818,
+      "n": 11,
+      "pnl": 0,
+      "bias": -2,
       "best_lead": 1
     }
   },
@@ -189,12 +259,12 @@
       "bracket_type": "exact_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 2,
@@ -206,12 +276,12 @@
       "bracket_type": "exact_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 3,
@@ -223,12 +293,12 @@
       "bracket_type": "exact_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 4,
@@ -240,12 +310,12 @@
       "bracket_type": "exact_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 5,
@@ -257,12 +327,12 @@
       "bracket_type": "exact_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 6,
@@ -274,12 +344,12 @@
       "bracket_type": "exact_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 7,
@@ -291,12 +361,12 @@
       "bracket_type": "exact_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 8,
@@ -308,12 +378,12 @@
       "bracket_type": "exact_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 9,
@@ -325,12 +395,12 @@
       "bracket_type": "exact_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 10,
@@ -342,12 +412,12 @@
       "bracket_type": "exact_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 11,
@@ -359,12 +429,12 @@
       "bracket_type": "exact_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 12,
@@ -376,12 +446,12 @@
       "bracket_type": "exact_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.979,
-      "sharpe": 3.382,
-      "n_trades": 2438,
+      "win_rate": 0.947,
+      "sharpe": 1.992,
+      "n_trades": 2428,
       "max_drawdown": 1.0,
-      "test_win_rate": 0.982,
-      "test_n": 976
+      "test_win_rate": 0.95,
+      "test_n": 972
     },
     {
       "id": 13,
@@ -393,12 +463,12 @@
       "bracket_type": "all",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 14,
@@ -410,12 +480,12 @@
       "bracket_type": "all",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 15,
@@ -427,12 +497,12 @@
       "bracket_type": "all",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 16,
@@ -444,12 +514,12 @@
       "bracket_type": "all",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 17,
@@ -461,12 +531,12 @@
       "bracket_type": "all",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 18,
@@ -478,12 +548,12 @@
       "bracket_type": "all",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 19,
@@ -495,12 +565,12 @@
       "bracket_type": "all",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 20,
@@ -512,12 +582,12 @@
       "bracket_type": "all",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 21,
@@ -529,12 +599,12 @@
       "bracket_type": "all",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 22,
@@ -546,12 +616,12 @@
       "bracket_type": "all",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 23,
@@ -563,12 +633,12 @@
       "bracket_type": "all",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 24,
@@ -580,12 +650,12 @@
       "bracket_type": "all",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.978,
-      "sharpe": 3.281,
-      "n_trades": 3224,
+      "win_rate": 0.947,
+      "sharpe": 1.991,
+      "n_trades": 3385,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 1290
+      "test_win_rate": 0.952,
+      "test_n": 1354
     },
     {
       "id": 25,
@@ -597,12 +667,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 26,
@@ -614,12 +684,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 27,
@@ -631,12 +701,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 28,
@@ -648,12 +718,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 29,
@@ -665,12 +735,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 30,
@@ -682,12 +752,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 31,
@@ -699,12 +769,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 32,
@@ -716,12 +786,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 33,
@@ -733,12 +803,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 34,
@@ -750,12 +820,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 35,
@@ -767,12 +837,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 36,
@@ -784,12 +854,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 2,
-      "win_rate": 0.975,
-      "sharpe": 3.012,
-      "n_trades": 786,
+      "win_rate": 0.947,
+      "sharpe": 1.988,
+      "n_trades": 957,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.981,
-      "test_n": 315
+      "test_win_rate": 0.956,
+      "test_n": 383
     },
     {
       "id": 37,
@@ -801,12 +871,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 38,
@@ -818,12 +888,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 39,
@@ -835,12 +905,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 40,
@@ -852,12 +922,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 41,
@@ -869,12 +939,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 42,
@@ -886,12 +956,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 43,
@@ -903,12 +973,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 44,
@@ -920,12 +990,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 45,
@@ -937,12 +1007,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 46,
@@ -954,12 +1024,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 47,
@@ -971,12 +1041,12 @@
       "bracket_type": "endband_only",
       "direction": "all",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 48,
@@ -988,12 +1058,12 @@
       "bracket_type": "endband_only",
       "direction": "NO_only",
       "min_gfs_dist": 1,
-      "win_rate": 0.966,
-      "sharpe": 2.567,
-      "n_trades": 822,
+      "win_rate": 0.938,
+      "sharpe": 1.821,
+      "n_trades": 1005,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.976,
-      "test_n": 329
+      "test_win_rate": 0.945,
+      "test_n": 402
     },
     {
       "id": 49,
@@ -1002,15 +1072,15 @@
       "pnl_total": 0,
       "pnl_per_100": 0,
       "min_edge": 5,
-      "bracket_type": "all",
-      "direction": "all",
-      "min_gfs_dist": 1,
-      "win_rate": 0.962,
-      "sharpe": 2.431,
-      "n_trades": 3699,
+      "bracket_type": "endband_only",
+      "direction": "NO_only",
+      "min_gfs_dist": 0,
+      "win_rate": 0.934,
+      "sharpe": 1.746,
+      "n_trades": 1014,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.961,
-      "test_n": 1480
+      "test_win_rate": 0.943,
+      "test_n": 406
     },
     {
       "id": 50,
@@ -1018,16 +1088,16 @@
       "min_liquidity": 0,
       "pnl_total": 0,
       "pnl_per_100": 0,
-      "min_edge": 5,
-      "bracket_type": "all",
+      "min_edge": 10,
+      "bracket_type": "endband_only",
       "direction": "NO_only",
-      "min_gfs_dist": 1,
-      "win_rate": 0.962,
-      "sharpe": 2.431,
-      "n_trades": 3699,
+      "min_gfs_dist": 0,
+      "win_rate": 0.934,
+      "sharpe": 1.746,
+      "n_trades": 1014,
       "max_drawdown": 2.0,
-      "test_win_rate": 0.961,
-      "test_n": 1480
+      "test_win_rate": 0.943,
+      "test_n": 406
     }
   ]
 }
