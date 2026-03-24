@@ -74,6 +74,12 @@ interface Bracket {
   volume: number;
 }
 
+interface GammaMarket {
+  conditionId: string;
+  closed: boolean;
+  acceptingOrders: boolean;
+}
+
 interface PricePoint { ts: number; price_yes: number }
 
 /* ─── Helpers ────────────────────────────────────────────── */
@@ -134,6 +140,7 @@ export default function DataPage() {
   const [prices, setPrices] = useState<Record<string, PricePoint[]>>({});
   const [tempC, setTempC] = useState<number | null>(null);
   const [chartLoading, setChartLoading] = useState(false);
+  const [closedBrackets, setClosedBrackets] = useState<Set<string>>(new Set());
 
   // Chart sizing
   const chartWrapRef = useRef<HTMLDivElement>(null);
@@ -175,6 +182,7 @@ export default function DataPage() {
     setPrices({});
     setTempC(null);
     setHoverIdx(null);
+    setClosedBrackets(new Set());
 
     try {
       const [brk, tmp] = await Promise.all([
@@ -187,6 +195,24 @@ export default function DataPage() {
       ]);
       setBrackets(brk);
       if (tmp.length > 0) setTempC(tmp[0].temp_max_c);
+
+      // For open events: fetch Gamma to know which brackets are closed to trading
+      if (!ev.closed) {
+        try {
+          const gRes = await fetch(
+            `https://gamma-api.polymarket.com/events/${ev.event_id}`,
+            { headers: { "User-Agent": "Mozilla/5.0" } }
+          );
+          if (gRes.ok) {
+            const gData = await gRes.json();
+            const closed = new Set<string>();
+            for (const m of (gData.markets || []) as GammaMarket[]) {
+              if (m.closed || !m.acceptingOrders) closed.add(m.conditionId);
+            }
+            setClosedBrackets(closed);
+          }
+        } catch { /* ignore gamma errors */ }
+      }
 
       const priceResults = await Promise.all(
         brk.map(b =>
@@ -505,17 +531,19 @@ export default function DataPage() {
                       <ReferenceLine y={50} stroke="#1e293b" strokeDasharray="4 4" />
                       {brackets.map((b, i) => {
                         const isWinner = b.winner === "YES";
+                        const isClosed = closedBrackets.has(b.condition_id);
                         return (
                           <Line
                             key={b.condition_id}
                             xAxisId="hours"
                             dataKey={b.condition_id}
-                            stroke={COLORS[i % COLORS.length]}
+                            stroke={isClosed ? "#334155" : COLORS[i % COLORS.length]}
                             strokeWidth={isWinner ? 3 : 1.2}
-                            strokeOpacity={isWinner ? 1 : 0.45}
+                            strokeOpacity={isWinner ? 1 : isClosed ? 0.25 : 0.45}
                             dot={false}
                             connectNulls
                             isAnimationActive={false}
+                            strokeDasharray={isClosed ? "4 4" : undefined}
                           />
                         );
                       })}
@@ -529,25 +557,31 @@ export default function DataPage() {
                 {brackets.map((b, i) => {
                   const color = COLORS[i % COLORS.length];
                   const isWinner = b.winner === "YES";
+                  const isClosed = closedBrackets.has(b.condition_id);
                   const pts = prices[b.condition_id] || [];
                   const openPrice = pts.length > 0 ? Math.round(pts[0].price_yes * 100) : null;
                   const closePrice = pts.length > 0 ? Math.round(pts[pts.length - 1].price_yes * 100) : null;
 
                   return (
                     <div key={b.condition_id} style={{
-                      background: isWinner ? "#0f2a1a" : "#111827", borderRadius: 10, padding: "10px 12px",
-                      borderLeft: `3px solid ${isWinner ? "#22c55e" : color}`,
+                      background: isClosed ? "#0a0a0f" : isWinner ? "#0f2a1a" : "#111827",
+                      borderRadius: 10, padding: "10px 12px",
+                      borderLeft: `3px solid ${isClosed ? "#1e293b" : isWinner ? "#22c55e" : color}`,
+                      opacity: isClosed ? 0.5 : 1,
                     }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: color, flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, fontWeight: 700, color: isWinner ? "#4ade80" : "#e2e8f0" }}>
+                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: isClosed ? "#334155" : color, flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, fontWeight: 700, color: isClosed ? "#475569" : isWinner ? "#4ade80" : "#e2e8f0" }}>
                           {bracketLabel(b)}
                         </span>
                         {isWinner && (
                           <span style={{ fontSize: 10, fontWeight: 700, background: "#166534", color: "#4ade80", padding: "1px 6px", borderRadius: 4, marginLeft: "auto" }}>WIN</span>
                         )}
+                        {isClosed && !isWinner && (
+                          <span style={{ fontSize: 9, fontWeight: 600, background: "#1e293b", color: "#475569", padding: "1px 5px", borderRadius: 4, marginLeft: "auto" }}>CLOSED</span>
+                        )}
                       </div>
-                      <div style={{ fontSize: 11, color: "#64748b", fontFamily: "monospace" }}>
+                      <div style={{ fontSize: 11, color: isClosed ? "#334155" : "#64748b", fontFamily: "monospace" }}>
                         {openPrice != null && closePrice != null ? `${openPrice}% \u2192 ${closePrice}%` : "no data"}
                       </div>
                       <div style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>
