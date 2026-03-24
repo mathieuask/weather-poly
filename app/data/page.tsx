@@ -1,12 +1,11 @@
 "use client";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   LineChart,
   Line,
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
 
@@ -126,6 +125,8 @@ export default function DataPage() {
   const [prices, setPrices] = useState<Record<string, PricePoint[]>>({});
   const [tempC, setTempC] = useState<number | null>(null);
   const [chartLoading, setChartLoading] = useState(false);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [chartWidth, setChartWidth] = useState(800);
 
   /* ── Load events for city ── */
   const loadEvents = useCallback(async (station: string) => {
@@ -178,11 +179,25 @@ export default function DataPage() {
     setChartLoading(false);
   }, []);
 
+  /* ── Measure chart container width ── */
+  useEffect(() => {
+    const el = chartRef.current;
+    if (!el) return;
+    const measure = () => {
+      const w = el.clientWidth;
+      if (w > 0) setChartWidth(w);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [selectedEvent]);
+
   /* ── Build chart data ── */
   const chartData = useMemo(() => {
     if (brackets.length === 0 || Object.keys(prices).length === 0) return [];
 
-    // Collect all timestamps, then sample to max 400
+    // Collect all timestamps, then sample to max 200
     const allTs = new Set<number>();
     for (const pts of Object.values(prices)) {
       for (const p of pts) allTs.add(p.ts);
@@ -190,7 +205,7 @@ export default function DataPage() {
     const sortedTs = [...allTs].sort((a, b) => a - b);
     const sampled = downsample(
       sortedTs.map(ts => ({ ts, price_yes: 0 })),
-      400
+      200
     ).map(p => p.ts);
 
     // For each sampled timestamp, find closest price for each bracket
@@ -395,50 +410,57 @@ export default function DataPage() {
 
               {/* ── Chart ── */}
               {chartData.length > 0 && (
-                <div style={{ background: "#111827", borderRadius: 12, padding: "16px 8px 8px 0", marginBottom: 20 }}>
-                  <ResponsiveContainer width="100%" height={380}>
-                    <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                      <XAxis
-                        dataKey="time"
-                        tick={{ fill: "#475569", fontSize: 11 }}
-                        axisLine={{ stroke: "#1e293b" }}
-                        tickLine={false}
-                        interval="preserveStartEnd"
-                        minTickGap={60}
-                      />
-                      <YAxis
-                        domain={[0, 100]}
-                        tick={{ fill: "#475569", fontSize: 11 }}
-                        axisLine={{ stroke: "#1e293b" }}
-                        tickLine={false}
-                        tickFormatter={(v: number) => `${v}%`}
-                        width={44}
-                      />
-                      <Tooltip
-                        content={renderTooltip}
-                        cursor={{ stroke: "#334155", strokeWidth: 1 }}
-                        isAnimationActive={false}
-                        wrapperStyle={{ pointerEvents: "none" }}
-                      />
-                      <ReferenceLine y={50} stroke="#1e293b" strokeDasharray="4 4" />
-                      {brackets.map((b, i) => {
-                        const isWinner = b.winner === "YES";
-                        return (
-                          <Line
-                            key={b.condition_id}
-                            dataKey={b.condition_id}
-                            stroke={COLORS[i % COLORS.length]}
-                            strokeWidth={isWinner ? 3 : 1.2}
-                            strokeOpacity={isWinner ? 1 : 0.45}
-                            dot={false}
-                            name={bracketLabel(b)}
-                            connectNulls
-                            isAnimationActive={false}
-                          />
-                        );
-                      })}
-                    </LineChart>
-                  </ResponsiveContainer>
+                <div
+                  ref={chartRef}
+                  style={{ background: "#111827", borderRadius: 12, padding: "16px 8px 8px 0", marginBottom: 20, overflow: "hidden" }}
+                >
+                  <LineChart
+                    data={chartData}
+                    width={chartWidth}
+                    height={380}
+                    margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
+                  >
+                    <XAxis
+                      dataKey="time"
+                      tick={{ fill: "#475569", fontSize: 11 }}
+                      axisLine={{ stroke: "#1e293b" }}
+                      tickLine={false}
+                      interval="preserveStartEnd"
+                      minTickGap={60}
+                    />
+                    <YAxis
+                      domain={[0, 100]}
+                      tick={{ fill: "#475569", fontSize: 11 }}
+                      axisLine={{ stroke: "#1e293b" }}
+                      tickLine={false}
+                      tickFormatter={(v: number) => `${v}%`}
+                      width={44}
+                    />
+                    <Tooltip
+                      content={renderTooltip}
+                      cursor={{ stroke: "#334155", strokeWidth: 1 }}
+                      isAnimationActive={false}
+                      position={{ x: chartWidth - 200, y: 8 }}
+                      wrapperStyle={{ pointerEvents: "none" }}
+                    />
+                    <ReferenceLine y={50} stroke="#1e293b" strokeDasharray="4 4" />
+                    {brackets.map((b, i) => {
+                      const isWinner = b.winner === "YES";
+                      return (
+                        <Line
+                          key={b.condition_id}
+                          dataKey={b.condition_id}
+                          stroke={COLORS[i % COLORS.length]}
+                          strokeWidth={isWinner ? 3 : 1.2}
+                          strokeOpacity={isWinner ? 1 : 0.45}
+                          dot={false}
+                          name={bracketLabel(b)}
+                          connectNulls
+                          isAnimationActive={false}
+                        />
+                      );
+                    })}
+                  </LineChart>
                 </div>
               )}
 
