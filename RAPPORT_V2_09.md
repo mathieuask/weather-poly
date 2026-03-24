@@ -135,12 +135,35 @@ La correction #1 ne patchait que les 266 brackets avec `last_price` entre 5-95%.
 | Temps | 59 sec |
 | Erreurs | 0 |
 
-## 7. État final
+## 7. Correction #3 : re-fetch COMPLET avec endTs +2 jours
 
-| Table | Lignes | Delta total |
-|-------|--------|-------------|
-| `price_history` | ~5 135 444 | +156 005 pts vs V2_06 |
-| Brackets complets | 6 938/6 938 | 100% |
+Le scan avec le bon critère (dernier point après minuit J+1 UTC) a révélé que **75% des brackets** (5 232/6 938) étaient tronqués — pas juste les 1 446 à 22:55 UTC. Beaucoup de brackets perdants finissaient dans la journée du target_date car ils n'avaient plus de trades après être tombés à 0, mais les brackets proches du winner étaient coupés.
+
+**Action** : vidé `price_history` entièrement et re-fetchés les 7 085 brackets avec `endTs = target_date + 2 jours`.
+
+| Métrique | Avant | Après |
+|----------|-------|-------|
+| Total points | 4 979 439 | **5 276 417** (+6%) |
+| Brackets fetchés | 7 085 | 7 085 |
+| Erreurs (no-trade) | 0 | 28 |
+| Temps | 23 min | 19.5 min |
+
+### Vérification winners
+
+30 brackets winners échantillonnés :
+- 26/30 finissent après minuit J+1 UTC
+- 4/30 finissent avant mais sont à p=1.000 (résolution précoce, données complètes)
+- **0 bracket winner tronqué**
+
+## 8. État final
+
+| Table | Lignes |
+|-------|--------|
+| `cities` | 3 |
+| `poly_events` | 966 |
+| `poly_markets` | 7 085 |
+| `daily_temps` | 952 |
+| `price_history` | **5 276 417** |
 
 ### Pour les futurs fetchs
 
@@ -148,7 +171,7 @@ Utiliser **`endTs = target_date + 2 jours`** pour toutes les villes.
 
 ---
 
-## 8. Plan V2_10
+## 9. Plan V2_10
 
 Les données sont maintenant propres et complètes. Prochaine étape :
 1. Feature engineering : joindre prix + temp WU + metadata brackets
