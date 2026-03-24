@@ -118,20 +118,37 @@ Analysées via l'API CLOB (heure du dernier trade, heure locale) :
 
 ---
 
-## 6. État final
+## 6. Correction #2 : brackets coupés à 22:55 UTC (convergés mais tronqués)
 
-| Table | Lignes | Delta |
-|-------|--------|-------|
-| `price_history` | ~5 018 626 | +39 187 pts |
-| Brackets convergés | 6 936/6 938 | 99.97% |
+La correction #1 ne patchait que les 266 brackets avec `last_price` entre 5-95%. Mais **1 446 brackets** (21%) finissaient exactement à 22:55 UTC — coupés par le endTs. Même si le prix avait convergé (loser à 0.001, winner à 1.000 juste avant la coupure), il manquait 4-5h de données post-résolution.
+
+**Impact visuel** : les charts montraient des courbes qui s'arrêtent à 08:50 le matin au lieu d'aller jusqu'à 03-04h UTC le lendemain.
+
+| Métrique | Valeur |
+|----------|--------|
+| Brackets coupés à 22:55 UTC | 1 446 (21%) |
+| → London | 741 |
+| → NYC | 704 |
+| → Seoul | 1 |
+| Events affectés | 395 |
+| Points ajoutés | **+116 818** |
+| Temps | 59 sec |
+| Erreurs | 0 |
+
+## 7. État final
+
+| Table | Lignes | Delta total |
+|-------|--------|-------------|
+| `price_history` | ~5 135 444 | +156 005 pts vs V2_06 |
+| Brackets complets | 6 938/6 938 | 100% |
 
 ### Pour les futurs fetchs
 
-Utiliser **`endTs = target_date + 2 jours`** pour toutes les villes. Ça couvre largement la résolution même pour NYC.
+Utiliser **`endTs = target_date + 2 jours`** pour toutes les villes.
 
 ---
 
-## 7. Plan V2_10
+## 8. Plan V2_10
 
 Les données sont maintenant propres et complètes. Prochaine étape :
 1. Feature engineering : joindre prix + temp WU + metadata brackets
