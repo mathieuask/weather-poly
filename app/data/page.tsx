@@ -1,617 +1,480 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+} from "recharts";
 
-const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+/* ─── Config ─────────────────────────────────────────────── */
 
-async function sb(table: string, params: string = "") {
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
-    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` },
-  });
-  if (!res.ok) throw new Error(`Supabase ${table}: ${res.status}`);
-  return res.json();
+const SB = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const H = { apikey: KEY, Authorization: `Bearer ${KEY}` };
+
+const CITIES = [
+  { name: "London", station: "EGLC", flag: "\u{1F1EC}\u{1F1E7}", accent: "#60a5fa" },
+  { name: "NYC", station: "KLGA", flag: "\u{1F1FA}\u{1F1F8}", accent: "#f87171" },
+  { name: "Seoul", station: "RKSI", flag: "\u{1F1F0}\u{1F1F7}", accent: "#34d399" },
+];
+
+const COLORS = [
+  "#818cf8", "#a78bfa", "#c084fc", "#e879f9", "#f472b6",
+  "#fb7185", "#f97316", "#fbbf24", "#a3e635", "#34d399", "#22d3ee",
+];
+
+const PAGE_SIZE = 30;
+
+/* ─── Supabase helper ────────────────────────────────────── */
+
+async function sb<T = any>(path: string): Promise<T> {
+  const r = await fetch(`${SB}/rest/v1/${path}`, { headers: H });
+  if (!r.ok) throw new Error(`${r.status}`);
+  return r.json();
 }
 
-// Auto-paginate for large tables
-async function sbAll(table: string, params: string = ""): Promise<any[]> {
-  const all: any[] = [];
-  let offset = 0;
-  const limit = 1000;
-  while (true) {
-    const sep = params ? "&" : "";
-    const batch = await sb(table, `${params}${sep}limit=${limit}&offset=${offset}`);
-    all.push(...batch);
-    if (batch.length < limit) break;
-    offset += limit;
-  }
-  return all;
+/* ─── Types ──────────────────────────────────────────────── */
+
+interface Event {
+  event_id: string;
+  city: string;
+  station: string;
+  target_date: string;
+  closed: boolean;
+  n_brackets: number;
+  total_volume: number;
+  created_at: string;
 }
 
-interface City { name: string; station: string; unit: string; lat: number; lon: number }
-interface Bias { station: string; lead_days: number; bias_mean: number; mae: number; pct_within_1: number; n: number; reliable: boolean }
-
-// Cities that start Polymarket on March 24, 2026
-const POLYMARKET_LATE_CITIES = ["San Francisco", "Austin", "Denver", "Houston", "Los Angeles"];
-
-const CARD: React.CSSProperties = { background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.08)", marginBottom: 24 };
-const TH: React.CSSProperties = { padding: "8px 10px", textAlign: "left", color: "#6b7280", fontWeight: 600, fontSize: 12 };
-const TD: React.CSSProperties = { padding: "8px 10px", fontSize: 13 };
-const DAYS_FR = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
-const MONTHS_FR = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"];
-
-const biasColor = (b: number) => Math.abs(b) <= 0.5 ? "#16a34a" : Math.abs(b) <= 1.5 ? "#ca8a04" : "#dc2626";
-const errBg = (e: number) => Math.abs(e) <= 1 ? "#dcfce7" : Math.abs(e) <= 2 ? "#fef9c3" : "#fee2e2";
-const errText = (e: number) => Math.abs(e) <= 1 ? "#166534" : Math.abs(e) <= 2 ? "#854d0e" : "#991b1b";
-
-function displayTemp(tempC: number, unit: string): string {
-  if (unit === "F") return `${Math.round(tempC * 9 / 5 + 32)}`;
-  return tempC.toFixed(1);
+interface Bracket {
+  condition_id: string;
+  bracket_temp: number;
+  bracket_op: string;
+  bracket_str: string;
+  winner: string | null;
+  volume: number;
 }
-function unitLabel(u: string) { return u === "F" ? "\u00b0F" : "\u00b0C"; }
 
-// Data source colors
-const BLUE = { bg: "#dbeafe", border: "#3b82f6", text: "#1e40af", label: "ERA5" };
-const GREEN = { bg: "#dcfce7", border: "#22c55e", text: "#166534", label: "Polymarket" };
-const PURPLE = { bg: "#ede9fe", border: "#8b5cf6", text: "#5b21b6", label: "GFS hist." };
+interface PricePoint { ts: number; price_yes: number }
 
-type DayType = "blue" | "green" | "purple" | "none";
+/* ─── Helpers ────────────────────────────────────────────── */
 
-function dayType(date: string, wuDates: Set<string>, era5Dates: Set<string>, gfsDates: Set<string>): DayType {
-  if (wuDates.has(date)) return "green";
-  if (gfsDates.has(date) && era5Dates.has(date)) return "purple";
-  if (era5Dates.has(date)) return "blue";
-  return "none";
+function fmtDate(d: string) {
+  const dt = new Date(d + "T12:00:00Z");
+  return dt.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 }
-function typeStyle(t: DayType) {
-  if (t === "blue") return BLUE;
-  if (t === "green") return GREEN;
-  if (t === "purple") return PURPLE;
-  return { bg: "#f9fafb", border: "#e5e7eb", text: "#9ca3af", label: "" };
+
+function fmtHour(ts: number) {
+  const d = new Date(ts * 1000);
+  return `${d.getUTCHours().toString().padStart(2, "0")}:${d.getUTCMinutes().toString().padStart(2, "0")}`;
 }
+
+function bracketLabel(b: Bracket) {
+  const t = b.bracket_temp;
+  if (b.bracket_op === "lte") return `\u2264${t}\u00b0`;
+  if (b.bracket_op === "gte") return `\u2265${t}\u00b0`;
+  return `${t}\u00b0`;
+}
+
+/* ─── Downsample ─────────────────────────────────────────── */
+
+function downsample(pts: PricePoint[], max: number): PricePoint[] {
+  if (pts.length <= max) return pts;
+  const step = (pts.length - 1) / (max - 1);
+  const out: PricePoint[] = [];
+  for (let i = 0; i < max; i++) out.push(pts[Math.round(i * step)]);
+  return out;
+}
+
+/* ─── Component ──────────────────────────────────────────── */
 
 export default function DataPage() {
-  const [cities, setCities] = useState<City[]>([]);
-  const [biases, setBiases] = useState<Bias[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [calMonth, setCalMonth] = useState<Date>(new Date(2026, 2));
+  const [city, setCity] = useState(CITIES[0]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+  const [page, setPage] = useState(0);
 
-  // City-level data (loaded on city select)
-  const [era5Data, setEra5Data] = useState<Record<string, number>>({});
-  const [wuData, setWuData] = useState<Record<string, number>>({});
-  const [gfsHistData, setGfsHistData] = useState<Record<string, Record<number, number>>>({});
-  const [gfsLiveData, setGfsLiveData] = useState<Record<string, Record<number, number>>>({});
-  const [bracketsData, setBracketsData] = useState<any[]>([]);
-  const [cityLoading, setCityLoading] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [brackets, setBrackets] = useState<Bracket[]>([]);
+  const [prices, setPrices] = useState<Record<string, PricePoint[]>>({});
+  const [tempC, setTempC] = useState<number | null>(null);
+  const [chartLoading, setChartLoading] = useState(false);
 
-  // Counts for KPIs
-  const [counts, setCounts] = useState({ era5: 0, wu: 0, gfsHist: 0, gfsLive: 0, brackets: 0 });
-
-  // Load cities + bias on mount
-  useEffect(() => {
-    Promise.all([
-      sb("cities", "select=name,station,unit,lat,lon&active=eq.true&order=name.asc"),
-      sb("city_bias", "select=station,lead_days,bias_mean,mae,pct_within_1,n,reliable"),
-    ]).then(([c, b]) => {
-      setCities(c);
-      setBiases(b);
-      setLoading(false);
-    }).catch(console.error);
-
-    // Get approximate counts
-    Promise.all([
-      sb("daily_temps", "select=id&source=eq.era5_reanalysis&limit=1&offset=0", ).catch(() => []),
-      sb("daily_temps", "select=id&source=eq.wunderground&limit=1&offset=0").catch(() => []),
-    ]).then(() => {
-      setCounts({ era5: 330750, wu: 1337, gfsHist: 93762, gfsLive: 5812, brackets: 12728 });
-    });
+  /* ── Load events for city ── */
+  const loadEvents = useCallback(async (station: string) => {
+    setEventsLoading(true);
+    try {
+      const data = await sb<Event[]>(
+        `poly_events?station=eq.${station}&select=event_id,city,station,target_date,closed,n_brackets,total_volume,created_at&order=target_date.desc&limit=1000`
+      );
+      setEvents(data);
+    } catch (e) { console.error(e); }
+    setEventsLoading(false);
   }, []);
 
-  // Load only one month of data for a city
-  const loadMonthData = useCallback(async (station: string, year: number, month: number) => {
-    setCityLoading(true);
-    try {
-      const startDate = `${year}-${String(month + 1).padStart(2, "0")}-01`;
-      const nextMonth = month === 11 ? 0 : month + 1;
-      const nextYear = month === 11 ? year + 1 : year;
-      const endDate = `${nextYear}-${String(nextMonth + 1).padStart(2, "0")}-01`;
-      const dateFilter = `date=gte.${startDate}&date=lt.${endDate}`;
-      const targetDateFilter = `target_date=gte.${startDate}&target_date=lt.${endDate}`;
+  useEffect(() => { loadEvents(city.station); }, [city.station, loadEvents]);
 
-      const [era5, wu, gfsH, gfsL, brackets] = await Promise.all([
-        sbAll("daily_temps", `select=date,temp_max_c&station=eq.${station}&source=eq.era5_reanalysis&${dateFilter}&order=date.desc`),
-        sbAll("daily_temps", `select=date,temp_max_c&station=eq.${station}&source=eq.wunderground&${dateFilter}&order=date.desc`),
-        sbAll("gfs_forecasts", `select=target_date,lead_days,temp_max_c&station=eq.${station}&source=eq.previous_runs_historical&${targetDateFilter}&order=target_date.desc`),
-        sbAll("gfs_forecasts", `select=target_date,lead_days,temp_max_c&station=eq.${station}&source=neq.previous_runs_historical&${targetDateFilter}&order=target_date.desc`),
-        sbAll("poly_markets", `select=date,bracket_str,bracket_temp,bracket_op,winner,unit&station=eq.${station}&resolved=eq.true&${dateFilter}&order=date.desc`),
+  /* ── Load event detail ── */
+  const loadEvent = useCallback(async (ev: Event) => {
+    setSelectedEvent(ev);
+    setChartLoading(true);
+    setBrackets([]);
+    setPrices({});
+    setTempC(null);
+
+    try {
+      const [brk, tmp] = await Promise.all([
+        sb<Bracket[]>(
+          `poly_markets?poly_event_id=eq.${ev.event_id}&select=condition_id,bracket_temp,bracket_op,bracket_str,winner,volume&order=bracket_temp`
+        ),
+        sb<{ temp_max_c: number }[]>(
+          `daily_temps?station=eq.${ev.station}&date=eq.${ev.target_date}&select=temp_max_c&limit=1`
+        ),
       ]);
 
-      const era5Map: Record<string, number> = {};
-      for (const r of era5) era5Map[r.date] = r.temp_max_c;
-      setEra5Data(era5Map);
+      setBrackets(brk);
+      if (tmp.length > 0) setTempC(tmp[0].temp_max_c);
 
-      const wuMap: Record<string, number> = {};
-      for (const r of wu) wuMap[r.date] = r.temp_max_c;
-      setWuData(wuMap);
+      // Fetch prices for all brackets in parallel
+      const priceResults = await Promise.all(
+        brk.map(b =>
+          sb<PricePoint[]>(
+            `price_history?condition_id=eq.${b.condition_id}&select=ts,price_yes&order=ts&limit=2000`
+          ).then(pts => [b.condition_id, pts] as const)
+        )
+      );
 
-      const gfsHMap: Record<string, Record<number, number>> = {};
-      for (const r of gfsH) {
-        if (!gfsHMap[r.target_date]) gfsHMap[r.target_date] = {};
-        gfsHMap[r.target_date][r.lead_days] = r.temp_max_c;
-      }
-      setGfsHistData(gfsHMap);
-
-      const gfsLMap: Record<string, Record<number, number>> = {};
-      for (const r of gfsL) {
-        if (!gfsLMap[r.target_date]) gfsLMap[r.target_date] = {};
-        gfsLMap[r.target_date][r.lead_days] = r.temp_max_c;
-      }
-      setGfsLiveData(gfsLMap);
-
-      setBracketsData(brackets);
-    } catch (e) {
-      console.error("Error loading month data:", e);
-    }
-    setCityLoading(false);
+      const priceMap: Record<string, PricePoint[]> = {};
+      for (const [cid, pts] of priceResults) priceMap[cid] = pts;
+      setPrices(priceMap);
+    } catch (e) { console.error(e); }
+    setChartLoading(false);
   }, []);
 
-  const selectCity = (name: string, station: string) => {
-    if (selectedCity === name) { setSelectedCity(null); setSelectedDate(null); return; }
-    setSelectedCity(name);
-    setSelectedDate(null);
+  /* ── Build chart data ── */
+  const chartData = useMemo(() => {
+    if (brackets.length === 0 || Object.keys(prices).length === 0) return [];
 
-    // Set calendar to most recent data month and load that month
-    const now = new Date();
-    const newMonth = new Date(now.getFullYear(), now.getMonth());
-    setCalMonth(newMonth);
-    loadMonthData(station, now.getFullYear(), now.getMonth());
+    // Collect all timestamps, then sample to max 400
+    const allTs = new Set<number>();
+    for (const pts of Object.values(prices)) {
+      for (const p of pts) allTs.add(p.ts);
+    }
+    const sortedTs = [...allTs].sort((a, b) => a - b);
+    const sampled = downsample(
+      sortedTs.map(ts => ({ ts, price_yes: 0 })),
+      400
+    ).map(p => p.ts);
+
+    // For each sampled timestamp, find closest price for each bracket
+    return sampled.map(ts => {
+      const row: Record<string, any> = { ts, time: fmtHour(ts) };
+      for (const b of brackets) {
+        const pts = prices[b.condition_id];
+        if (!pts || pts.length === 0) { row[b.condition_id] = null; continue; }
+        // Binary search for closest
+        let lo = 0, hi = pts.length - 1;
+        while (lo < hi) {
+          const mid = (lo + hi) >> 1;
+          if (pts[mid].ts < ts) lo = mid + 1; else hi = mid;
+        }
+        // Check neighbors
+        const best =
+          lo > 0 && Math.abs(pts[lo - 1].ts - ts) < Math.abs(pts[lo].ts - ts)
+            ? pts[lo - 1]
+            : pts[lo];
+        row[b.condition_id] = Math.round(best.price_yes * 100);
+      }
+      return row;
+    });
+  }, [brackets, prices]);
+
+  /* ── Pagination ── */
+  const pagedEvents = events.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const totalPages = Math.ceil(events.length / PAGE_SIZE);
+
+  /* ── Tooltip ── */
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload) return null;
+    return (
+      <div style={{ background: "#1a1a2e", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 14px", fontSize: 12 }}>
+        <div style={{ color: "#94a3b8", marginBottom: 6, fontFamily: "monospace" }}>{label}</div>
+        {payload
+          .filter((p: any) => p.value != null)
+          .sort((a: any, b: any) => (b.value ?? 0) - (a.value ?? 0))
+          .map((p: any) => {
+            const b = brackets.find(br => br.condition_id === p.dataKey);
+            return (
+              <div key={p.dataKey} style={{ display: "flex", justifyContent: "space-between", gap: 16, color: p.color }}>
+                <span>{b ? bracketLabel(b) : "?"}</span>
+                <span style={{ fontFamily: "monospace", fontWeight: 700 }}>{p.value}%</span>
+              </div>
+            );
+          })}
+      </div>
+    );
   };
 
-  const cityInfo = cities.find(c => c.name === selectedCity);
-
-  // Group biases by station, then by lead_days
-  const biasMap = new Map<string, Map<number, Bias>>();
-  for (const b of biases) {
-    if (!biasMap.has(b.station)) biasMap.set(b.station, new Map());
-    biasMap.get(b.station)!.set(b.lead_days, b);
-  }
-
-  // Build date sets for the calendar
-  const era5Dates = new Set(Object.keys(era5Data));
-  const wuDates = new Set(Object.keys(wuData));
-  const gfsHistDates = new Set(Object.keys(gfsHistData));
-
-  if (loading) return (
-    <div style={{ background: "#f3f4f6", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ color: "#6b7280", fontSize: 18 }}>Chargement...</p>
-    </div>
-  );
-
-  if (cities.length === 0) return (
-    <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
-      <div className="max-w-5xl mx-auto">
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111827", margin: 0 }}>Data</h1>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "64px 0", color: "#9ca3af" }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🚧</div>
-          <p style={{ fontSize: 18, fontWeight: 500, color: "#6b7280" }}>Aucune donnée</p>
-          <p style={{ fontSize: 14, marginTop: 4 }}>V2 en cours de construction</p>
-        </div>
-      </div>
-    </div>
-  );
-
-  // ── BACK BUTTON ───────────────────────────────────────────────────
-  const backButton = selectedDate ? (
-    <button onClick={() => setSelectedDate(null)}
-      style={{ background: "none", border: "none", cursor: "pointer", color: "#2563eb", fontSize: 14, fontWeight: 600, padding: 0, marginBottom: 16, display: "flex", alignItems: "center", gap: 4 }}>
-      &larr; Calendrier {selectedCity}
-    </button>
-  ) : selectedCity ? (
-    <button onClick={() => { setSelectedCity(null); setSelectedDate(null); }}
-      style={{ background: "none", border: "none", cursor: "pointer", color: "#2563eb", fontSize: 14, fontWeight: 600, padding: 0, marginBottom: 16, display: "flex", alignItems: "center", gap: 4 }}>
-      &larr; Toutes les villes
-    </button>
-  ) : null;
+  /* ─── RENDER ───────────────────────────────────────────── */
 
   return (
-    <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
-      <div className="max-w-5xl mx-auto">
+    <div style={{ background: "#0a0a0f", minHeight: "100vh", color: "#e2e8f0" }}>
 
-        {/* Header */}
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111827", margin: 0 }}>Data</h1>
-          <p style={{ color: "#6b7280", marginTop: 4, fontSize: 14 }}>
-            {counts.era5.toLocaleString()} ERA5 &middot; {counts.wu.toLocaleString()} WU &middot; {counts.gfsHist.toLocaleString()} GFS hist &middot; {counts.gfsLive.toLocaleString()} GFS live &middot; {counts.brackets.toLocaleString()} brackets &middot; {cities.length} villes
-          </p>
+      {/* ── City tabs ── */}
+      <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #1e293b" }}>
+        {CITIES.map(c => (
+          <button
+            key={c.station}
+            onClick={() => { setCity(c); setSelectedEvent(null); setPage(0); }}
+            style={{
+              flex: 1,
+              padding: "14px 0",
+              background: city.station === c.station ? "#1e293b" : "transparent",
+              color: city.station === c.station ? c.accent : "#64748b",
+              border: "none",
+              borderBottom: city.station === c.station ? `2px solid ${c.accent}` : "2px solid transparent",
+              cursor: "pointer",
+              fontSize: 15,
+              fontWeight: 600,
+              transition: "all 0.15s",
+            }}
+          >
+            {c.flag} {c.name}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", minHeight: "calc(100vh - 100px)" }}>
+
+        {/* ── Date list (left) ── */}
+        <div style={{
+          width: 260, minWidth: 260, borderRight: "1px solid #1e293b",
+          overflowY: "auto", flexShrink: 0,
+        }}
+          className="hidden md:block"
+        >
+          {eventsLoading ? (
+            <div style={{ padding: 24, color: "#475569", textAlign: "center" }}>Loading...</div>
+          ) : (
+            <>
+              <div style={{ padding: "12px 16px", fontSize: 12, color: "#475569", borderBottom: "1px solid #1e293b" }}>
+                {events.length} events &middot; page {page + 1}/{totalPages}
+              </div>
+              {pagedEvents.map(ev => {
+                const active = selectedEvent?.event_id === ev.event_id;
+                return (
+                  <button
+                    key={ev.event_id}
+                    onClick={() => loadEvent(ev)}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "10px 16px",
+                      background: active ? "#1e293b" : "transparent",
+                      border: "none",
+                      borderBottom: "1px solid #0f172a",
+                      borderLeft: active ? `3px solid ${city.accent}` : "3px solid transparent",
+                      color: active ? "#f1f5f9" : "#94a3b8",
+                      cursor: "pointer",
+                      transition: "all 0.1s",
+                    }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>{fmtDate(ev.target_date)}</div>
+                    <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>
+                      {ev.n_brackets} brackets &middot; ${Math.round(ev.total_volume).toLocaleString()}
+                      {!ev.closed && <span style={{ color: "#22d3ee", marginLeft: 6 }}>OPEN</span>}
+                    </div>
+                  </button>
+                );
+              })}
+              {/* Pagination */}
+              <div style={{ display: "flex", justifyContent: "center", gap: 8, padding: 12 }}>
+                <button
+                  disabled={page === 0}
+                  onClick={() => setPage(p => p - 1)}
+                  style={{ padding: "4px 12px", background: "#1e293b", border: "none", borderRadius: 6, color: page === 0 ? "#334155" : "#94a3b8", cursor: page === 0 ? "default" : "pointer", fontSize: 13 }}
+                >&larr;</button>
+                <button
+                  disabled={page >= totalPages - 1}
+                  onClick={() => setPage(p => p + 1)}
+                  style={{ padding: "4px 12px", background: "#1e293b", border: "none", borderRadius: 6, color: page >= totalPages - 1 ? "#334155" : "#94a3b8", cursor: page >= totalPages - 1 ? "default" : "pointer", fontSize: 13 }}
+                >&rarr;</button>
+              </div>
+            </>
+          )}
         </div>
 
-        {backButton}
-
-        {/* KPI cards */}
-        {!selectedCity && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
-            <div style={{ ...CARD, marginBottom: 0, borderLeft: `4px solid ${BLUE.border}` }}>
-              <div style={{ fontSize: 12, color: BLUE.text, fontWeight: 600 }}>ERA5 (bleu)</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: "#111827" }}>{counts.era5.toLocaleString()}</div>
-              <div style={{ fontSize: 11, color: "#9ca3af" }}>2000 - nov 2025</div>
+        {/* ── Mobile date selector ── */}
+        <div className="block md:hidden" style={{ width: "100%" }}>
+          {!selectedEvent && (
+            <div style={{ padding: 8 }}>
+              <div style={{ fontSize: 12, color: "#475569", padding: "8px 8px 4px" }}>
+                {events.length} events &middot; page {page + 1}/{totalPages}
+              </div>
+              {pagedEvents.map(ev => (
+                <button
+                  key={ev.event_id}
+                  onClick={() => loadEvent(ev)}
+                  style={{
+                    display: "block", width: "100%", textAlign: "left", padding: "10px 12px",
+                    background: "transparent", border: "none", borderBottom: "1px solid #1e293b",
+                    color: "#94a3b8", cursor: "pointer",
+                  }}
+                >
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0" }}>{fmtDate(ev.target_date)}</div>
+                  <div style={{ fontSize: 12, color: "#475569" }}>
+                    {ev.n_brackets} brackets &middot; ${Math.round(ev.total_volume).toLocaleString()}
+                  </div>
+                </button>
+              ))}
+              <div style={{ display: "flex", justifyContent: "center", gap: 8, padding: 12 }}>
+                <button disabled={page === 0} onClick={() => setPage(p => p - 1)}
+                  style={{ padding: "6px 16px", background: "#1e293b", border: "none", borderRadius: 6, color: page === 0 ? "#334155" : "#94a3b8", cursor: page === 0 ? "default" : "pointer" }}>&larr;</button>
+                <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}
+                  style={{ padding: "6px 16px", background: "#1e293b", border: "none", borderRadius: 6, color: page >= totalPages - 1 ? "#334155" : "#94a3b8", cursor: page >= totalPages - 1 ? "default" : "pointer" }}>&rarr;</button>
+              </div>
             </div>
-            <div style={{ ...CARD, marginBottom: 0, borderLeft: `4px solid ${GREEN.border}` }}>
-              <div style={{ fontSize: 12, color: GREEN.text, fontWeight: 600 }}>WU + Polymarket (vert)</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: "#111827" }}>{counts.wu.toLocaleString()}</div>
-              <div style={{ fontSize: 11, color: "#9ca3af" }}>nov 2025 - aujourd'hui</div>
+          )}
+        </div>
+
+        {/* ── Main content ── */}
+        <div style={{ flex: 1, padding: "20px 24px", overflowY: "auto" }}
+          className={!selectedEvent ? "hidden md:block" : ""}
+        >
+          {!selectedEvent ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#334155" }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 40, marginBottom: 8 }}>📊</div>
+                <div style={{ fontSize: 15 }}>Select an event from the list</div>
+              </div>
             </div>
-            <div style={{ ...CARD, marginBottom: 0, borderLeft: `4px solid ${PURPLE.border}` }}>
-              <div style={{ fontSize: 12, color: PURPLE.text, fontWeight: 600 }}>GFS hist. (violet)</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: "#111827" }}>{counts.gfsHist.toLocaleString()}</div>
-              <div style={{ fontSize: 11, color: "#9ca3af" }}>jan 2024 - nov 2025</div>
+          ) : chartLoading ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, color: "#475569" }}>
+              Loading chart data...
             </div>
-            <div style={{ ...CARD, marginBottom: 0, borderLeft: "4px solid #6b7280" }}>
-              <div style={{ fontSize: 12, color: "#374151", fontWeight: 600 }}>Brackets Polymarket</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: "#111827" }}>{counts.brackets.toLocaleString()}</div>
-              <div style={{ fontSize: 11, color: "#9ca3af" }}>{cities.length} villes</div>
-            </div>
-          </div>
-        )}
+          ) : (
+            <>
+              {/* Mobile back button */}
+              <button
+                onClick={() => setSelectedEvent(null)}
+                className="block md:hidden"
+                style={{ background: "none", border: "none", color: city.accent, fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 12, padding: 0 }}
+              >
+                &larr; Back to list
+              </button>
 
-        {/* Legend */}
-        {!selectedCity && (
-          <div style={{ display: "flex", gap: 16, marginBottom: 24, fontSize: 12, color: "#6b7280" }}>
-            <span><span style={{ display: "inline-block", width: 12, height: 12, borderRadius: 3, background: BLUE.bg, border: `1px solid ${BLUE.border}`, marginRight: 4, verticalAlign: "middle" }} /> Bleu = ERA5 reanalyse (2000-2025)</span>
-            <span><span style={{ display: "inline-block", width: 12, height: 12, borderRadius: 3, background: GREEN.bg, border: `1px solid ${GREEN.border}`, marginRight: 4, verticalAlign: "middle" }} /> Vert = Polymarket + WU (nov 2025+)</span>
-            <span><span style={{ display: "inline-block", width: 12, height: 12, borderRadius: 3, background: PURPLE.bg, border: `1px solid ${PURPLE.border}`, marginRight: 4, verticalAlign: "middle" }} /> Violet = GFS Previous Runs (2024-2025)</span>
-          </div>
-        )}
-
-        {/* ═══ LEVEL 1: City table ═══ */}
-        {!selectedCity && cities.length > 0 && (
-          <div style={CARD}>
-            <h2 style={{ fontSize: 16, fontWeight: 600, color: "#111827", margin: "0 0 16px" }}>Par ville</h2>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ borderBottom: "2px solid #e5e7eb" }}>
-                    {["Ville", "Station", "Unite", "Biais J-1", "MAE J-1", "Biais J-2", "MAE J-2", "Biais J-3", "MAE J-3", "N", "Fiable"].map(h => (
-                      <th key={h} style={TH}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {cities.map((city, i) => {
-                    const stationBiases = biasMap.get(city.station);
-                    const b1 = stationBiases?.get(1);
-                    const b2 = stationBiases?.get(2);
-                    const b3 = stationBiases?.get(3);
-                    return (
-                      <tr key={city.station} onClick={() => selectCity(city.name, city.station)}
-                        style={{ borderBottom: "1px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#f9fafb", cursor: "pointer" }}>
-                        <td style={{ ...TD, fontWeight: 600, color: "#111827" }}>{city.name}</td>
-                        <td style={TD}><code style={{ background: "#f3f4f6", padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>{city.station}</code></td>
-                        <td style={TD}>{unitLabel(city.unit)}</td>
-                        {b1 ? <>
-                          <td style={{ ...TD, fontWeight: 600, color: biasColor(b1.bias_mean) }}>{b1.bias_mean > 0 ? "+" : ""}{b1.bias_mean.toFixed(2)}&deg;C</td>
-                          <td style={TD}>{b1.mae.toFixed(2)}&deg;C</td>
-                        </> : <><td /><td /></>}
-                        {b2 ? <>
-                          <td style={{ ...TD, fontWeight: 600, color: biasColor(b2.bias_mean) }}>{b2.bias_mean > 0 ? "+" : ""}{b2.bias_mean.toFixed(2)}&deg;C</td>
-                          <td style={TD}>{b2.mae.toFixed(2)}&deg;C</td>
-                        </> : <><td /><td /></>}
-                        {b3 ? <>
-                          <td style={{ ...TD, fontWeight: 600, color: biasColor(b3.bias_mean) }}>{b3.bias_mean > 0 ? "+" : ""}{b3.bias_mean.toFixed(2)}&deg;C</td>
-                          <td style={TD}>{b3.mae.toFixed(2)}&deg;C</td>
-                        </> : <><td /><td /></>}
-                        <td style={{ ...TD, color: "#6b7280" }}>{b1?.n ?? ""}</td>
-                        <td style={TD}>
-                          {b1 ? (
-                            <span style={{ background: b1.reliable ? "#dcfce7" : "#fef3c7", color: b1.reliable ? "#166534" : "#92400e", padding: "2px 8px", borderRadius: 12, fontSize: 11, fontWeight: 600 }}>
-                              {b1.reliable ? "oui" : "non"}
-                            </span>
-                          ) : null}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ═══ LEVEL 2: Calendar ═══ */}
-        {selectedCity && !selectedDate && (() => {
-          if (cityLoading) return (
-            <div style={CARD}>
-              <p style={{ color: "#6b7280", textAlign: "center", padding: 40 }}>Chargement des donnees {selectedCity}...</p>
-            </div>
-          );
-
-          const unit = cityInfo?.unit || "C";
-          const year = calMonth.getFullYear();
-          const month = calMonth.getMonth();
-
-          // Calendar grid
-          const firstDow = (new Date(year, month, 1).getDay() + 6) % 7;
-          const daysInMonth = new Date(year, month + 1, 0).getDate();
-          const cells: (number | null)[] = [];
-          for (let i = 0; i < firstDow; i++) cells.push(null);
-          for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-          while (cells.length % 7 !== 0) cells.push(null);
-
-          return (
-            <div style={CARD}>
-              {/* Month nav */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                <button onClick={() => {
-                  const prev = new Date(year, month - 1);
-                  setCalMonth(prev);
-                  if (cityInfo) loadMonthData(cityInfo.station, prev.getFullYear(), prev.getMonth());
-                }}
-                  style={{ background: "none", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontSize: 14, color: "#374151" }}>&larr;</button>
-                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#111827", margin: 0 }}>
-                  {selectedCity} &mdash; {MONTHS_FR[month]} {year}
+              {/* ── Header ── */}
+              <div style={{ marginBottom: 20 }}>
+                <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
+                  {city.flag} {city.name} &mdash; {fmtDate(selectedEvent.target_date)}
                 </h2>
-                <button onClick={() => {
-                  const next = new Date(year, month + 1);
-                  setCalMonth(next);
-                  if (cityInfo) loadMonthData(cityInfo.station, next.getFullYear(), next.getMonth());
-                }}
-                  style={{ background: "none", border: "1px solid #e5e7eb", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontSize: 14, color: "#374151" }}>&rarr;</button>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
+                  {brackets.length} brackets &middot; ${Math.round(selectedEvent.total_volume).toLocaleString()} volume
+                  {tempC !== null && (
+                    <span style={{ marginLeft: 12, color: "#fbbf24", fontWeight: 700 }}>
+                      Actual: {tempC}\u00b0C
+                    </span>
+                  )}
+                  {!selectedEvent.closed && (
+                    <span style={{ marginLeft: 12, color: "#22d3ee", fontWeight: 600 }}>OPEN</span>
+                  )}
+                </div>
               </div>
 
-              {/* Legend */}
-              <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 16, fontSize: 11 }}>
-                <span style={{ color: BLUE.text }}><span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 3, background: BLUE.bg, border: `1px solid ${BLUE.border}`, marginRight: 3, verticalAlign: "middle" }} />ERA5</span>
-                <span style={{ color: GREEN.text }}><span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 3, background: GREEN.bg, border: `1px solid ${GREEN.border}`, marginRight: 3, verticalAlign: "middle" }} />Polymarket</span>
-                <span style={{ color: PURPLE.text }}><span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 3, background: PURPLE.bg, border: `1px solid ${PURPLE.border}`, marginRight: 3, verticalAlign: "middle" }} />GFS hist.</span>
-              </div>
-
-              {/* Polymarket late cities notice */}
-              {POLYMARKET_LATE_CITIES.includes(selectedCity!) && wuDates.size === 0 && (
-                <div style={{ background: "#fef3c7", border: "1px solid #fbbf24", borderRadius: 8, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#92400e", lineHeight: 1.5 }}>
-                  Les premiers marches Polymarket pour {selectedCity} commencent le 24 mars 2026.<br />
-                  Les donnees GFS historiques (<span style={{ color: PURPLE.text }}>&#9679;</span>) et ERA5 (<span style={{ color: BLUE.text }}>&#9679;</span>) sont disponibles dans le calendrier.
+              {/* ── Chart ── */}
+              {chartData.length > 0 && (
+                <div style={{ background: "#111827", borderRadius: 12, padding: "16px 8px 8px 0", marginBottom: 20 }}>
+                  <ResponsiveContainer width="100%" height={380}>
+                    <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                      <XAxis
+                        dataKey="time"
+                        tick={{ fill: "#475569", fontSize: 11 }}
+                        axisLine={{ stroke: "#1e293b" }}
+                        tickLine={false}
+                        interval="preserveStartEnd"
+                        minTickGap={60}
+                      />
+                      <YAxis
+                        domain={[0, 100]}
+                        tick={{ fill: "#475569", fontSize: 11 }}
+                        axisLine={{ stroke: "#1e293b" }}
+                        tickLine={false}
+                        tickFormatter={(v: number) => `${v}%`}
+                        width={44}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <ReferenceLine y={50} stroke="#1e293b" strokeDasharray="4 4" />
+                      {brackets.map((b, i) => {
+                        const isWinner = b.winner === "YES";
+                        return (
+                          <Line
+                            key={b.condition_id}
+                            dataKey={b.condition_id}
+                            stroke={COLORS[i % COLORS.length]}
+                            strokeWidth={isWinner ? 3 : 1.2}
+                            strokeOpacity={isWinner ? 1 : 0.45}
+                            dot={false}
+                            name={bracketLabel(b)}
+                            connectNulls
+                          />
+                        );
+                      })}
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
               )}
 
-              {/* Day headers */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, marginBottom: 4 }}>
-                {DAYS_FR.map(d => (
-                  <div key={d} style={{ textAlign: "center", fontSize: 11, fontWeight: 600, color: "#9ca3af", padding: 4 }}>{d}</div>
-                ))}
-              </div>
-
-              {/* Calendar cells */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
-                {cells.map((day, i) => {
-                  if (day === null) return <div key={i} />;
-                  const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                  const dtype = dayType(dateStr, wuDates, era5Dates, gfsHistDates);
-                  const style = typeStyle(dtype);
-
-                  // Get temperature
-                  let temp: number | null = null;
-                  if (dtype === "green") temp = wuData[dateStr] ?? null;
-                  else if (dtype === "blue") temp = era5Data[dateStr] ?? null;
-                  else if (dtype === "purple") temp = era5Data[dateStr] ?? null;
-
-                  // GFS error for green days
-                  let gfsError: number | null = null;
-                  if (dtype === "green" && gfsLiveData[dateStr]?.[1] != null && temp != null) {
-                    gfsError = gfsLiveData[dateStr][1] - temp;
-                  }
-
-                  if (dtype === "none") {
-                    return (
-                      <div key={i} style={{ padding: 8, borderRadius: 8, background: "#f9fafb", minHeight: 64, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                        <div style={{ fontSize: 11, color: "#d1d5db" }}>{day}</div>
-                      </div>
-                    );
-                  }
+              {/* ── Bracket grid ── */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 8 }}>
+                {brackets.map((b, i) => {
+                  const color = COLORS[i % COLORS.length];
+                  const isWinner = b.winner === "YES";
+                  const pts = prices[b.condition_id] || [];
+                  const openPrice = pts.length > 0 ? Math.round(pts[0].price_yes * 100) : null;
+                  const closePrice = pts.length > 0 ? Math.round(pts[pts.length - 1].price_yes * 100) : null;
 
                   return (
-                    <div key={i} onClick={() => setSelectedDate(dateStr)}
+                    <div
+                      key={b.condition_id}
                       style={{
-                        padding: 8, borderRadius: 8, minHeight: 64, cursor: "pointer",
-                        background: style.bg, border: `1px solid ${style.border}20`,
-                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                        transition: "border-color 0.15s",
+                        background: isWinner ? "#0f2a1a" : "#111827",
+                        borderRadius: 10,
+                        padding: "10px 12px",
+                        borderLeft: `3px solid ${color}`,
+                        borderColor: isWinner ? "#22c55e" : color,
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.borderColor = style.border)}
-                      onMouseLeave={e => (e.currentTarget.style.borderColor = `${style.border}20`)}>
-                      <div style={{ fontSize: 11, color: "#6b7280" }}>{day}</div>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: "#111827" }}>
-                        {temp != null ? `${displayTemp(temp, unit)}\u00b0` : "\u2014"}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: color, flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, fontWeight: 700, color: isWinner ? "#4ade80" : "#e2e8f0" }}>
+                          {bracketLabel(b)}
+                        </span>
+                        {isWinner && (
+                          <span style={{ fontSize: 10, fontWeight: 700, background: "#166534", color: "#4ade80", padding: "1px 6px", borderRadius: 4, marginLeft: "auto" }}>
+                            WIN
+                          </span>
+                        )}
                       </div>
-                      {dtype === "green" && gfsError != null && (
-                        <div style={{ fontSize: 9, fontWeight: 600, color: errText(gfsError) }}>
-                          J-1: {gfsError > 0 ? "+" : ""}{gfsError.toFixed(1)}\u00b0
-                        </div>
-                      )}
-                      {dtype === "purple" && gfsHistData[dateStr]?.[1] != null && (
-                        <div style={{ fontSize: 9, fontWeight: 600, color: PURPLE.text }}>
-                          GFS: {displayTemp(gfsHistData[dateStr][1], unit)}\u00b0
-                        </div>
-                      )}
+                      <div style={{ fontSize: 11, color: "#64748b", fontFamily: "monospace" }}>
+                        {openPrice != null && closePrice != null
+                          ? `${openPrice}% \u2192 ${closePrice}%`
+                          : "no data"}
+                      </div>
+                      <div style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>
+                        ${Math.round(b.volume).toLocaleString()}
+                      </div>
                     </div>
                   );
                 })}
               </div>
-            </div>
-          );
-        })()}
-
-        {/* ═══ LEVEL 3: Day detail ═══ */}
-        {selectedCity && selectedDate && (() => {
-          const unit = cityInfo?.unit || "C";
-          const uLabel = unitLabel(unit);
-          const dtype = dayType(selectedDate, wuDates, era5Dates, gfsHistDates);
-
-          // Temperature
-          const actualTemp = dtype === "green" ? wuData[selectedDate] : era5Data[selectedDate];
-
-          // GFS data
-          const gfs = dtype === "green" ? gfsLiveData[selectedDate] : gfsHistData[selectedDate];
-
-          // Brackets (only for green days)
-          const dayBrackets = dtype === "green"
-            ? bracketsData.filter(b => b.date === selectedDate)
-            : [];
-
-          // Timeline
-          const points = [
-            { label: "J-3", temp: gfs?.[3] ?? null },
-            { label: "J-2", temp: gfs?.[2] ?? null },
-            { label: "J-1", temp: gfs?.[1] ?? null },
-            { label: "J-0", temp: gfs?.[0] ?? null },
-            { label: dtype === "green" ? "Reel WU" : "Reel ERA5", temp: actualTemp ?? null },
-          ];
-
-          const style = typeStyle(dtype);
-
-          return <>
-            {/* Date header */}
-            <div style={{ ...CARD, borderLeft: `4px solid ${style.border}` }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ background: style.bg, color: style.text, padding: "2px 10px", borderRadius: 12, fontSize: 11, fontWeight: 700 }}>
-                  {style.label}
-                </span>
-                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#111827", margin: 0 }}>
-                  {selectedCity} &mdash; {selectedDate}
-                </h2>
-              </div>
-              <p style={{ color: "#6b7280", fontSize: 13, margin: "4px 0 0" }}>
-                Station {cityInfo?.station}
-                {dtype === "green" && dayBrackets.length > 0 && <> &middot; {dayBrackets.length} brackets</>}
-                {dtype === "blue" && <> &middot; Donnee ERA5 reanalyse</>}
-                {dtype === "purple" && <> &middot; GFS Previous Runs historique</>}
-              </p>
-            </div>
-
-            {/* Timeline */}
-            <div style={CARD}>
-              <h3 style={{ fontSize: 14, fontWeight: 600, color: "#6b7280", margin: "0 0 20px", textTransform: "uppercase", letterSpacing: 1 }}>
-                {dtype === "blue" ? "Temperature ERA5" : "Convergence des previsions"}
-              </h3>
-              {dtype === "blue" ? (
-                <div style={{ textAlign: "center", padding: "20px 0" }}>
-                  <div style={{ fontSize: 48, fontWeight: 700, color: BLUE.text }}>
-                    {actualTemp != null ? `${displayTemp(actualTemp, unit)}${uLabel}` : "\u2014"}
-                  </div>
-                  <div style={{ fontSize: 13, color: "#6b7280", marginTop: 4 }}>Temperature max ERA5 reanalyse</div>
-                </div>
-              ) : (
-                <div style={{ display: "flex", alignItems: "flex-end", position: "relative", padding: "0 8px" }}>
-                  <div style={{ position: "absolute", top: "50%", left: 40, right: 40, height: 2, background: "#e5e7eb", zIndex: 0 }} />
-                  {points.map((p, i) => {
-                    const isReal = i === points.length - 1;
-                    const error = p.temp != null && actualTemp != null && !isReal ? p.temp - actualTemp : null;
-                    return (
-                      <div key={p.label} style={{ flex: 1, textAlign: "center", position: "relative", zIndex: 1 }}>
-                        <div style={{
-                          width: isReal ? 16 : 12, height: isReal ? 16 : 12, borderRadius: "50%",
-                          background: isReal ? style.border : error != null ? (Math.abs(error) <= 1 ? "#16a34a" : Math.abs(error) <= 2 ? "#ca8a04" : "#dc2626") : "#d1d5db",
-                          margin: "0 auto 8px", border: isReal ? `3px solid ${style.bg}` : "2px solid #fff",
-                          boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-                        }} />
-                        <div style={{ fontSize: isReal ? 22 : 18, fontWeight: 700, color: isReal ? style.text : "#111827" }}>
-                          {p.temp != null ? `${displayTemp(p.temp, unit)}${uLabel}` : "\u2014"}
-                        </div>
-                        {error != null && (
-                          <div style={{ fontSize: 13, fontWeight: 600, color: Math.abs(error) <= 1 ? "#16a34a" : Math.abs(error) <= 2 ? "#ca8a04" : "#dc2626", marginTop: 2 }}>
-                            {error > 0 ? "+" : ""}{error.toFixed(1)}&deg;C
-                          </div>
-                        )}
-                        <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, fontWeight: 600 }}>{p.label}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Brackets table (green days only) */}
-            {dtype === "green" && dayBrackets.length > 0 && (() => {
-              // Predict brackets using GFS J-1
-              const gfsJ1 = gfs?.[1];
-              const gfsJ2 = gfs?.[2];
-              const gfsJ3 = gfs?.[3];
-
-              function predictBracket(gfsTemp: number | undefined, bracketTemp: number, op: string, bUnit: string): string | null {
-                if (gfsTemp == null) return null;
-                const g = bUnit === "F" ? Math.round(gfsTemp * 9 / 5 + 32) : Math.round(gfsTemp);
-                if (op === "lte") return g <= bracketTemp ? "YES" : "NO";
-                if (op === "gte") return g >= bracketTemp ? "YES" : "NO";
-                if (op === "range") return (g >= bracketTemp && g <= bracketTemp + 1) ? "YES" : "NO";
-                return g === bracketTemp ? "YES" : "NO";
-              }
-
-              const sorted = [...dayBrackets].sort((a, b) => (a.bracket_temp ?? 0) - (b.bracket_temp ?? 0));
-
-              return (
-                <div style={CARD}>
-                  <h3 style={{ fontSize: 14, fontWeight: 600, color: "#6b7280", margin: "0 0 16px", textTransform: "uppercase", letterSpacing: 1 }}>
-                    Detail des brackets
-                  </h3>
-                  <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr style={{ borderBottom: "2px solid #e5e7eb" }}>
-                          {["Bracket", "Type", "Winner", "GFS J-3", "GFS J-2", "GFS J-1"].map((h, i) => (
-                            <th key={i} style={TH}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sorted.map((b, i) => {
-                          const isWinner = b.winner === "YES";
-                          const bUnit = b.unit || unit;
-                          const predJ1 = predictBracket(gfsJ1, b.bracket_temp, b.bracket_op, bUnit);
-                          const predJ2 = predictBracket(gfsJ2, b.bracket_temp, b.bracket_op, bUnit);
-                          const predJ3 = predictBracket(gfsJ3, b.bracket_temp, b.bracket_op, bUnit);
-                          const correctJ1 = predJ1 === b.winner;
-                          const correctJ2 = predJ2 === b.winner;
-                          const correctJ3 = predJ3 === b.winner;
-
-                          return (
-                            <tr key={i} style={{
-                              borderBottom: "1px solid #f3f4f6",
-                              background: isWinner ? "#f0fdf4" : i % 2 === 0 ? "#fff" : "#f9fafb",
-                            }}>
-                              <td style={{ ...TD, fontWeight: isWinner ? 700 : 400, color: isWinner ? "#166534" : "#111827" }}>{b.bracket_str}</td>
-                              <td style={TD}>
-                                <span style={{
-                                  background: b.bracket_op === "lte" || b.bracket_op === "gte" ? "#dbeafe" : b.bracket_op === "range" ? "#fef3c7" : "#f3f4f6",
-                                  color: b.bracket_op === "lte" || b.bracket_op === "gte" ? "#1d4ed8" : b.bracket_op === "range" ? "#92400e" : "#374151",
-                                  padding: "2px 8px", borderRadius: 12, fontSize: 11, fontWeight: 600,
-                                }}>{b.bracket_op}</span>
-                              </td>
-                              <td style={TD}>
-                                <span style={{
-                                  background: isWinner ? "#dcfce7" : "#fee2e2",
-                                  color: isWinner ? "#166534" : "#991b1b",
-                                  padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 600,
-                                }}>{b.winner}</span>
-                              </td>
-                              <td style={TD}>{predJ3 != null ? <span style={{ color: correctJ3 ? "#16a34a" : "#dc2626", fontWeight: 600 }}>{predJ3} {correctJ3 ? "\u2713" : "\u2717"}</span> : <span style={{ color: "#d1d5db" }}>\u2014</span>}</td>
-                              <td style={TD}>{predJ2 != null ? <span style={{ color: correctJ2 ? "#16a34a" : "#dc2626", fontWeight: 600 }}>{predJ2} {correctJ2 ? "\u2713" : "\u2717"}</span> : <span style={{ color: "#d1d5db" }}>\u2014</span>}</td>
-                              <td style={TD}>{predJ1 != null ? <span style={{ color: correctJ1 ? "#16a34a" : "#dc2626", fontWeight: 600 }}>{predJ1} {correctJ1 ? "\u2713" : "\u2717"}</span> : <span style={{ color: "#d1d5db" }}>\u2014</span>}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              );
-            })()}
-          </>;
-        })()}
-
-        <p style={{ textAlign: "center", color: "#9ca3af", fontSize: 12, marginTop: 24 }}>
-          Source: ERA5 (Open-Meteo) + Wunderground + GFS Previous Runs + Polymarket
-        </p>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
