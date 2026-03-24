@@ -382,9 +382,27 @@ export default function DataPage() {
                   {tempC !== null && (
                     <span style={{ marginLeft: 12, color: "#fbbf24", fontWeight: 700 }}>Actual: {tempC}&deg;C</span>
                   )}
-                  {!selectedEvent.closed && (
-                    <span style={{ marginLeft: 12, color: "#22d3ee", fontWeight: 600 }}>OPEN</span>
-                  )}
+                  {!selectedEvent.closed && (() => {
+                    // Find the most recent price point across all brackets
+                    let maxTs = 0;
+                    for (const pts of Object.values(prices)) {
+                      if (pts.length > 0 && pts[pts.length - 1].ts > maxTs) maxTs = pts[pts.length - 1].ts;
+                    }
+                    const agoMin = maxTs > 0 ? Math.round((Date.now() / 1000 - maxTs) / 60) : null;
+                    const agoStr = agoMin !== null
+                      ? agoMin < 60 ? `${agoMin}min ago` : `${Math.round(agoMin / 60)}h ago`
+                      : "";
+                    return (
+                      <>
+                        <span style={{ marginLeft: 12, color: "#22d3ee", fontWeight: 600 }}>OPEN</span>
+                        {agoStr && (
+                          <span style={{ marginLeft: 8, color: "#475569", fontSize: 11 }}>
+                            updated {agoStr}
+                          </span>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
 
