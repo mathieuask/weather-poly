@@ -108,6 +108,7 @@ export default function DataPage() {
 
   // Custom tooltip state (no recharts Tooltip = no flicker)
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const [hoverX, setHoverX] = useState(0);
 
   /* ── Measure chart wrapper ── */
   useEffect(() => {
@@ -199,13 +200,15 @@ export default function DataPage() {
     if (!chartData.length || !chartWidth) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
+    const cw = chartWidth - 48; // matches LineChart width
     const plotLeft = CHART_MARGIN.left;
-    const plotRight = chartWidth - CHART_MARGIN.right;
+    const plotRight = cw - CHART_MARGIN.right;
     const plotW = plotRight - plotLeft;
     if (x < plotLeft || x > plotRight) { setHoverIdx(null); return; }
     const ratio = (x - plotLeft) / plotW;
     const idx = Math.round(ratio * (chartData.length - 1));
     setHoverIdx(Math.max(0, Math.min(idx, chartData.length - 1)));
+    setHoverX(x);
   }, [chartData, chartWidth]);
 
   /* ── Pagination ── */
@@ -365,22 +368,19 @@ export default function DataPage() {
                   />
 
                   {/* Vertical crosshair line */}
-                  {hoverIdx !== null && (() => {
-                    const plotLeft = CHART_MARGIN.left;
-                    const plotW = chartWidth - CHART_MARGIN.left - CHART_MARGIN.right;
-                    const x = plotLeft + (hoverIdx / (chartData.length - 1)) * plotW;
-                    return (
-                      <div style={{
-                        position: "absolute", left: x, top: CHART_MARGIN.top, bottom: CHART_MARGIN.bottom,
-                        width: 1, background: "#475569", zIndex: 5, pointerEvents: "none",
-                      }} />
-                    );
-                  })()}
+                  {hoverIdx !== null && (
+                    <div style={{
+                      position: "absolute", left: hoverX, top: CHART_MARGIN.top, bottom: CHART_MARGIN.bottom,
+                      width: 1, background: "#475569", zIndex: 5, pointerEvents: "none",
+                    }} />
+                  )}
 
-                  {/* Tooltip panel — fixed top-right */}
+                  {/* Tooltip panel — follows cursor X, flips at right edge */}
                   {hoverRow && (
                     <div style={{
-                      position: "absolute", top: 8, right: 8, zIndex: 20, pointerEvents: "none",
+                      position: "absolute", top: 8, zIndex: 20, pointerEvents: "none",
+                      left: hoverX > (chartWidth - 48) * 0.65 ? undefined : hoverX + 16,
+                      right: hoverX > (chartWidth - 48) * 0.65 ? (chartWidth - 48) - hoverX + 16 : undefined,
                       background: "#1a1a2eee", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 14px",
                       fontSize: 12, minWidth: 140,
                     }}>
