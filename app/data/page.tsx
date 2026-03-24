@@ -435,15 +435,27 @@ export default function DataPage() {
                         interval="preserveStartEnd"
                         minTickGap={60}
                       />
-                      {/* Row 2: day labels below */}
+                      {/* Row 2: day label once per day, at midnight */}
                       <XAxis
                         dataKey="ts"
                         xAxisId="days"
-                        tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
                         axisLine={false}
                         tickLine={false}
-                        interval="preserveStartEnd"
-                        minTickGap={120}
+                        ticks={(() => {
+                          // Find the first data point of each new UTC day
+                          const seen = new Set<string>();
+                          const dayTicks: number[] = [];
+                          for (const row of chartData) {
+                            const d = new Date(row.ts * 1000);
+                            const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`;
+                            if (!seen.has(key)) {
+                              seen.add(key);
+                              dayTicks.push(row.ts);
+                            }
+                          }
+                          return dayTicks;
+                        })()}
+                        tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
                         tickFormatter={(ts: number) => {
                           const d = new Date(ts * 1000);
                           return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
