@@ -26,8 +26,8 @@ const COLORS = [
 ];
 
 const PAGE_SIZE = 30;
-const CHART_H = 380;
-const CHART_MARGIN = { top: 8, right: 16, left: 44, bottom: 20 };
+const CHART_H = 400;
+const CHART_MARGIN = { top: 8, right: 16, left: 44, bottom: 40 };
 
 /* ─── Supabase helper ────────────────────────────────────── */
 
@@ -425,16 +425,28 @@ export default function DataPage() {
                       height={CHART_H}
                       margin={CHART_MARGIN}
                     >
+                      {/* Row 1: hours */}
                       <XAxis
-                        dataKey="ts"
+                        dataKey="time"
+                        xAxisId="hours"
                         tick={{ fill: "#475569", fontSize: 11 }}
                         axisLine={{ stroke: "#1e293b" }}
                         tickLine={false}
                         interval="preserveStartEnd"
-                        minTickGap={80}
-                        tickFormatter={(ts: number, idx: number) => {
-                          const prevTs = idx > 0 ? chartData[Math.max(0, idx - 1)]?.ts : null;
-                          return fmtAxisTick(ts, prevTs);
+                        minTickGap={60}
+                      />
+                      {/* Row 2: day labels below */}
+                      <XAxis
+                        dataKey="ts"
+                        xAxisId="days"
+                        tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
+                        axisLine={false}
+                        tickLine={false}
+                        interval="preserveStartEnd"
+                        minTickGap={120}
+                        tickFormatter={(ts: number) => {
+                          const d = new Date(ts * 1000);
+                          return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
                         }}
                       />
                       <YAxis
@@ -451,6 +463,7 @@ export default function DataPage() {
                         return (
                           <Line
                             key={b.condition_id}
+                            xAxisId="hours"
                             dataKey={b.condition_id}
                             stroke={COLORS[i % COLORS.length]}
                             strokeWidth={isWinner ? 3 : 1.2}
