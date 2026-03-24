@@ -450,15 +450,41 @@ def backfill_gap():
     _log(f"backfill: DONE +{total_new} points")
 
 
+# ── 5. run_all ─────────────────────────────────────────────
+
+def run_all():
+    """Single cron entry: prices + resolutions + events (once/day)."""
+    _load_key()
+
+    # Always: fetch prices for open markets
+    try:
+        fetch_open_prices()
+    except Exception as e:
+        _log(f"ERROR prices: {e}")
+
+    # Always: check resolutions
+    try:
+        check_resolutions()
+    except Exception as e:
+        _log(f"ERROR resolutions: {e}")
+
+    # Once per day (~10:30 UTC): check new events
+    now = _now()
+    if now.hour == 10 and now.minute < 10:
+        try:
+            check_new_events()
+        except Exception as e:
+            _log(f"ERROR events: {e}")
+
+
 # ── CLI ─────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python3 pipeline.py [prices|events|resolutions|backfill]")
-        sys.exit(1)
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "all"
 
-    cmd = sys.argv[1]
-    if cmd == "prices":
+    if cmd == "all":
+        run_all()
+    elif cmd == "prices":
         fetch_open_prices()
     elif cmd == "events":
         check_new_events()
@@ -467,5 +493,5 @@ if __name__ == "__main__":
     elif cmd == "backfill":
         backfill_gap()
     else:
-        print(f"Commande inconnue: {cmd}")
+        print(f"Usage: python3 pipeline.py [all|prices|events|resolutions|backfill]")
         sys.exit(1)

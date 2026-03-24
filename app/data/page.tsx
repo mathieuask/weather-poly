@@ -74,11 +74,6 @@ interface Bracket {
   volume: number;
 }
 
-interface GammaMarket {
-  conditionId: string;
-  closed: boolean;
-  acceptingOrders: boolean;
-}
 
 interface PricePoint { ts: number; price_yes: number }
 
@@ -196,24 +191,6 @@ export default function DataPage() {
       setBrackets(brk);
       if (tmp.length > 0) setTempC(tmp[0].temp_max_c);
 
-      // For open events: fetch Gamma to know which brackets are closed to trading
-      if (!ev.closed) {
-        try {
-          const gRes = await fetch(
-            `https://gamma-api.polymarket.com/events/${ev.event_id}`,
-            { headers: { "User-Agent": "Mozilla/5.0" } }
-          );
-          if (gRes.ok) {
-            const gData = await gRes.json();
-            const closed = new Set<string>();
-            for (const m of (gData.markets || []) as GammaMarket[]) {
-              if (m.closed || !m.acceptingOrders) closed.add(m.conditionId);
-            }
-            setClosedBrackets(closed);
-          }
-        } catch { /* ignore gamma errors */ }
-      }
-
       const priceResults = await Promise.all(
         brk.map(b =>
           sbAll<PricePoint>(
@@ -224,6 +201,17 @@ export default function DataPage() {
       const priceMap: Record<string, PricePoint[]> = {};
       for (const [cid, pts] of priceResults) priceMap[cid] = pts;
       setPrices(priceMap);
+
+      // Detect dead brackets: last price ≤ 1% = no longer trading
+      if (!ev.closed) {
+        const closed = new Set<string>();
+        for (const [cid, pts] of priceResults) {
+          if (pts.length > 0 && pts[pts.length - 1].price_yes <= 0.01) {
+            closed.add(cid);
+          }
+        }
+        setClosedBrackets(closed);
+      }
     } catch (e) { console.error(e); }
     setChartLoading(false);
   }, []);
