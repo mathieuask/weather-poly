@@ -418,6 +418,7 @@ export default function DataPage() {
                         content={renderTooltip}
                         cursor={{ stroke: "#334155", strokeWidth: 1 }}
                         isAnimationActive={false}
+                        wrapperStyle={{ pointerEvents: "none" }}
                       />
                       <ReferenceLine y={50} stroke="#1e293b" strokeDasharray="4 4" />
                       {brackets.map((b, i) => {
