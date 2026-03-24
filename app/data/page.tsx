@@ -90,6 +90,29 @@ function downsample(pts: PricePoint[], max: number): PricePoint[] {
   return out;
 }
 
+/* ─── Tooltip (stable ref — outside component to avoid re-render flicker) ── */
+
+function ChartTooltip({ active, payload, label, brackets }: any) {
+  if (!active || !payload) return null;
+  return (
+    <div style={{ background: "#1a1a2e", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 14px", fontSize: 12, pointerEvents: "none" }}>
+      <div style={{ color: "#94a3b8", marginBottom: 6, fontFamily: "monospace" }}>{label}</div>
+      {payload
+        .filter((p: any) => p.value != null)
+        .sort((a: any, b: any) => (b.value ?? 0) - (a.value ?? 0))
+        .map((p: any) => {
+          const b = (brackets as Bracket[]).find(br => br.condition_id === p.dataKey);
+          return (
+            <div key={p.dataKey} style={{ display: "flex", justifyContent: "space-between", gap: 16, color: p.color }}>
+              <span>{b ? bracketLabel(b) : "?"}</span>
+              <span style={{ fontFamily: "monospace", fontWeight: 700 }}>{p.value}%</span>
+            </div>
+          );
+        })}
+    </div>
+  );
+}
+
 /* ─── Component ──────────────────────────────────────────── */
 
 export default function DataPage() {
@@ -197,27 +220,11 @@ export default function DataPage() {
   const pagedEvents = events.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalPages = Math.ceil(events.length / PAGE_SIZE);
 
-  /* ── Tooltip ── */
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (!active || !payload) return null;
-    return (
-      <div style={{ background: "#1a1a2e", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 14px", fontSize: 12 }}>
-        <div style={{ color: "#94a3b8", marginBottom: 6, fontFamily: "monospace" }}>{label}</div>
-        {payload
-          .filter((p: any) => p.value != null)
-          .sort((a: any, b: any) => (b.value ?? 0) - (a.value ?? 0))
-          .map((p: any) => {
-            const b = brackets.find(br => br.condition_id === p.dataKey);
-            return (
-              <div key={p.dataKey} style={{ display: "flex", justifyContent: "space-between", gap: 16, color: p.color }}>
-                <span>{b ? bracketLabel(b) : "?"}</span>
-                <span style={{ fontFamily: "monospace", fontWeight: 700 }}>{p.value}%</span>
-              </div>
-            );
-          })}
-      </div>
-    );
-  };
+  /* ── Tooltip wrapper (passes brackets as prop) ── */
+  const renderTooltip = useCallback(
+    (props: any) => <ChartTooltip {...props} brackets={brackets} />,
+    [brackets]
+  );
 
   /* ─── RENDER ───────────────────────────────────────────── */
 
@@ -407,7 +414,11 @@ export default function DataPage() {
                         tickFormatter={(v: number) => `${v}%`}
                         width={44}
                       />
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip
+                        content={renderTooltip}
+                        cursor={{ stroke: "#334155", strokeWidth: 1 }}
+                        isAnimationActive={false}
+                      />
                       <ReferenceLine y={50} stroke="#1e293b" strokeDasharray="4 4" />
                       {brackets.map((b, i) => {
                         const isWinner = b.winner === "YES";
@@ -421,6 +432,7 @@ export default function DataPage() {
                             dot={false}
                             name={bracketLabel(b)}
                             connectNulls
+                            isAnimationActive={false}
                           />
                         );
                       })}
