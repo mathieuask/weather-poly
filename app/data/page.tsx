@@ -37,6 +37,21 @@ async function sb<T = any>(path: string): Promise<T> {
   return r.json();
 }
 
+/** Fetch all rows (paginate past Supabase 1000-row default) */
+async function sbAll<T = any>(path: string): Promise<T[]> {
+  const all: T[] = [];
+  let offset = 0;
+  const limit = 1000;
+  while (true) {
+    const sep = path.includes("?") ? "&" : "?";
+    const batch: T[] = await sb(`${path}${sep}limit=${limit}&offset=${offset}`);
+    all.push(...batch);
+    if (batch.length < limit) break;
+    offset += limit;
+  }
+  return all;
+}
+
 /* ─── Types ──────────────────────────────────────────────── */
 
 interface Event {
@@ -175,8 +190,8 @@ export default function DataPage() {
 
       const priceResults = await Promise.all(
         brk.map(b =>
-          sb<PricePoint[]>(
-            `price_history?condition_id=eq.${b.condition_id}&select=ts,price_yes&order=ts&limit=2000`
+          sbAll<PricePoint>(
+            `price_history?condition_id=eq.${b.condition_id}&select=ts,price_yes&order=ts`
           ).then(pts => [b.condition_id, pts] as const)
         )
       );
