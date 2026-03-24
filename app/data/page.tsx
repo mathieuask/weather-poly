@@ -73,6 +73,24 @@ function fmtHour(ts: number) {
   return `${d.getUTCHours().toString().padStart(2, "0")}:${d.getUTCMinutes().toString().padStart(2, "0")}`;
 }
 
+function fmtDayHour(ts: number) {
+  const d = new Date(ts * 1000);
+  const day = d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  const h = `${d.getUTCHours().toString().padStart(2, "0")}:${d.getUTCMinutes().toString().padStart(2, "0")}`;
+  return `${day} ${h}`;
+}
+
+/** For the X axis: show "Mon 24" at day boundaries, "14:00" otherwise */
+function fmtAxisTick(ts: number, prevTs: number | null) {
+  const d = new Date(ts * 1000);
+  const prev = prevTs ? new Date(prevTs * 1000) : null;
+  const newDay = !prev || d.getUTCDate() !== prev.getUTCDate();
+  if (newDay) {
+    return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", timeZone: "UTC" });
+  }
+  return `${d.getUTCHours().toString().padStart(2, "0")}:00`;
+}
+
 function bracketLabel(b: Bracket) {
   const t = b.bracket_temp;
   if (b.bracket_op === "lte") return `\u2264${t}\u00b0`;
@@ -182,7 +200,7 @@ export default function DataPage() {
     ).map(p => p.ts);
 
     return sampled.map(ts => {
-      const row: Record<string, any> = { ts, time: fmtHour(ts) };
+      const row: Record<string, any> = { ts, time: fmtHour(ts), fullTime: fmtDayHour(ts) };
       for (const b of brackets) {
         const pts = prices[b.condition_id];
         if (!pts || pts.length === 0) { row[b.condition_id] = null; continue; }
@@ -384,7 +402,7 @@ export default function DataPage() {
                       background: "#1a1a2eee", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 14px",
                       fontSize: 12, minWidth: 140,
                     }}>
-                      <div style={{ color: "#94a3b8", marginBottom: 6, fontFamily: "monospace" }}>{hoverRow.time}</div>
+                      <div style={{ color: "#94a3b8", marginBottom: 6, fontFamily: "monospace" }}>{hoverRow.fullTime}</div>
                       {brackets
                         .map((b, i) => ({ b, i, v: hoverRow[b.condition_id] as number | null }))
                         .filter(x => x.v != null)
@@ -408,12 +426,16 @@ export default function DataPage() {
                       margin={CHART_MARGIN}
                     >
                       <XAxis
-                        dataKey="time"
+                        dataKey="ts"
                         tick={{ fill: "#475569", fontSize: 11 }}
                         axisLine={{ stroke: "#1e293b" }}
                         tickLine={false}
                         interval="preserveStartEnd"
-                        minTickGap={60}
+                        minTickGap={80}
+                        tickFormatter={(ts: number, idx: number) => {
+                          const prevTs = idx > 0 ? chartData[Math.max(0, idx - 1)]?.ts : null;
+                          return fmtAxisTick(ts, prevTs);
+                        }}
                       />
                       <YAxis
                         domain={[0, 100]}
