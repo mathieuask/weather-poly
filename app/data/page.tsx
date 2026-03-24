@@ -202,16 +202,6 @@ export default function DataPage() {
       for (const [cid, pts] of priceResults) priceMap[cid] = pts;
       setPrices(priceMap);
 
-      // Detect dead brackets: last price ≤ 1% = no longer trading
-      if (!ev.closed) {
-        const closed = new Set<string>();
-        for (const [cid, pts] of priceResults) {
-          if (pts.length > 0 && pts[pts.length - 1].price_yes <= 0.01) {
-            closed.add(cid);
-          }
-        }
-        setClosedBrackets(closed);
-      }
     } catch (e) { console.error(e); }
     setChartLoading(false);
   }, []);
