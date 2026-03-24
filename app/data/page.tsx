@@ -33,7 +33,7 @@ const CHART_MARGIN = { top: 8, right: 16, left: 44, bottom: 40 };
 
 async function sb<T = any>(path: string): Promise<T> {
   const r = await fetch(`${SB}/rest/v1/${path}`, { headers: H });
-  if (!r.ok) throw new Error(`${r.status}`);
+  if (!r.ok) return [] as unknown as T;
   return r.json();
 }
 
