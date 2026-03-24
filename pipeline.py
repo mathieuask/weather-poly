@@ -315,7 +315,8 @@ def check_resolutions():
             continue
 
         markets = gamma.get("markets", [])
-        any_resolved = any(m.get("resolved") or m.get("closed") for m in markets)
+        # Only check "resolved" — "closed" just means trading stopped, NOT that the outcome is known
+        any_resolved = any(m.get("resolved") for m in markets)
         if not any_resolved:
             continue
 
@@ -324,10 +325,10 @@ def check_resolutions():
         # Update event
         _sb_patch(f"poly_events?event_id=eq.{eid}", {"closed": True})
 
-        # Update winners
+        # Update winners — only if the market is actually resolved
         for m in markets:
             cid = m.get("conditionId")
-            if not cid:
+            if not cid or not m.get("resolved"):
                 continue
             prices = json.loads(m.get("outcomePrices", "[]") or "[]")
             winner = None
