@@ -2,6 +2,8 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   LineChart,
+  AreaChart,
+  Area,
   Line,
   XAxis,
   YAxis,
@@ -104,6 +106,11 @@ interface EnsembleForecast {
   ensemble_model: string;
   member_id: number;
   temp_max: number | null;
+  wind_gusts_max: number | null;
+  precipitation: number | null;
+  snowfall: number | null;
+  cloud_cover: number | null;
+  pressure_msl: number | null;
 }
 
 /* ─── Helpers ────────────────────────────────────────────── */
@@ -242,7 +249,7 @@ export default function DataPage() {
 
       // Fetch ensemble data for this event
       const ens = await sbAll<EnsembleForecast>(
-        `ensemble_forecasts?station=eq.${ev.station}&target_date=eq.${ev.target_date}&select=station,target_date,fetch_ts,ensemble_model,member_id,temp_max&order=fetch_ts,ensemble_model,member_id`
+        `ensemble_forecasts?station=eq.${ev.station}&target_date=eq.${ev.target_date}&select=station,target_date,fetch_ts,ensemble_model,member_id,temp_max,wind_gusts_max,precipitation,snowfall,cloud_cover,pressure_msl&order=fetch_ts,ensemble_model,member_id`
       );
       setEnsembles(ens);
 
@@ -809,6 +816,225 @@ export default function DataPage() {
                         </div>
                       </div>
                     )}
+
+                    {/* ── Courbe 3 — Intemperies ── */}
+                    {hasData && chartWidth > 0 && (() => {
+                      // Build weather data: for each chart timestamp, compute averages from nearest snapshot
+                      const weatherData = predChartData.map(row => {
+                        const newRow: Record<string, any> = { ts: row.ts, time: row.time, fullTime: row.fullTime };
+                        let best: typeof snapshotProbs[0] | null = null;
+                        for (const sp of snapshotProbs) {
+                          if (sp.ts <= row.ts) best = sp;
+                        }
+                        if (best) {
+                          // Find ensemble members at this snapshot
+                          const bestTs = new Date(best.ts * 1000).toISOString();
+                          // Find closest fetch_ts in ensembles
+                          const snapMembers = ensembles.filter(e => {
+                            const ets = Math.floor(new Date(e.fetch_ts).getTime() / 1000);
+                            return Math.abs(ets - best!.ts) < 3600;
+                          });
+                          if (snapMembers.length > 0) {
+                            const avg = (arr: (number | null)[]) => {
+                              const valid = arr.filter((v): v is number => v != null);
+                              return valid.length > 0 ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
+                            };
+                            newRow.precipitation = avg(snapMembers.map(e => e.precipitation));
+                            newRow.snowfall = avg(snapMembers.map(e => e.snowfall));
+                            newRow.windGusts = avg(snapMembers.map(e => e.wind_gusts_max));
+                            newRow.cloudCover = avg(snapMembers.map(e => e.cloud_cover));
+                            const pressures = snapMembers.map(e => e.pressure_msl).filter((v): v is number => v != null);
+                            newRow.pressureDelta = pressures.length > 0 ? pressures.reduce((a, b) => a + b, 0) / pressures.length - 1013 : null;
+                          }
+                        }
+                        return newRow;
+                      });
+
+                      const hasWeather = weatherData.some(r => r.precipitation != null);
+                      if (!hasWeather) return null;
+
+                      return (
+                        <div style={{ marginTop: 16 }}>
+                          <h3 style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8", marginBottom: 8 }}>
+                            Conditions Meteo
+                          </h3>
+                          <div style={{ position: "relative" }}>
+                            <div
+                              onMouseMove={handleChartMouse}
+                              onMouseLeave={() => setHoverIdx(null)}
+                              style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "crosshair" }}
+                            />
+                            {hoverIdx !== null && (
+                              <div style={{
+                                position: "absolute", left: hoverX, top: CHART_MARGIN.top, bottom: CHART_MARGIN.bottom,
+                                width: 1, background: "#475569", zIndex: 5, pointerEvents: "none",
+                              }} />
+                            )}
+                            {hoverIdx !== null && weatherData[hoverIdx] && (() => {
+                              const wr = weatherData[hoverIdx];
+                              return (
+                                <div style={{
+                                  position: "absolute", top: 8, zIndex: 20, pointerEvents: "none",
+                                  left: hoverX > (chartWidth - 48) * 0.65 ? undefined : hoverX + 16,
+                                  right: hoverX > (chartWidth - 48) * 0.65 ? (chartWidth - 48) - hoverX + 16 : undefined,
+                                  background: "#1a1a2eee", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 14px",
+                                  fontSize: 12, minWidth: 160,
+                                }}>
+                                  <div style={{ color: "#94a3b8", marginBottom: 6, fontFamily: "monospace" }}>{wr.fullTime}</div>
+                                  {wr.precipitation != null && <div style={{ color: "#60a5fa" }}>Precip: {wr.precipitation.toFixed(1)} mm</div>}
+                                  {wr.snowfall != null && wr.snowfall > 0 && <div style={{ color: "#e2e8f0" }}>Neige: {wr.snowfall.toFixed(1)} cm</div>}
+                                  {wr.windGusts != null && <div style={{ color: "#a78bfa" }}>Rafales: {wr.windGusts.toFixed(0)} km/h</div>}
+                                  {wr.cloudCover != null && <div style={{ color: "#94a3b8" }}>Nuages: {wr.cloudCover.toFixed(0)}%</div>}
+                                  {wr.pressureDelta != null && <div style={{ color: "#f97316" }}>Pression: {wr.pressureDelta > 0 ? "+" : ""}{wr.pressureDelta.toFixed(1)} hPa</div>}
+                                </div>
+                              );
+                            })()}
+                            <div style={{ background: "#111827", borderRadius: 12, overflow: "hidden" }}>
+                              <LineChart data={weatherData} width={chartWidth - 48} height={280} margin={CHART_MARGIN}>
+                                <XAxis dataKey="time" xAxisId="hours" tick={{ fill: "#475569", fontSize: 11 }} axisLine={{ stroke: "#1e293b" }} tickLine={false} interval="preserveStartEnd" minTickGap={60} />
+                                <XAxis dataKey="ts" xAxisId="days" axisLine={false} tickLine={false}
+                                  ticks={(() => { const seen = new Set<string>(); const t: number[] = []; for (const r of weatherData) { const d = new Date(r.ts * 1000); const k = `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`; if (!seen.has(k)) { seen.add(k); t.push(r.ts); } } return t; })()}
+                                  tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
+                                  tickFormatter={(ts: number) => new Date(ts * 1000).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })}
+                                />
+                                <YAxis tick={{ fill: "#475569", fontSize: 11 }} axisLine={{ stroke: "#1e293b" }} tickLine={false} width={44} />
+                                <Line xAxisId="hours" dataKey="precipitation" stroke="#60a5fa" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} name="Precip (mm)" />
+                                <Line xAxisId="hours" dataKey="snowfall" stroke="#e2e8f0" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} name="Neige (cm)" />
+                                <Line xAxisId="hours" dataKey="windGusts" stroke="#a78bfa" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} name="Rafales (km/h)" />
+                                <Line xAxisId="hours" dataKey="cloudCover" stroke="#64748b" strokeWidth={1} strokeDasharray="4 4" dot={false} connectNulls isAnimationActive={false} name="Nuages (%)" />
+                              </LineChart>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* ── Courbe 4 — Score de Confiance ── */}
+                    {hasData && chartWidth > 0 && (() => {
+                      // For each chart timestamp, compute confidence score from nearest snapshot
+                      const confidenceData = predChartData.map(row => {
+                        const newRow: Record<string, any> = { ts: row.ts, time: row.time, fullTime: row.fullTime, confidence: null };
+                        let best: typeof snapshotProbs[0] | null = null;
+                        for (const sp of snapshotProbs) {
+                          if (sp.ts <= row.ts) best = sp;
+                        }
+                        if (!best) return newRow;
+
+                        // Find members at this snapshot
+                        const snapMembers = ensembles.filter(e => {
+                          const ets = Math.floor(new Date(e.fetch_ts).getTime() / 1000);
+                          return Math.abs(ets - best!.ts) < 3600 && e.temp_max != null;
+                        });
+                        if (snapMembers.length === 0) return newRow;
+
+                        // Count votes per rounded degree
+                        const votes: Record<number, number> = {};
+                        for (const m of snapMembers) {
+                          const t = Math.round(m.temp_max!);
+                          votes[t] = (votes[t] || 0) + 1;
+                        }
+
+                        // Top 2 brackets
+                        const sorted = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+                        const top1 = sorted[0] ? sorted[0][1] : 0;
+                        const top2 = sorted[1] ? sorted[1][1] : 0;
+                        const total = snapMembers.length;
+
+                        newRow.confidence = Math.round(((top1 + top2) / total) * 100);
+                        newRow._top1Temp = sorted[0] ? parseInt(sorted[0][0]) : null;
+                        newRow._top1Pct = Math.round((top1 / total) * 100);
+                        newRow._top2Temp = sorted[1] ? parseInt(sorted[1][0]) : null;
+                        newRow._top2Pct = Math.round((top2 / total) * 100);
+                        newRow._spread = Math.max(...snapMembers.map(m => m.temp_max!)) - Math.min(...snapMembers.map(m => m.temp_max!));
+                        newRow._total = total;
+
+                        return newRow;
+                      });
+
+                      const hasConfidence = confidenceData.some(r => r.confidence != null);
+                      if (!hasConfidence) return null;
+
+                      // Get latest confidence for color
+                      const latestConf = [...confidenceData].reverse().find(r => r.confidence != null);
+                      const confValue = latestConf?.confidence ?? 50;
+                      const confColor = confValue >= 75 ? "#4ade80" : confValue >= 50 ? "#fbbf24" : confValue >= 25 ? "#f97316" : "#f87171";
+                      const confLabel = confValue >= 75 ? "Fort consensus" : confValue >= 50 ? "Consensus modere" : confValue >= 25 ? "Faible consensus" : "Aucun consensus";
+
+                      const isF = selectedEvent?.station === "KLGA";
+                      const unit = isF ? "F" : "C";
+
+                      return (
+                        <div style={{ marginTop: 16 }}>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 8 }}>
+                            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8", margin: 0 }}>
+                              Score de Confiance
+                            </h3>
+                            <span style={{ fontSize: 22, fontWeight: 800, color: confColor, fontFamily: "monospace" }}>{confValue}%</span>
+                            <span style={{ fontSize: 11, color: confColor }}>{confLabel}</span>
+                            {latestConf?._top1Temp != null && (
+                              <span style={{ fontSize: 11, color: "#475569" }}>
+                                Top: {latestConf._top1Temp}&deg;{unit} ({latestConf._top1Pct}%)
+                                {latestConf._top2Temp != null && <> + {latestConf._top2Temp}&deg;{unit} ({latestConf._top2Pct}%)</>}
+                                {" "}&middot; spread {latestConf._spread.toFixed(1)}&deg;
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ position: "relative" }}>
+                            <div
+                              onMouseMove={handleChartMouse}
+                              onMouseLeave={() => setHoverIdx(null)}
+                              style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "crosshair" }}
+                            />
+                            {hoverIdx !== null && (
+                              <div style={{
+                                position: "absolute", left: hoverX, top: CHART_MARGIN.top, bottom: CHART_MARGIN.bottom,
+                                width: 1, background: "#475569", zIndex: 5, pointerEvents: "none",
+                              }} />
+                            )}
+                            {hoverIdx !== null && confidenceData[hoverIdx]?.confidence != null && (() => {
+                              const cr = confidenceData[hoverIdx];
+                              const c = cr.confidence;
+                              const col = c >= 75 ? "#4ade80" : c >= 50 ? "#fbbf24" : c >= 25 ? "#f97316" : "#f87171";
+                              return (
+                                <div style={{
+                                  position: "absolute", top: 8, zIndex: 20, pointerEvents: "none",
+                                  left: hoverX > (chartWidth - 48) * 0.65 ? undefined : hoverX + 16,
+                                  right: hoverX > (chartWidth - 48) * 0.65 ? (chartWidth - 48) - hoverX + 16 : undefined,
+                                  background: "#1a1a2eee", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 14px",
+                                  fontSize: 12, minWidth: 160,
+                                }}>
+                                  <div style={{ color: "#94a3b8", marginBottom: 6, fontFamily: "monospace" }}>{cr.fullTime}</div>
+                                  <div style={{ color: col, fontWeight: 700, fontSize: 16 }}>{c}%</div>
+                                  {cr._top1Temp != null && <div style={{ color: "#e2e8f0", marginTop: 4 }}>Top: {cr._top1Temp}&deg;{unit} ({cr._top1Pct}%)</div>}
+                                  {cr._top2Temp != null && <div style={{ color: "#94a3b8" }}>2e: {cr._top2Temp}&deg;{unit} ({cr._top2Pct}%)</div>}
+                                  <div style={{ color: "#475569", marginTop: 2 }}>Spread: {cr._spread.toFixed(1)}&deg; &middot; {cr._total} membres</div>
+                                </div>
+                              );
+                            })()}
+                            <div style={{ background: "#111827", borderRadius: 12, overflow: "hidden" }}>
+                              <AreaChart data={confidenceData} width={chartWidth - 48} height={200} margin={CHART_MARGIN}>
+                                <defs>
+                                  <linearGradient id="confGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor={confColor} stopOpacity={0.3} />
+                                    <stop offset="100%" stopColor={confColor} stopOpacity={0.02} />
+                                  </linearGradient>
+                                </defs>
+                                <XAxis dataKey="time" xAxisId="hours" tick={{ fill: "#475569", fontSize: 11 }} axisLine={{ stroke: "#1e293b" }} tickLine={false} interval="preserveStartEnd" minTickGap={60} />
+                                <XAxis dataKey="ts" xAxisId="days" axisLine={false} tickLine={false}
+                                  ticks={(() => { const seen = new Set<string>(); const t: number[] = []; for (const r of confidenceData) { const d = new Date(r.ts * 1000); const k = `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`; if (!seen.has(k)) { seen.add(k); t.push(r.ts); } } return t; })()}
+                                  tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
+                                  tickFormatter={(ts: number) => new Date(ts * 1000).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })}
+                                />
+                                <YAxis domain={[0, 100]} tick={{ fill: "#475569", fontSize: 11 }} axisLine={{ stroke: "#1e293b" }} tickLine={false} tickFormatter={(v: number) => `${v}%`} width={44} />
+                                <ReferenceLine y={50} stroke="#334155" strokeDasharray="4 4" xAxisId="hours" />
+                                <ReferenceLine y={75} stroke="#334155" strokeDasharray="2 6" xAxisId="hours" />
+                                <Area xAxisId="hours" dataKey="confidence" stroke={confColor} strokeWidth={3} fill="url(#confGrad)" dot={false} connectNulls isAnimationActive={false} />
+                              </AreaChart>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     {/* Bracket cards: our prob vs market */}
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 6 }}>
