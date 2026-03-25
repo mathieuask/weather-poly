@@ -674,22 +674,20 @@ export default function DataPage() {
                 const isF = selectedEvent?.station === "KLGA";
                 const unit = isF ? "F" : "C";
 
-                // Build chart data using same X axis as price chart
-                const predChartData = chartData.map(row => {
-                  const newRow: Record<string, any> = { ts: row.ts, time: row.time, fullTime: row.fullTime };
-                  let best: typeof snapshotProbs[0] | null = null;
-                  for (const sp of snapshotProbs) {
-                    if (sp.ts <= row.ts) best = sp;
+                // Build chart data directly from ensemble snapshots
+                const predChartData = snapshotProbs.map(sp => {
+                  const row: Record<string, any> = {
+                    ts: sp.ts,
+                    time: fmtHour(sp.ts),
+                    fullTime: fmtDayHour(sp.ts),
+                  };
+                  for (const b of brackets) {
+                    row[b.condition_id] = sp.probs[b.condition_id] ?? null;
                   }
-                  if (best) {
-                    for (const b of brackets) {
-                      newRow[b.condition_id] = best.probs[b.condition_id] ?? null;
-                    }
-                  }
-                  return newRow;
+                  return row;
                 });
 
-                const hasData = predChartData.some(row => brackets.some(b => row[b.condition_id] != null));
+                const hasData = predChartData.length > 0;
 
                 // Hover data for this chart (reuse hoverIdx from parent)
                 const predHoverRow = hoverIdx !== null && predChartData[hoverIdx] ? predChartData[hoverIdx] : null;
@@ -865,35 +863,26 @@ export default function DataPage() {
 
                     {/* ── Courbe 3 — Intemperies ── */}
                     {hasData && chartWidth > 0 && (() => {
-                      // Build weather data: for each chart timestamp, compute averages from nearest snapshot
-                      const weatherData = predChartData.map(row => {
-                        const newRow: Record<string, any> = { ts: row.ts, time: row.time, fullTime: row.fullTime };
-                        let best: typeof snapshotProbs[0] | null = null;
-                        for (const sp of snapshotProbs) {
-                          if (sp.ts <= row.ts) best = sp;
-                        }
-                        if (best) {
-                          // Find ensemble members at this snapshot
-                          const bestTs = new Date(best.ts * 1000).toISOString();
-                          // Find closest fetch_ts in ensembles
-                          const snapMembers = ensembles.filter(e => {
-                            const ets = Math.floor(new Date(e.fetch_ts).getTime() / 1000);
-                            return Math.abs(ets - best!.ts) < 3600;
-                          });
-                          if (snapMembers.length > 0) {
-                            const avg = (arr: (number | null)[]) => {
-                              const valid = arr.filter((v): v is number => v != null);
-                              return valid.length > 0 ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
-                            };
-                            newRow.precipitation = avg(snapMembers.map(e => e.precipitation));
-                            newRow.snowfall = avg(snapMembers.map(e => e.snowfall));
-                            newRow.windGusts = avg(snapMembers.map(e => e.wind_gusts_max));
-                            newRow.cloudCover = avg(snapMembers.map(e => e.cloud_cover));
-                            const pressures = snapMembers.map(e => e.pressure_msl).filter((v): v is number => v != null);
-                            newRow.pressureDelta = pressures.length > 0 ? pressures.reduce((a, b) => a + b, 0) / pressures.length - 1013 : null;
-                          }
-                        }
-                        return newRow;
+                      // Build weather data directly from snapshots
+                      const avg = (arr: (number | null)[]) => {
+                        const valid = arr.filter((v): v is number => v != null);
+                        return valid.length > 0 ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
+                      };
+                      const weatherData = snapshotProbs.map(sp => {
+                        const snapMembers = ensembles.filter(e => {
+                          const ets = Math.floor(new Date(e.fetch_ts).getTime() / 1000);
+                          return Math.abs(ets - sp.ts) < 3600;
+                        });
+                        const row: Record<string, any> = {
+                          ts: sp.ts, time: fmtHour(sp.ts), fullTime: fmtDayHour(sp.ts),
+                          precipitation: avg(snapMembers.map(e => e.precipitation)),
+                          snowfall: avg(snapMembers.map(e => e.snowfall)),
+                          windGusts: avg(snapMembers.map(e => e.wind_gusts_max)),
+                          cloudCover: avg(snapMembers.map(e => e.cloud_cover)),
+                        };
+                        const pressures = snapMembers.map(e => e.pressure_msl).filter((v): v is number => v != null);
+                        row.pressureDelta = pressures.length > 0 ? pressures.reduce((a, b) => a + b, 0) / pressures.length - 1013 : null;
+                        return row;
                       });
 
                       const hasWeather = weatherData.some(r => r.precipitation != null);
@@ -957,44 +946,35 @@ export default function DataPage() {
 
                     {/* ── Courbe 4 — Score de Confiance ── */}
                     {hasData && chartWidth > 0 && (() => {
-                      // For each chart timestamp, compute confidence score from nearest snapshot
-                      const confidenceData = predChartData.map(row => {
-                        const newRow: Record<string, any> = { ts: row.ts, time: row.time, fullTime: row.fullTime, confidence: null };
-                        let best: typeof snapshotProbs[0] | null = null;
-                        for (const sp of snapshotProbs) {
-                          if (sp.ts <= row.ts) best = sp;
-                        }
-                        if (!best) return newRow;
-
-                        // Find members at this snapshot
+                      // Build confidence data directly from snapshots
+                      const confidenceData = snapshotProbs.map(sp => {
                         const snapMembers = ensembles.filter(e => {
                           const ets = Math.floor(new Date(e.fetch_ts).getTime() / 1000);
-                          return Math.abs(ets - best!.ts) < 3600 && e.temp_max != null;
+                          return Math.abs(ets - sp.ts) < 3600 && e.temp_max != null;
                         });
-                        if (snapMembers.length === 0) return newRow;
+                        const row: Record<string, any> = { ts: sp.ts, time: fmtHour(sp.ts), fullTime: fmtDayHour(sp.ts), confidence: null };
+                        if (snapMembers.length === 0) return row;
 
-                        // Count votes per rounded degree
                         const votes: Record<number, number> = {};
                         for (const m of snapMembers) {
                           const t = Math.round(m.temp_max!);
                           votes[t] = (votes[t] || 0) + 1;
                         }
 
-                        // Top 2 brackets
                         const sorted = Object.entries(votes).sort((a, b) => b[1] - a[1]);
                         const top1 = sorted[0] ? sorted[0][1] : 0;
                         const top2 = sorted[1] ? sorted[1][1] : 0;
                         const total = snapMembers.length;
 
-                        newRow.confidence = Math.round(((top1 + top2) / total) * 100);
-                        newRow._top1Temp = sorted[0] ? parseInt(sorted[0][0]) : null;
-                        newRow._top1Pct = Math.round((top1 / total) * 100);
-                        newRow._top2Temp = sorted[1] ? parseInt(sorted[1][0]) : null;
-                        newRow._top2Pct = Math.round((top2 / total) * 100);
-                        newRow._spread = Math.max(...snapMembers.map(m => m.temp_max!)) - Math.min(...snapMembers.map(m => m.temp_max!));
-                        newRow._total = total;
+                        row.confidence = Math.round(((top1 + top2) / total) * 100);
+                        row._top1Temp = sorted[0] ? parseInt(sorted[0][0]) : null;
+                        row._top1Pct = Math.round((top1 / total) * 100);
+                        row._top2Temp = sorted[1] ? parseInt(sorted[1][0]) : null;
+                        row._top2Pct = Math.round((top2 / total) * 100);
+                        row._spread = Math.max(...snapMembers.map(m => m.temp_max!)) - Math.min(...snapMembers.map(m => m.temp_max!));
+                        row._total = total;
 
-                        return newRow;
+                        return row;
                       });
 
                       const hasConfidence = confidenceData.some(r => r.confidence != null);
