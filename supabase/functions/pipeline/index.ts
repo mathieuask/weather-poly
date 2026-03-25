@@ -150,26 +150,43 @@ async function checkResolutions() {
           .eq("condition_id", m.conditionId);
       }
 
-      // Fetch WU temperature
+      // Fetch WU temperature (native unit: °F for KLGA, °C for others)
       const info = STATIONS[ev.station];
       if (info) {
         const wuDate = ev.target_date.replace(/-/g, "");
+        const isF = ev.station === "KLGA";
+        const wuUnits = isF ? "e" : "m";
         try {
           const wuR = await fetch(
-            `https://api.weather.com/v1/location/${ev.station}:9:${info.country}/observations/historical.json?apiKey=${WU_KEY}&units=m&startDate=${wuDate}`
+            `https://api.weather.com/v1/location/${ev.station}:9:${info.country}/observations/historical.json?apiKey=${WU_KEY}&units=${wuUnits}&startDate=${wuDate}`
           );
           if (wuR.ok) {
             const obs = (await wuR.json()).observations || [];
             const temps = obs.filter((o: any) => o.temp != null).map((o: any) => o.temp as number);
             if (temps.length > 0) {
-              await sb.from("daily_temps").upsert([{
-                station: ev.station,
-                date: ev.target_date,
-                temp_max_c: Math.round(Math.max(...temps) * 10) / 10,
-                source: "wunderground",
-                is_polymarket_day: true,
-              }], { onConflict: "station,date", ignoreDuplicates: true });
-              log(`  WU: ${Math.max(...temps)}°C`);
+              const maxTemp = Math.max(...temps);
+              if (isF) {
+                const tempF = Math.round(maxTemp);
+                const tempC = Math.round((tempF - 32) / 1.8 * 10) / 10;
+                await sb.from("daily_temps").upsert([{
+                  station: ev.station,
+                  date: ev.target_date,
+                  temp_max_f: tempF,
+                  temp_max_c: tempC,
+                  source: "wunderground",
+                  is_polymarket_day: true,
+                }], { onConflict: "station,date", ignoreDuplicates: true });
+                log(`  WU: ${tempF}°F (${tempC}°C)`);
+              } else {
+                await sb.from("daily_temps").upsert([{
+                  station: ev.station,
+                  date: ev.target_date,
+                  temp_max_c: Math.round(maxTemp * 10) / 10,
+                  source: "wunderground",
+                  is_polymarket_day: true,
+                }], { onConflict: "station,date", ignoreDuplicates: true });
+                log(`  WU: ${maxTemp}°C`);
+              }
             }
           }
         } catch { log("  WU: fetch error"); }
@@ -222,7 +239,7 @@ async function checkResolutions() {
 
 async function checkNewEvents() {
   try {
-    const r = await fetch("https://gamma-api.polymarket.com/events?tag_slug=temperature&limit=100&closed=false", {
+    const r = await fetch("https://gamma-api.polymarket.com/events?tag_slug=temperature&limit=200&closed=false", {
       headers: { "User-Agent": UA },
     });
     if (!r.ok) return;
@@ -295,6 +312,9 @@ async function checkNewEvents() {
         } else if (/or\s+(?:higher|above)/.test(q)) {
           const tm = q.match(/(-?\d+)\s*°/);
           if (tm) { bracketTemp = parseInt(tm[1]); bracketOp = "gte"; }
+        } else if (/between/.test(q)) {
+          const tm = q.match(/between\s+(-?\d+)\s*[-–]\s*(-?\d+)/);
+          if (tm) { bracketTemp = parseInt(tm[1]); bracketOp = "between"; }
         } else {
           const tm = q.match(/be\s+(-?\d+)\s*°/);
           if (tm) { bracketTemp = parseInt(tm[1]); bracketOp = "exact"; }
@@ -325,6 +345,209 @@ async function checkNewEvents() {
   }
 }
 
+// ── 4. Refresh ensemble forecasts for open events ───────────
+
+const ENSEMBLE_STATIONS: Record<string, { lat: number; lon: number }> = {
+  KLGA: { lat: 40.7769, lon: -73.874 },
+  EGLC: { lat: 51.5053, lon: -0.0553 },
+  RKSI: { lat: 37.4602, lon: 126.4407 },
+};
+
+const ENSEMBLE_MODELS: Record<string, { db: string; members: number }> = {
+  gfs_seamless: { db: "gfs", members: 31 },
+  ecmwf_ifs025_ensemble: { db: "ecmwf", members: 51 },
+  icon_seamless: { db: "icon", members: 40 },
+  gem_global: { db: "gem", members: 21 },
+};
+
+const DAILY_VARS = [
+  "temperature_2m_max", "temperature_2m_min", "temperature_2m_mean",
+  "apparent_temperature_max", "apparent_temperature_min",
+  "dew_point_2m_max", "dew_point_2m_min",
+  "wind_speed_10m_max", "wind_gusts_10m_max", "wind_direction_10m_dominant",
+  "precipitation_sum", "rain_sum", "snowfall_sum",
+  "relative_humidity_2m_max", "relative_humidity_2m_min", "relative_humidity_2m_mean",
+  "pressure_msl_mean", "cloud_cover_mean", "shortwave_radiation_sum",
+];
+
+const VAR_MAP: Record<string, string> = {
+  temperature_2m_max: "temp_max", temperature_2m_min: "temp_min", temperature_2m_mean: "temp_mean",
+  apparent_temperature_max: "apparent_temp_max", apparent_temperature_min: "apparent_temp_min",
+  dew_point_2m_max: "dew_point_max", dew_point_2m_min: "dew_point_min",
+  wind_speed_10m_max: "wind_speed_max", wind_gusts_10m_max: "wind_gusts_max",
+  wind_direction_10m_dominant: "wind_direction",
+  precipitation_sum: "precipitation", rain_sum: "rain", snowfall_sum: "snowfall",
+  relative_humidity_2m_max: "humidity_max", relative_humidity_2m_min: "humidity_min",
+  relative_humidity_2m_mean: "humidity_mean",
+  pressure_msl_mean: "pressure_msl", cloud_cover_mean: "cloud_cover",
+  shortwave_radiation_sum: "radiation",
+};
+
+async function refreshEnsembles() {
+  const { data: openEvents } = await sb
+    .from("poly_events")
+    .select("station,target_date")
+    .eq("closed", false);
+
+  if (!openEvents || openEvents.length === 0) {
+    log("ensembles: no open events");
+    return;
+  }
+
+  const stationDates: Record<string, Set<string>> = {};
+  for (const ev of openEvents) {
+    if (!stationDates[ev.station]) stationDates[ev.station] = new Set();
+    stationDates[ev.station].add(ev.target_date);
+  }
+
+  // Round to current hour for dedup
+  const now = new Date();
+  now.setMinutes(0, 0, 0);
+  const fetchTs = now.toISOString();
+  let totalRows = 0;
+
+  for (const [station, dates] of Object.entries(stationDates)) {
+    const cfg = ENSEMBLE_STATIONS[station];
+    if (!cfg) continue;
+
+    const sortedDates = [...dates].sort();
+    const startDate = sortedDates[0];
+    const endDate = sortedDates[sortedDates.length - 1];
+
+    for (const [omModel, modelCfg] of Object.entries(ENSEMBLE_MODELS)) {
+      try {
+        const unitParam = station === "KLGA" ? "&temperature_unit=fahrenheit" : "";
+        const url = `https://ensemble-api.open-meteo.com/v1/ensemble?latitude=${cfg.lat}&longitude=${cfg.lon}&daily=${DAILY_VARS.join(",")}&models=${omModel}&start_date=${startDate}&end_date=${endDate}&timezone=UTC${unitParam}`;
+
+        const r = await fetch(url);
+        if (!r.ok) {
+          log(`ensembles: ${station}/${modelCfg.db} API ${r.status}`);
+          continue;
+        }
+        const data = await r.json();
+        const daily = data.daily || {};
+        const timeArr: string[] = daily.time || [];
+        if (timeArr.length === 0) continue;
+
+        const rows: any[] = [];
+        for (let i = 0; i < timeArr.length; i++) {
+          const targetDate = timeArr[i];
+          if (!dates.has(targetDate)) continue;
+
+          for (let memberId = 0; memberId < modelCfg.members; memberId++) {
+            const row: any = {
+              station,
+              target_date: targetDate,
+              fetch_ts: fetchTs,
+              ensemble_model: modelCfg.db,
+              member_id: memberId,
+            };
+
+            for (const [apiVar, dbCol] of Object.entries(VAR_MAP)) {
+              const key = memberId === 0 ? apiVar : `${apiVar}_member${String(memberId).padStart(2, "0")}`;
+              const vals = daily[key] || [];
+              if (i < vals.length && vals[i] != null) {
+                row[dbCol] = Math.round(vals[i] * 100) / 100;
+              }
+            }
+            rows.push(row);
+          }
+        }
+
+        if (rows.length > 0) {
+          for (let i = 0; i < rows.length; i += 2000) {
+            await sb.from("ensemble_forecasts").upsert(rows.slice(i, i + 2000), {
+              onConflict: "station,target_date,fetch_ts,ensemble_model,member_id",
+            });
+          }
+          totalRows += rows.length;
+        }
+
+        await new Promise((r) => setTimeout(r, 2000));
+      } catch (e) {
+        log(`ensembles: ${station}/${modelCfg.db} error: ${e}`);
+      }
+    }
+  }
+
+  log(`ensembles: ${totalRows} rows upserted`);
+}
+
+// ── 5. Compute model scores ─────────────────────────────────
+
+async function computeModelScores() {
+  const stations = ["KLGA", "EGLC", "RKSI"];
+
+  for (const station of stations) {
+    // Fetch all actuals
+    const { data: actuals } = await sb
+      .from("daily_temps")
+      .select("date,temp_max_c,temp_max_f")
+      .eq("station", station);
+
+    if (!actuals || actuals.length === 0) continue;
+
+    const actualMap: Record<string, { temp_max_c: number | null; temp_max_f: number | null }> = {};
+    for (const a of actuals) actualMap[a.date] = a;
+
+    // Fetch all forecasts (paginated)
+    let allForecasts: any[] = [];
+    let offset = 0;
+    while (true) {
+      const { data: batch } = await sb
+        .from("gfs_forecasts")
+        .select("target_date,horizon,model,temp_max,temp_max_f")
+        .eq("station", station)
+        .range(offset, offset + 999);
+      if (!batch || batch.length === 0) break;
+      allForecasts = allForecasts.concat(batch);
+      offset += 1000;
+    }
+
+    // Group by (model, horizon)
+    const groups: Record<string, any[]> = {};
+    for (const f of allForecasts) {
+      const key = `${f.model}|${f.horizon}`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(f);
+    }
+
+    const scores: any[] = [];
+    for (const [key, fcs] of Object.entries(groups)) {
+      const [model, horizonStr] = key.split("|");
+      const horizon = parseInt(horizonStr);
+      const errors: number[] = [];
+
+      for (const fc of fcs) {
+        const actual = actualMap[fc.target_date];
+        if (!actual) continue;
+
+        let fcVal: number | null;
+        let acVal: number | null;
+        if (station === "KLGA") {
+          fcVal = fc.temp_max_f;
+          acVal = actual.temp_max_f;
+        } else {
+          fcVal = fc.temp_max;
+          acVal = actual.temp_max_c;
+        }
+        if (fcVal == null || acVal == null) continue;
+        errors.push(Math.abs(fcVal - acVal));
+      }
+
+      if (errors.length > 0) {
+        const mae = Math.round((errors.reduce((a, b) => a + b, 0) / errors.length) * 100) / 100;
+        scores.push({ station, model, horizon, mae, sample_count: errors.length });
+      }
+    }
+
+    if (scores.length > 0) {
+      await sb.from("model_scores").upsert(scores, { onConflict: "station,model,horizon" });
+      log(`scores: ${station} → ${scores.length} scores upserted`);
+    }
+  }
+}
+
 // ── Handler ────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -335,10 +558,13 @@ Deno.serve(async (req) => {
     // 2. Always: check resolutions
     await checkResolutions();
 
-    // 3. Once per day at ~10h UTC: check new events
-    const hour = new Date().getUTCHours();
-    if (hour === 10) {
-      await checkNewEvents();
+    // 3. Check new events
+    await checkNewEvents();
+
+    // 4. Hourly: refresh ensemble forecasts (143 members)
+    const minute = new Date().getUTCMinutes();
+    if (minute < 5) {
+      await refreshEnsembles();
     }
 
     return new Response(JSON.stringify({ ok: true }), {

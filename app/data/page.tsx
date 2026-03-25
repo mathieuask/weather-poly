@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   LineChart,
   Line,
@@ -77,6 +77,35 @@ interface Bracket {
 
 interface PricePoint { ts: number; price_yes: number }
 
+interface ModelScore {
+  station: string;
+  model: string;
+  horizon: number;
+  mae: number;
+  sample_count: number;
+}
+
+interface GfsForecast {
+  station: string;
+  target_date: string;
+  horizon: number;
+  model: string;
+  temp_max: number | null;
+  temp_max_f: number | null;
+  ensemble_mean: number | null;
+  ensemble_min: number | null;
+  ensemble_max: number | null;
+}
+
+interface EnsembleForecast {
+  station: string;
+  target_date: string;
+  fetch_ts: string;
+  ensemble_model: string;
+  member_id: number;
+  temp_max: number | null;
+}
+
 /* ─── Helpers ────────────────────────────────────────────── */
 
 function fmtDate(d: string) {
@@ -111,6 +140,7 @@ function bracketLabel(b: Bracket) {
   const t = b.bracket_temp;
   if (b.bracket_op === "lte") return `\u2264${t}\u00b0`;
   if (b.bracket_op === "gte") return `\u2265${t}\u00b0`;
+  if (b.bracket_op === "between") return `${t}-${t + 1}\u00b0`;
   return `${t}\u00b0`;
 }
 
@@ -134,7 +164,11 @@ export default function DataPage() {
   const [brackets, setBrackets] = useState<Bracket[]>([]);
   const [prices, setPrices] = useState<Record<string, PricePoint[]>>({});
   const [tempC, setTempC] = useState<number | null>(null);
+  const [tempF, setTempF] = useState<number | null>(null);
   const [chartLoading, setChartLoading] = useState(false);
+  const [forecasts, setForecasts] = useState<GfsForecast[]>([]);
+  const [modelScores, setModelScores] = useState<ModelScore[]>([]);
+  const [ensembles, setEnsembles] = useState<EnsembleForecast[]>([]);
   const [closedBrackets, setClosedBrackets] = useState<Set<string>>(new Set());
 
   // Chart sizing
@@ -176,20 +210,41 @@ export default function DataPage() {
     setBrackets([]);
     setPrices({});
     setTempC(null);
+    setTempF(null);
+    setForecasts([]);
+    setModelScores([]);
+    setEnsembles([]);
     setHoverIdx(null);
     setClosedBrackets(new Set());
 
     try {
-      const [brk, tmp] = await Promise.all([
+      const [brk, tmp, fc, scores] = await Promise.all([
         sb<Bracket[]>(
           `poly_markets?poly_event_id=eq.${ev.event_id}&select=condition_id,bracket_temp,bracket_op,bracket_str,winner,volume&order=bracket_temp`
         ),
-        sb<{ temp_max_c: number }[]>(
-          `daily_temps?station=eq.${ev.station}&date=eq.${ev.target_date}&select=temp_max_c&limit=1`
+        sb<{ temp_max_c: number; temp_max_f?: number | null }[]>(
+          `daily_temps?station=eq.${ev.station}&date=eq.${ev.target_date}&select=*&limit=1`
+        ),
+        sb<GfsForecast[]>(
+          `gfs_forecasts?station=eq.${ev.station}&target_date=eq.${ev.target_date}&select=*&order=model,horizon`
+        ),
+        sb<ModelScore[]>(
+          `model_scores?station=eq.${ev.station}&select=*`
         ),
       ]);
       setBrackets(brk);
-      if (tmp.length > 0) setTempC(tmp[0].temp_max_c);
+      if (tmp.length > 0) {
+        setTempC(tmp[0].temp_max_c);
+        setTempF(tmp[0].temp_max_f ?? null);
+      }
+      setForecasts(fc);
+      setModelScores(scores);
+
+      // Fetch ensemble data for this event
+      const ens = await sbAll<EnsembleForecast>(
+        `ensemble_forecasts?station=eq.${ev.station}&target_date=eq.${ev.target_date}&select=station,target_date,fetch_ts,ensemble_model,member_id,temp_max&order=fetch_ts,ensemble_model,member_id`
+      );
+      setEnsembles(ens);
 
       const priceResults = await Promise.all(
         brk.map(b =>
@@ -383,9 +438,16 @@ export default function DataPage() {
                 </h2>
                 <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
                   {brackets.length} brackets &middot; ${Math.round(selectedEvent.total_volume).toLocaleString()} volume
-                  {tempC !== null && (
-                    <span style={{ marginLeft: 12, color: "#fbbf24", fontWeight: 700 }}>Actual: {tempC}&deg;C</span>
-                  )}
+                  {(() => {
+                    const isF = selectedEvent?.station === "KLGA";
+                    if (isF && tempF != null) {
+                      return <span style={{ marginLeft: 12, color: "#fbbf24", fontWeight: 700 }}>Actual: {tempF}&deg;F</span>;
+                    }
+                    if (tempC != null) {
+                      return <span style={{ marginLeft: 12, color: "#fbbf24", fontWeight: 700 }}>Actual: {tempC}&deg;C</span>;
+                    }
+                    return null;
+                  })()}
                   {!selectedEvent.closed && (() => {
                     // Find the most recent price point across all brackets
                     let maxTs = 0;
@@ -569,6 +631,407 @@ export default function DataPage() {
                   );
                 })}
               </div>
+
+              {/* ── Model Prediction (courbe 2) ── */}
+              {ensembles.length > 0 && (() => {
+                // Group ensembles by fetch_ts → compute probability per bracket per snapshot
+                const snapshots = [...new Set(ensembles.map(e => e.fetch_ts))].sort();
+
+                const snapshotProbs: { ts: number; probs: Record<string, number>; consensus: number; spread: number; total: number }[] = [];
+                for (const fetchTs of snapshots) {
+                  const members = ensembles.filter(e => e.fetch_ts === fetchTs && e.temp_max != null);
+                  const total = members.length;
+                  if (total === 0) continue;
+
+                  const tsEpoch = Math.floor(new Date(fetchTs).getTime() / 1000);
+                  const probs: Record<string, number> = {};
+
+                  for (const b of brackets) {
+                    const matching = members.filter(m => {
+                      const t = Math.round(m.temp_max!);
+                      if (b.bracket_op === "lte") return t <= b.bracket_temp;
+                      if (b.bracket_op === "gte") return t >= b.bracket_temp;
+                      if (b.bracket_op === "between") return t >= b.bracket_temp && t <= b.bracket_temp + 1;
+                      return t === b.bracket_temp;
+                    }).length;
+                    probs[b.condition_id] = Math.round((matching / total) * 100);
+                  }
+
+                  const mean = members.reduce((s, e) => s + e.temp_max!, 0) / total;
+                  const spread = Math.max(...members.map(e => e.temp_max!)) - Math.min(...members.map(e => e.temp_max!));
+                  snapshotProbs.push({ ts: tsEpoch, probs, consensus: mean, spread, total });
+                }
+
+                if (snapshotProbs.length === 0) return null;
+                const latest = snapshotProbs[snapshotProbs.length - 1];
+                const isF = selectedEvent?.station === "KLGA";
+                const unit = isF ? "F" : "C";
+
+                // Build chart data using same X axis as price chart
+                const predChartData = chartData.map(row => {
+                  const newRow: Record<string, any> = { ts: row.ts, time: row.time, fullTime: row.fullTime };
+                  let best: typeof snapshotProbs[0] | null = null;
+                  for (const sp of snapshotProbs) {
+                    if (sp.ts <= row.ts) best = sp;
+                  }
+                  if (best) {
+                    for (const b of brackets) {
+                      newRow[b.condition_id] = best.probs[b.condition_id] ?? null;
+                    }
+                  }
+                  return newRow;
+                });
+
+                const hasData = predChartData.some(row => brackets.some(b => row[b.condition_id] != null));
+
+                // Hover data for this chart (reuse hoverIdx from parent)
+                const predHoverRow = hoverIdx !== null && predChartData[hoverIdx] ? predChartData[hoverIdx] : null;
+
+                return (
+                  <div style={{ marginTop: 20 }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8", marginBottom: 4 }}>
+                      Model Prediction — {latest.total} membres
+                    </h3>
+                    <div style={{ fontSize: 11, color: "#475569", marginBottom: 12 }}>
+                      Consensus: {latest.consensus.toFixed(1)}&deg;{unit}
+                      <span style={{ marginLeft: 8, color: latest.spread < 3 ? "#4ade80" : latest.spread < 6 ? "#fbbf24" : "#f87171" }}>
+                        &plusmn;{(latest.spread / 2).toFixed(1)}&deg;
+                      </span>
+                      <span style={{ marginLeft: 12, color: "#334155" }}>{snapshotProbs.length} snapshot{snapshotProbs.length > 1 ? "s" : ""}</span>
+                    </div>
+
+                    {/* Chart — exact same design + tooltip as price chart */}
+                    {hasData && chartWidth > 0 && (
+                      <div style={{ position: "relative", marginBottom: 12 }}>
+                        {/* Mouse overlay for crosshair */}
+                        <div
+                          onMouseMove={handleChartMouse}
+                          onMouseLeave={() => setHoverIdx(null)}
+                          style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "crosshair" }}
+                        />
+
+                        {/* Vertical crosshair */}
+                        {hoverIdx !== null && (
+                          <div style={{
+                            position: "absolute", left: hoverX, top: CHART_MARGIN.top, bottom: CHART_MARGIN.bottom,
+                            width: 1, background: "#475569", zIndex: 5, pointerEvents: "none",
+                          }} />
+                        )}
+
+                        {/* Tooltip — same as price chart */}
+                        {predHoverRow && (
+                          <div style={{
+                            position: "absolute", top: 8, zIndex: 20, pointerEvents: "none",
+                            left: hoverX > (chartWidth - 48) * 0.65 ? undefined : hoverX + 16,
+                            right: hoverX > (chartWidth - 48) * 0.65 ? (chartWidth - 48) - hoverX + 16 : undefined,
+                            background: "#1a1a2eee", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 14px",
+                            fontSize: 12, minWidth: 140,
+                          }}>
+                            <div style={{ color: "#94a3b8", marginBottom: 6, fontFamily: "monospace" }}>{predHoverRow.fullTime}</div>
+                            {brackets
+                              .map((b, i) => ({ b, i, v: predHoverRow[b.condition_id] as number | null }))
+                              .filter(x => x.v != null)
+                              .sort((a, b) => (b.v ?? 0) - (a.v ?? 0))
+                              .map(({ b, i, v }) => (
+                                <div key={b.condition_id} style={{ display: "flex", justifyContent: "space-between", gap: 16, color: COLORS[i % COLORS.length] }}>
+                                  <span>{bracketLabel(b)}</span>
+                                  <span style={{ fontFamily: "monospace", fontWeight: 700 }}>{v}%</span>
+                                </div>
+                              ))
+                            }
+                          </div>
+                        )}
+
+                        <div style={{ background: "#111827", borderRadius: 12, overflow: "hidden" }}>
+                          <LineChart
+                            data={predChartData}
+                            width={chartWidth - 48}
+                            height={CHART_H}
+                            margin={CHART_MARGIN}
+                          >
+                            <XAxis
+                              dataKey="time"
+                              xAxisId="hours"
+                              tick={{ fill: "#475569", fontSize: 11 }}
+                              axisLine={{ stroke: "#1e293b" }}
+                              tickLine={false}
+                              interval="preserveStartEnd"
+                              minTickGap={60}
+                            />
+                            <XAxis
+                              dataKey="ts"
+                              xAxisId="days"
+                              axisLine={false}
+                              tickLine={false}
+                              ticks={(() => {
+                                const seen = new Set<string>();
+                                const dayTicks: number[] = [];
+                                for (const row of predChartData) {
+                                  const d = new Date(row.ts * 1000);
+                                  const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`;
+                                  if (!seen.has(key)) { seen.add(key); dayTicks.push(row.ts); }
+                                }
+                                return dayTicks;
+                              })()}
+                              tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
+                              tickFormatter={(ts: number) => {
+                                const d = new Date(ts * 1000);
+                                return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+                              }}
+                            />
+                            <YAxis
+                              domain={[0, 100]}
+                              tick={{ fill: "#475569", fontSize: 11 }}
+                              axisLine={{ stroke: "#1e293b" }}
+                              tickLine={false}
+                              tickFormatter={(v: number) => `${v}%`}
+                              width={44}
+                            />
+                            <ReferenceLine y={50} stroke="#1e293b" strokeDasharray="4 4" />
+                            {brackets.map((b, i) => {
+                              const isClosed = closedBrackets.has(b.condition_id);
+                              return (
+                                <Line
+                                  key={b.condition_id}
+                                  xAxisId="hours"
+                                  dataKey={b.condition_id}
+                                  stroke={isClosed ? "#334155" : COLORS[i % COLORS.length]}
+                                  strokeWidth={1.5}
+                                  strokeOpacity={isClosed ? 0.25 : 0.7}
+                                  dot={false}
+                                  connectNulls
+                                  isAnimationActive={false}
+                                  strokeDasharray={isClosed ? "4 4" : undefined}
+                                />
+                              );
+                            })}
+                          </LineChart>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Bracket cards: our prob vs market */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 6 }}>
+                      {brackets.map((b, i) => {
+                        const ourProb = latest.probs[b.condition_id] ?? 0;
+                        const pts = prices[b.condition_id] || [];
+                        const marketProb = pts.length > 0 ? Math.round(pts[pts.length - 1].price_yes * 100) : null;
+                        const edge = marketProb != null ? ourProb - marketProb : null;
+                        const edgeColor = edge != null ? (edge > 10 ? "#4ade80" : edge < -10 ? "#f87171" : "#475569") : "#475569";
+                        const color = COLORS[i % COLORS.length];
+                        const isClosed = closedBrackets.has(b.condition_id);
+
+                        return (
+                          <button
+                            key={b.condition_id}
+                            onClick={() => setClosedBrackets(prev => {
+                              const next = new Set(prev);
+                              if (next.has(b.condition_id)) next.delete(b.condition_id); else next.add(b.condition_id);
+                              return next;
+                            })}
+                            style={{
+                              background: isClosed ? "#0a0a0f" : "#111827", borderRadius: 8, padding: "8px 10px",
+                              borderLeft: `3px solid ${isClosed ? "#1e293b" : color}`,
+                              border: "none", textAlign: "left", cursor: "pointer",
+                              opacity: isClosed ? 0.4 : 1,
+                            }}
+                          >
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                              <div style={{ width: 6, height: 6, borderRadius: "50%", background: isClosed ? "#334155" : color }} />
+                              <span style={{ fontSize: 12, fontWeight: 700, color: isClosed ? "#475569" : "#e2e8f0" }}>{bracketLabel(b)}</span>
+                            </div>
+                            <div style={{ fontSize: 16, fontWeight: 700, color: isClosed ? "#334155" : color, fontFamily: "monospace" }}>
+                              {ourProb}%
+                            </div>
+                            {marketProb != null && (
+                              <div style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>
+                                Poly: {marketProb}%
+                                <span style={{ color: isClosed ? "#334155" : edgeColor, fontWeight: 700, marginLeft: 4 }}>
+                                  {edge! > 0 ? "+" : ""}{edge}
+                                </span>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* ── Forecast evolution table (old deterministic, shown for past events) ── */}
+              {forecasts.length > 0 && ensembles.length === 0 && (() => {
+                // Build average MAE per model for sorting
+                const scoreMap: Record<string, { totalMae: number; count: number }> = {};
+                for (const s of modelScores) {
+                  if (!scoreMap[s.model]) scoreMap[s.model] = { totalMae: 0, count: 0 };
+                  scoreMap[s.model].totalMae += s.mae;
+                  scoreMap[s.model].count += 1;
+                }
+                const avgMae = (model: string) => {
+                  const s = scoreMap[model];
+                  return s ? s.totalMae / s.count : Infinity;
+                };
+
+                // Build per-horizon MAE lookup
+                const maeByModelHorizon: Record<string, number> = {};
+                for (const s of modelScores) {
+                  maeByModelHorizon[`${s.model}|${s.horizon}`] = s.mae;
+                }
+
+                const models = [...new Set(forecasts.map(f => f.model))].sort((a, b) => avgMae(a) - avgMae(b));
+                const horizons = [3, 2, 1, 0]; // J-3 → J-0
+
+                const errColor = (err: number | null) => {
+                  if (err == null) return "#475569";
+                  const a = Math.abs(err);
+                  return a <= 1 ? "#4ade80" : a <= 2 ? "#fbbf24" : "#f87171";
+                };
+
+                const fmtErr = (err: number | null) => {
+                  if (err == null) return "\u2014";
+                  return `${err > 0 ? "+" : ""}${err}\u00b0`;
+                };
+
+                // Grid distance + availability times in LOCAL timezone per station
+                // GFS:    runs 00/06/12/18z, avail +3.5h → 03:30/09:30/15:30/21:30 UTC
+                // ECMWF:  runs 00/12z,       avail +6h   → 06:00/18:00 UTC
+                // ICON:   runs 00/06/12/18z, avail +3h   → 03:00/09:00/15:00/21:00 UTC
+                // UKMO:   runs 00/12z,       avail +6h   → 06:00/18:00 UTC
+                // MétéoFr:runs 00/06/12/18z, avail +4h   → 04:00/10:00/16:00/22:00 UTC
+                const MODEL_INFO: Record<string, Record<string, { dist: string; runs: string }>> = {
+                  KLGA: { // EDT UTC-4
+                    gfs:         { dist: "1.4 km",  runs: "23h 05h 11h 17h" },
+                    ecmwf:       { dist: "10.9 km", runs: "02h 14h" },
+                    icon:        { dist: "3.0 km",  runs: "23h 05h 11h 17h" },
+                    ukmo:        { dist: "3.9 km",  runs: "02h 14h" },
+                    meteofrance: { dist: "10.9 km", runs: "00h 06h 12h 18h" },
+                    gem:         { dist: "5.3 km",  runs: "20h 02h 08h 14h" },
+                    jma:         { dist: "1.2 km",  runs: "23h 02h 05h 08h 11h 14h 17h 20h" },
+                    knmi:        { dist: "1.2 km",  runs: "hourly" },
+                  },
+                  EGLC: { // GMT UTC+0
+                    gfs:         { dist: "4.3 km",  runs: "03h 09h 15h 21h" },
+                    ecmwf:       { dist: "3.9 km",  runs: "06h 18h" },
+                    icon:        { dist: "0.7 km",  runs: "03h 09h 15h 21h" },
+                    ukmo:        { dist: "0.9 km",  runs: "06h 18h" },
+                    meteofrance: { dist: "0.6 km",  runs: "04h 10h 16h 22h" },
+                    gem:         { dist: "4.4 km",  runs: "00h 06h 12h 18h" },
+                    jma:         { dist: "2.2 km",  runs: "03h 06h 09h 12h 15h 18h 21h 00h" },
+                    knmi:        { dist: "0.8 km",  runs: "hourly" },
+                  },
+                  RKSI: { // KST UTC+9
+                    gfs:         { dist: "3.5 km",  runs: "12h 18h 00h 06h" },
+                    ecmwf:       { dist: "6.9 km",  runs: "15h 03h" },
+                    icon:        { dist: "19.1 km", runs: "12h 18h 00h 06h" },
+                    ukmo:        { dist: "4.7 km",  runs: "15h 03h" },
+                    meteofrance: { dist: "6.9 km",  runs: "13h 19h 01h 07h" },
+                    gem:         { dist: "5.1 km",  runs: "09h 15h 21h 03h" },
+                    jma:         { dist: "1.9 km",  runs: "12h 15h 18h 21h 00h 03h 06h 09h" },
+                    knmi:        { dist: "0.6 km",  runs: "hourly" },
+                  },
+                };
+
+                return (
+                  <div style={{ marginTop: 20 }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8", marginBottom: 8 }}>
+                      Forecast Evolution
+                    </h3>
+                    <div style={{ background: "#111827", borderRadius: 12, overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, fontFamily: "monospace", minWidth: 600 }}>
+                        <thead>
+                          <tr style={{ borderBottom: "1px solid #1e293b" }}>
+                            <th style={{ padding: "10px 12px", textAlign: "left", color: "#64748b", fontWeight: 600, fontSize: 11 }}>Model</th>
+                            {horizons.map(h => (
+                              <th key={`h${h}`} colSpan={2} style={{ padding: "10px 8px", textAlign: "center", color: "#64748b", fontWeight: 600, fontSize: 11, borderLeft: "1px solid #1e293b" }}>
+                                J-{h}
+                              </th>
+                            ))}
+                            <th style={{ padding: "10px 8px", textAlign: "center", color: "#fbbf24", fontWeight: 600, fontSize: 11, borderLeft: "1px solid #1e293b" }}>Actual</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {models.map(model => {
+                            const modelForecasts = forecasts.filter(f => f.model === model);
+                            const byHorizon: Record<number, GfsForecast> = {};
+                            for (const f of modelForecasts) byHorizon[f.horizon] = f;
+
+                            const info = selectedEvent ? MODEL_INFO[selectedEvent.station]?.[model] : null;
+
+                            return (
+                              <tr key={model} style={{ borderBottom: "1px solid #0f172a" }}>
+                                <td style={{ padding: "10px 12px", fontWeight: 700, color: { gfs: "#60a5fa", ecmwf: "#a78bfa", icon: "#34d399", ukmo: "#fb923c", meteofrance: "#f472b6", gem: "#38bdf8", jma: "#fb7185", knmi: "#a3e635" }[model] ?? "#94a3b8", textTransform: "uppercase", fontSize: 12, minWidth: 120 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                    <span>{model}</span>
+                                    {scoreMap[model] && (() => {
+                                      const avg = avgMae(model);
+                                      const maeColor = avg <= 1.5 ? "#4ade80" : avg <= 2.5 ? "#fbbf24" : "#f87171";
+                                      return (
+                                        <span style={{ fontSize: 10, fontWeight: 700, color: maeColor, background: `${maeColor}20`, padding: "2px 6px", borderRadius: 4, letterSpacing: 0 }}>
+                                          MAE {avg.toFixed(1)}&deg;
+                                        </span>
+                                      );
+                                    })()}
+                                  </div>
+                                  {info && (
+                                    <div style={{ fontSize: 9, color: "#475569", fontWeight: 400, marginTop: 2 }}>
+                                      {info.dist} · {info.runs}
+                                    </div>
+                                  )}
+                                  {(() => {
+                                    const ms = modelScores.find(s => s.model === model && s.horizon === 0);
+                                    return ms ? (
+                                      <div style={{ fontSize: 9, color: "#334155", fontWeight: 400, marginTop: 1 }}>
+                                        {ms.sample_count} comparaisons
+                                      </div>
+                                    ) : null;
+                                  })()}
+                                </td>
+                                {horizons.map(h => {
+                                  const isF = selectedEvent?.station === "KLGA";
+                                  const fc = byHorizon[h];
+                                  const val = (isF && fc?.temp_max_f != null) ? fc.temp_max_f : fc?.temp_max;
+                                  const actual = (isF && tempF != null) ? tempF : tempC;
+                                  const sameUnit = (isF && fc?.temp_max_f != null && tempF != null) || (!isF);
+                                  const err = val != null && actual != null && sameUnit ? +((val - actual).toFixed(1)) : null;
+                                  const histMae = maeByModelHorizon[`${model}|${h}`];
+                                  const histMaeColor = histMae != null ? (histMae <= 1.5 ? "#4ade80" : histMae <= 2.5 ? "#fbbf24" : "#f87171") : undefined;
+                                  return (
+                                    <React.Fragment key={`h${h}`}>
+                                      <td style={{ padding: "6px 8px", textAlign: "center", borderLeft: "1px solid #1e293b", verticalAlign: "middle" }}>
+                                        <div style={{ color: val != null ? "#e2e8f0" : "#334155" }}>
+                                          {val != null ? `${val.toFixed(1)}\u00b0` : "\u2014"}
+                                        </div>
+                                        {histMae != null && (
+                                          <div style={{ fontSize: 9, color: histMaeColor, marginTop: 2, opacity: 0.8 }}>
+                                            MAE {histMae.toFixed(1)}&deg;
+                                          </div>
+                                        )}
+                                      </td>
+                                      <td style={{ padding: "6px 6px", textAlign: "center", color: errColor(err), fontWeight: 700, fontSize: 11, verticalAlign: "top" }}>
+                                        {fmtErr(err)}
+                                      </td>
+                                    </React.Fragment>
+                                  );
+                                })}
+                                {(() => {
+                                  const isF = selectedEvent?.station === "KLGA";
+                                  const actual = (isF && tempF != null) ? tempF : tempC;
+                                  return (
+                                    <td style={{ padding: "10px 8px", textAlign: "center", color: "#fbbf24", fontWeight: 700, borderLeft: "1px solid #1e293b" }}>
+                                      {actual != null ? `${actual.toFixed(1)}\u00b0` : "\u2014"}
+                                    </td>
+                                  );
+                                })()}
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
             </>
           )}
         </div>

@@ -4,6 +4,7 @@
 import json, os, re, sys, time
 import urllib.request
 import urllib.error
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
 # ── Config ──────────────────────────────────────────────────
@@ -170,7 +171,7 @@ def check_new_events():
     _load_key()
 
     req = urllib.request.Request(
-        "https://gamma-api.polymarket.com/events?tag_slug=temperature&limit=100&closed=false",
+        "https://gamma-api.polymarket.com/events?tag_slug=temperature&limit=200&closed=false",
         headers={"User-Agent": UA},
     )
     gamma_events = json.loads(urllib.request.urlopen(req, timeout=30).read())
@@ -249,6 +250,11 @@ def check_new_events():
                 if match:
                     bracket_temp = int(match.group(1))
                     bracket_op = "gte"
+            elif re.search(r"between", q):
+                match = re.search(r"between\s+(-?\d+)\s*[-–]\s*(-?\d+)", q)
+                if match:
+                    bracket_temp = int(match.group(1))
+                    bracket_op = "between"
             else:
                 match = re.search(r"be\s+(-?\d+)\s*°", q)
                 if match:
@@ -345,24 +351,37 @@ def check_resolutions():
                 {"winner": winner, "resolved": True},
             )
 
-        # Fetch WU temperature
+        # Fetch WU temperature (native unit: °F for KLGA, °C for others)
         country = STATIONS.get(station, {}).get("country", "US")
         wu_date = target_date.replace("-", "")
+        is_f = station == "KLGA"
+        wu_units = "e" if is_f else "m"
         try:
             wu_url = (
                 f"https://api.weather.com/v1/location/{station}:9:{country}"
-                f"/observations/historical.json?apiKey={WU_KEY}&units=m&startDate={wu_date}"
+                f"/observations/historical.json?apiKey={WU_KEY}&units={wu_units}&startDate={wu_date}"
             )
             req = urllib.request.Request(wu_url)
             obs = json.loads(urllib.request.urlopen(req, timeout=15).read()).get("observations", [])
             temps = [o["temp"] for o in obs if o.get("temp") is not None]
             if temps:
-                _sb_post("daily_temps", [{
-                    "station": station, "date": target_date,
-                    "temp_max_c": round(max(temps), 1),
-                    "source": "wunderground", "is_polymarket_day": True,
-                }])
-                _log(f"  WU: {max(temps):.1f}°C")
+                if is_f:
+                    temp_f = round(max(temps))
+                    temp_c = round((temp_f - 32) / 1.8, 1)
+                    row = {
+                        "station": station, "date": target_date,
+                        "temp_max_f": temp_f, "temp_max_c": temp_c,
+                        "source": "wunderground", "is_polymarket_day": True,
+                    }
+                    _log(f"  WU: {temp_f}°F ({temp_c}°C)")
+                else:
+                    row = {
+                        "station": station, "date": target_date,
+                        "temp_max_c": round(max(temps), 1),
+                        "source": "wunderground", "is_polymarket_day": True,
+                    }
+                    _log(f"  WU: {max(temps):.1f}°C")
+                _sb_post("daily_temps", [row])
         except Exception:
             _log(f"  WU: erreur fetch")
 
@@ -450,10 +469,165 @@ def backfill_gap():
     _log(f"backfill: DONE +{total_new} points")
 
 
-# ── 5. run_all ─────────────────────────────────────────────
+# ── 5. refresh_forecasts ──────────────────────────────────
+
+FORECAST_STATIONS = {
+    "KLGA": {"lat": 40.7769, "lon": -73.8740, "tz": "America/New_York"},
+    "EGLC": {"lat": 51.5053, "lon": -0.0553, "tz": "Europe/London"},
+    "RKSI": {"lat": 37.4602, "lon": 126.4407, "tz": "Asia/Seoul"},
+}
+
+FORECAST_MODELS = {
+    "gfs_seamless": "gfs",
+    "ecmwf_ifs025": "ecmwf",
+    "icon_seamless": "icon",
+    "ukmo_seamless": "ukmo",
+    "meteofrance_seamless": "meteofrance",
+    "gem_seamless": "gem",
+    "jma_seamless": "jma",
+    "knmi_seamless": "knmi",
+}
+
+HOURLY_VARS = (
+    "temperature_2m,"
+    "temperature_2m_previous_day1,"
+    "temperature_2m_previous_day2,"
+    "temperature_2m_previous_day3"
+)
+
+OFFSET_MAP = {
+    "temperature_2m": 0,
+    "temperature_2m_previous_day1": 1,
+    "temperature_2m_previous_day2": 2,
+    "temperature_2m_previous_day3": 3,
+}
+
+
+def refresh_forecasts():
+    """Fetch fresh forecasts from Open-Meteo for all open poly_events."""
+    _load_key()
+
+    open_events = _sb_get(
+        "poly_events?closed=eq.false&select=station,target_date"
+    )
+    if not open_events:
+        _log("forecasts: no open events")
+        return
+
+    # Group dates by station
+    station_dates = {}
+    for ev in open_events:
+        st = ev["station"]
+        if st not in station_dates:
+            station_dates[st] = set()
+        station_dates[st].add(ev["target_date"])
+
+    today = datetime.now(timezone.utc).date()
+    total_rows = 0
+
+    for station, dates in station_dates.items():
+        cfg = FORECAST_STATIONS.get(station)
+        if not cfg:
+            continue
+
+        sorted_dates = sorted(dates)
+        min_d = datetime.strptime(sorted_dates[0], "%Y-%m-%d").date() - timedelta(days=3)
+        max_d = datetime.strptime(sorted_dates[-1], "%Y-%m-%d").date()
+        start_date = str(min_d)
+        end_date = str(max_d)
+        is_f = station == "KLGA"
+
+        for om_model, db_model in FORECAST_MODELS.items():
+            try:
+                unit_param = "&temperature_unit=fahrenheit" if is_f else ""
+                url = (
+                    f"https://previous-runs-api.open-meteo.com/v1/forecast"
+                    f"?latitude={cfg['lat']}&longitude={cfg['lon']}"
+                    f"&hourly={HOURLY_VARS}"
+                    f"&timezone={cfg['tz']}"
+                    f"&start_date={start_date}&end_date={end_date}"
+                    f"&models={om_model}{unit_param}"
+                )
+                req = urllib.request.Request(url)
+                resp = urllib.request.urlopen(req, timeout=120)
+                data = json.loads(resp.read())
+                hourly = data.get("hourly", {})
+                time_arr = hourly.get("time", [])
+                if not time_arr:
+                    continue
+
+                # Compute daily max per horizon
+                daily_max = {}
+                for var_name, offset in OFFSET_MAP.items():
+                    vals = hourly.get(var_name, [])
+                    if not vals:
+                        continue
+
+                    daily = defaultdict(list)
+                    for i, ts in enumerate(time_arr):
+                        if i >= len(vals) or vals[i] is None:
+                            continue
+                        daily[ts[:10]].append(vals[i])
+
+                    for date_str, temps in daily.items():
+                        target = datetime.strptime(date_str, "%Y-%m-%d").date()
+                        if target <= today:
+                            real_horizon = offset
+                        else:
+                            real_horizon = (target - today).days + offset
+                        if real_horizon > 3:
+                            continue
+
+                        if date_str not in daily_max:
+                            daily_max[date_str] = {}
+                        daily_max[date_str][real_horizon] = round(max(temps), 2)
+
+                # Build rows for event dates only
+                rows = []
+                for date_str, horizons in daily_max.items():
+                    if date_str not in dates:
+                        continue
+                    for horizon, temp in horizons.items():
+                        row = {
+                            "station": station,
+                            "target_date": date_str,
+                            "horizon": horizon,
+                            "model": db_model,
+                            "temp_max": temp,
+                        }
+                        if is_f:
+                            row["temp_max_f"] = round(temp, 1)
+                        rows.append(row)
+
+                if rows:
+                    headers = {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": f"Bearer {SUPABASE_KEY}",
+                        "Content-Type": "application/json",
+                        "Prefer": "resolution=merge-duplicates",
+                    }
+                    for bi in range(0, len(rows), 500):
+                        batch = rows[bi:bi+500]
+                        body = json.dumps(batch).encode()
+                        req = urllib.request.Request(
+                            f"{SUPABASE_URL}/rest/v1/gfs_forecasts?on_conflict=station,target_date,horizon,model",
+                            data=body, headers=headers, method="POST",
+                        )
+                        urllib.request.urlopen(req, timeout=60)
+                    total_rows += len(rows)
+                    _log(f"  forecasts: {station}/{db_model} +{len(rows)} rows")
+
+                time.sleep(0.5)
+            except Exception as e:
+                _log(f"  forecasts: {station}/{db_model} error: {e}")
+
+    _log(f"forecasts: {total_rows} total rows upserted")
+
+
+# ── 6. run_all ─────────────────────────────────────────────
 
 def run_all():
-    """Single cron entry: prices + resolutions + events (once/day)."""
+    """Single cron entry: prices + resolutions + events + forecasts + scores."""
     _load_key()
 
     # Always: fetch prices for open markets
@@ -468,13 +642,21 @@ def run_all():
     except Exception as e:
         _log(f"ERROR resolutions: {e}")
 
-    # Once per day (~10:30 UTC): check new events
     now = _now()
-    if now.hour == 10 and now.minute < 10:
+
+    # Check new events
+    try:
+        check_new_events()
+    except Exception as e:
+        _log(f"ERROR events: {e}")
+
+    # Hourly: refresh ensemble forecasts (143 members)
+    if now.minute < 10:
         try:
-            check_new_events()
+            from fetch_ensembles import fetch_ensembles
+            fetch_ensembles()
         except Exception as e:
-            _log(f"ERROR events: {e}")
+            _log(f"ERROR ensembles: {e}")
 
 
 # ── CLI ─────────────────────────────────────────────────────
@@ -492,6 +674,12 @@ if __name__ == "__main__":
         check_resolutions()
     elif cmd == "backfill":
         backfill_gap()
+    elif cmd == "scores":
+        from compute_scores import compute_model_scores
+        compute_model_scores()
+    elif cmd == "ensembles":
+        from fetch_ensembles import fetch_ensembles
+        fetch_ensembles()
     else:
-        print(f"Usage: python3 pipeline.py [all|prices|events|resolutions|backfill]")
+        print(f"Usage: python3 pipeline.py [all|prices|events|resolutions|backfill|scores|ensembles]")
         sys.exit(1)
