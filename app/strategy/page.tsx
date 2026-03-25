@@ -1,220 +1,334 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SB = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const H = { apikey: KEY, Authorization: `Bearer ${KEY}` };
 
-interface BestStrategy {
-  updated_at: string; status: string; message?: string; n_markets?: number;
-  best_strategy?: {
-    lead_days: number; min_edge: number; bracket_type: string; direction: string;
-    min_liquidity: number; win_rate: number; pnl_per_100: number; sharpe: number;
-    n_trades: number; confidence: string; max_drawdown: number;
-  };
-  by_city?: Record<string, { win_rate: number; n: number; best_lead: number; bias: number }>;
-  horizon_analysis?: Record<string, { win_rate: number; n: number; pnl: number }>;
-  all_strategies?: Array<{
-    id: number; lead_days: number; min_edge: number; bracket_type: string;
-    direction: string; min_liquidity: number; win_rate: number; pnl_total: number;
-    sharpe: number; n_trades: number; max_drawdown: number;
-  }>;
+async function sb<T = any>(path: string): Promise<T> {
+  const r = await fetch(`${SB}/rest/v1/${path}`, { headers: H });
+  if (!r.ok) return [] as unknown as T;
+  return r.json();
+}
+
+async function sbAll<T = any>(path: string): Promise<T[]> {
+  const all: T[] = [];
+  let offset = 0;
+  while (true) {
+    const sep = path.includes("?") ? "&" : "?";
+    const batch: T[] = await sb(`${path}${sep}limit=1000&offset=${offset}`);
+    all.push(...batch);
+    if (batch.length < 1000) break;
+    offset += 1000;
+  }
+  return all;
+}
+
+interface Event {
+  event_id: string;
+  station: string;
+  city: string;
+  target_date: string;
+  closed: boolean;
+}
+
+interface Bracket {
+  condition_id: string;
+  station: string;
+  date: string;
+  bracket_temp: number;
+  bracket_op: string;
+  bracket_str: string;
+  volume: number;
+}
+
+interface PricePoint { ts: number; price_yes: number }
+
+interface EnsembleMember {
+  temp_max: number | null;
+  fetch_ts: string;
+  ensemble_model: string;
+  member_id: number;
+}
+
+interface Signal {
+  station: string;
+  city: string;
+  target_date: string;
+  bracket_temp: number;
+  bracket_op: string;
+  bracket_str: string;
+  condition_id: string;
+  our_prob: number;
+  market_price: number;
+  edge: number;
+  confidence: number;
+  horizon: number;
+  volume: number;
+}
+
+const CITIES: Record<string, { name: string; flag: string }> = {
+  EGLC: { name: "London", flag: "\u{1F1EC}\u{1F1E7}" },
+  KLGA: { name: "NYC", flag: "\u{1F1FA}\u{1F1F8}" },
+  RKSI: { name: "Seoul", flag: "\u{1F1F0}\u{1F1F7}" },
+};
+
+function bracketLabel(op: string, temp: number) {
+  if (op === "lte") return `\u2264${temp}\u00b0`;
+  if (op === "gte") return `\u2265${temp}\u00b0`;
+  if (op === "between") return `${temp}-${temp + 1}\u00b0`;
+  return `${temp}\u00b0`;
 }
 
 export default function StrategyPage() {
-  const [data, setData] = useState<BestStrategy | null>(null);
-  const [sortBy, setSortBy] = useState<"sharpe" | "win_rate" | "pnl_total">("sharpe");
+  const [signals, setSignals] = useState<Signal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [minEdge, setMinEdge] = useState(10);
+  const [minConf, setMinConf] = useState(50);
 
   useEffect(() => {
-    // Primary: fetch from Supabase kv_cache
-    if (SB_URL && SB_KEY) {
-      fetch(`${SB_URL}/rest/v1/kv_cache?key=eq.backtest_output&select=value`, {
-        headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` },
-      })
-        .then(r => r.json())
-        .then((rows: Array<{ value: BestStrategy }>) => {
-          if (rows.length > 0 && rows[0].value) {
-            setData(rows[0].value);
-          }
-        })
-        .catch(() => {
-          // No fallback — V2 clean state
-        });
-    } else {
-      // No Supabase configured — show empty state
-    }
+    loadSignals();
   }, []);
 
-  const pending = !data || data.status === "pending";
+  async function loadSignals() {
+    setLoading(true);
+    try {
+      // Get open events
+      const events = await sb<Event[]>(
+        "poly_events?closed=eq.false&select=event_id,station,city,target_date&order=target_date"
+      );
+
+      const allSignals: Signal[] = [];
+      const today = new Date().toISOString().slice(0, 10);
+
+      for (const ev of events) {
+        // Get brackets for this event
+        const brackets = await sb<Bracket[]>(
+          `poly_markets?poly_event_id=eq.${ev.event_id}&select=condition_id,station,date,bracket_temp,bracket_op,bracket_str,volume&order=bracket_temp`
+        );
+
+        // Get latest price for each bracket
+        const bracketPrices: Record<string, number> = {};
+        for (const b of brackets) {
+          const pts = await sb<PricePoint[]>(
+            `price_history?condition_id=eq.${b.condition_id}&select=ts,price_yes&order=ts.desc&limit=1`
+          );
+          if (pts.length > 0) {
+            bracketPrices[b.condition_id] = Math.round(pts[0].price_yes * 100);
+          }
+        }
+
+        // Get ensemble data
+        const ensembles = await sbAll<EnsembleMember>(
+          `ensemble_forecasts?station=eq.${ev.station}&target_date=eq.${ev.target_date}&select=temp_max,fetch_ts,ensemble_model,member_id&order=fetch_ts.desc`
+        );
+
+        if (ensembles.length === 0) continue;
+
+        // Use latest snapshot
+        const latestTs = ensembles[0].fetch_ts;
+        const members = ensembles.filter(e => e.fetch_ts === latestTs && e.temp_max != null);
+        if (members.length === 0) continue;
+
+        const total = members.length;
+
+        // Confidence: top 2 brackets concentration
+        const votes: Record<number, number> = {};
+        for (const m of members) {
+          const t = Math.round(m.temp_max!);
+          votes[t] = (votes[t] || 0) + 1;
+        }
+        const sorted = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+        const top1 = sorted[0] ? sorted[0][1] : 0;
+        const top2 = sorted[1] ? sorted[1][1] : 0;
+        const confidence = Math.round(((top1 + top2) / total) * 100);
+
+        // Horizon
+        const targetD = new Date(ev.target_date + "T00:00:00Z");
+        const todayD = new Date(today + "T00:00:00Z");
+        const horizon = Math.round((targetD.getTime() - todayD.getTime()) / 86400000);
+
+        // Compute probability per bracket
+        for (const b of brackets) {
+          const matching = members.filter(m => {
+            const t = Math.round(m.temp_max!);
+            if (b.bracket_op === "lte") return t <= b.bracket_temp;
+            if (b.bracket_op === "gte") return t >= b.bracket_temp;
+            if (b.bracket_op === "between") return t >= b.bracket_temp && t <= b.bracket_temp + 1;
+            return t === b.bracket_temp;
+          }).length;
+
+          const ourProb = Math.round((matching / total) * 100);
+          const marketPrice = bracketPrices[b.condition_id] ?? 0;
+          const edge = ourProb - marketPrice;
+
+          allSignals.push({
+            station: ev.station,
+            city: CITIES[ev.station]?.name || ev.station,
+            target_date: ev.target_date,
+            bracket_temp: b.bracket_temp,
+            bracket_op: b.bracket_op,
+            bracket_str: b.bracket_str,
+            condition_id: b.condition_id,
+            our_prob: ourProb,
+            market_price: marketPrice,
+            edge,
+            confidence,
+            horizon,
+            volume: b.volume,
+          });
+        }
+      }
+
+      setSignals(allSignals);
+    } catch (e) {
+      console.error(e);
+    }
+    setLoading(false);
+  }
+
+  // Filter and sort
+  const filtered = signals
+    .filter(s => Math.abs(s.edge) >= minEdge && s.confidence >= minConf)
+    .sort((a, b) => Math.abs(b.edge) - Math.abs(a.edge));
+
+  const buys = filtered.filter(s => s.edge > 0);
+  const sells = filtered.filter(s => s.edge < 0);
+
+  // Stats
+  const avgEdge = filtered.length > 0 ? filtered.reduce((s, x) => s + Math.abs(x.edge), 0) / filtered.length : 0;
+  const avgConf = filtered.length > 0 ? filtered.reduce((s, x) => s + x.confidence, 0) / filtered.length : 0;
 
   return (
-    <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
-      <div className="max-w-5xl mx-auto">
-
-        {/* Header */}
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111827", margin: 0 }}>🧠 Strategy Arena</h1>
-          <p style={{ color: "#6b7280", marginTop: 4, fontSize: 14 }}>
-            Backtest automatique · Optimisation en continu
-          </p>
+    <div style={{ background: "#0a0a0f", minHeight: "100vh", color: "#e2e8f0" }}>
+      {/* Header */}
+      <div style={{ padding: "20px 24px", borderBottom: "1px solid #1e293b" }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Strategie</h1>
+        <div style={{ fontSize: 12, color: "#475569", marginTop: 4 }}>
+          Signaux actifs depuis 143 membres ensemble &middot; {signals.length} brackets analyses
         </div>
+      </div>
 
-        {pending ? (
-          /* État en attente */
-          <div style={{ background: "#fff", borderRadius: 16, padding: 40, textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>⚙️</div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: "#111827" }}>Aucune donnée</h2>
-            <p style={{ color: "#6b7280", marginTop: 8, maxWidth: 400, margin: "8px auto 0" }}>
-              {data?.message || "V2 en cours de construction. Les résultats de backtest seront disponibles après la collecte et l'analyse des données."}
-            </p>
-            <div style={{ marginTop: 24, background: "#f3f4f6", borderRadius: 12, padding: 20, display: "inline-block", textAlign: "left" }}>
-              <div style={{ fontSize: 13, color: "#374151", fontFamily: "monospace" }}>
-                <div>✅ {data?.n_markets?.toLocaleString() || "—"} marchés chargés</div>
-                <div>✅ Températures WU collectées</div>
-                <div>✅ Prévisions GFS J-0/J-1/J-2/J-3</div>
-                <div style={{ color: "#ca8a04" }}>⏳ backtest.py — en cours…</div>
-              </div>
+      <div style={{ padding: "20px 24px", maxWidth: 1000, margin: "0 auto" }}>
+        {/* Params */}
+        <div style={{ display: "flex", gap: 16, marginBottom: 20, flexWrap: "wrap" }}>
+          <div style={{ background: "#111827", borderRadius: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 12, color: "#64748b" }}>Edge min</span>
+            <select value={minEdge} onChange={e => setMinEdge(Number(e.target.value))}
+              style={{ background: "#1e293b", border: "none", color: "#e2e8f0", borderRadius: 6, padding: "4px 8px", fontSize: 13 }}>
+              {[0, 5, 10, 15, 20, 30].map(v => <option key={v} value={v}>{v}%</option>)}
+            </select>
+          </div>
+          <div style={{ background: "#111827", borderRadius: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 12, color: "#64748b" }}>Confiance min</span>
+            <select value={minConf} onChange={e => setMinConf(Number(e.target.value))}
+              style={{ background: "#1e293b", border: "none", color: "#e2e8f0", borderRadius: 6, padding: "4px 8px", fontSize: 13 }}>
+              {[0, 25, 50, 70, 80, 90].map(v => <option key={v} value={v}>{v}%</option>)}
+            </select>
+          </div>
+          <div style={{ background: "#111827", borderRadius: 10, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#4ade80" }}>{buys.length}</div>
+              <div style={{ fontSize: 10, color: "#475569" }}>BUY</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#f87171" }}>{sells.length}</div>
+              <div style={{ fontSize: 10, color: "#475569" }}>SELL</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#60a5fa" }}>{avgEdge.toFixed(0)}%</div>
+              <div style={{ fontSize: 10, color: "#475569" }}>Edge moy</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#fbbf24" }}>{avgConf.toFixed(0)}%</div>
+              <div style={{ fontSize: 10, color: "#475569" }}>Conf moy</div>
             </div>
           </div>
+        </div>
+
+        {loading ? (
+          <div style={{ textAlign: "center", padding: 60, color: "#475569" }}>Analyse en cours...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: "center", padding: 60, color: "#334155" }}>
+            <div style={{ fontSize: 40, marginBottom: 8 }}>🔍</div>
+            <div>Aucun signal avec ces filtres</div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>Baisse le seuil d&apos;edge ou de confiance</div>
+          </div>
         ) : (
-          <>
-            {/* Meilleure stratégie */}
-            {data?.best_strategy && (
-              <div style={{ background: "linear-gradient(135deg, #1d4ed8, #7c3aed)", borderRadius: 16, padding: 28, color: "#fff", marginBottom: 24, boxShadow: "0 4px 20px rgba(29,78,216,0.3)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-                  <div>
-                    <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 4 }}>🏆 STRATÉGIE OPTIMALE ACTUELLE</div>
-                    <div style={{ fontSize: 28, fontWeight: 700 }}>
-                      {(data.best_strategy.win_rate * 100).toFixed(1)}% WR · +${data.best_strategy.pnl_per_100?.toFixed(0)}/100 trades
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {filtered.map(s => {
+              const isBuy = s.edge > 0;
+              const edgeColor = Math.abs(s.edge) >= 20 ? (isBuy ? "#4ade80" : "#f87171") : Math.abs(s.edge) >= 10 ? (isBuy ? "#86efac" : "#fca5a5") : "#94a3b8";
+              const confColor = s.confidence >= 75 ? "#4ade80" : s.confidence >= 50 ? "#fbbf24" : "#f87171";
+              const cityInfo = CITIES[s.station];
+
+              return (
+                <div key={s.condition_id} style={{
+                  background: "#111827", borderRadius: 12, padding: "14px 16px",
+                  borderLeft: `4px solid ${isBuy ? "#4ade80" : "#f87171"}`,
+                  display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap",
+                }}>
+                  {/* City + date */}
+                  <div style={{ minWidth: 120 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>
+                      {cityInfo?.flag} {s.city}
                     </div>
-                    <div style={{ marginTop: 8, fontSize: 14, opacity: 0.9 }}>
-                      Sharpe {data.best_strategy.sharpe?.toFixed(2)} · {data.best_strategy.n_trades} trades · Max DD ${Math.abs(data.best_strategy.max_drawdown || 0).toFixed(0)}
+                    <div style={{ fontSize: 11, color: "#475569" }}>
+                      {new Date(s.target_date + "T12:00:00Z").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
+                      <span style={{ marginLeft: 6, color: "#334155" }}>J-{s.horizon}</span>
                     </div>
                   </div>
-                  <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "12px 20px", fontSize: 13 }}>
-                    <div>⏱ Horizon : <strong>J-{data.best_strategy.lead_days}</strong></div>
-                    <div>📐 Edge min : <strong>{data.best_strategy.min_edge}%</strong></div>
-                    <div>🎯 Type : <strong>{data.best_strategy.bracket_type}</strong></div>
-                    <div>💧 Liq min : <strong>${data.best_strategy.min_liquidity}</strong></div>
-                    <div>↕️ Direction : <strong>{data.best_strategy.direction}</strong></div>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* Analyse par horizon */}
-            {data?.horizon_analysis && (
-              <div style={{ background: "#fff", borderRadius: 12, padding: 20, marginBottom: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
-                <h2 style={{ fontSize: 16, fontWeight: 600, color: "#111827", margin: "0 0 16px" }}>📅 Win rate par horizon temporel</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
-                  {Object.entries(data.horizon_analysis).sort().map(([h, v]) => (
-                    <div key={h} style={{ background: "#f9fafb", borderRadius: 10, padding: "14px 16px", textAlign: "center" }}>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: v.win_rate >= 0.55 ? "#16a34a" : v.win_rate >= 0.5 ? "#ca8a04" : "#dc2626" }}>
-                        {(v.win_rate * 100).toFixed(1)}%
-                      </div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>{h}</div>
-                      <div style={{ fontSize: 12, color: "#6b7280" }}>{v.n} trades</div>
-                      <div style={{ fontSize: 12, color: v.pnl >= 0 ? "#16a34a" : "#dc2626" }}>{v.pnl >= 0 ? "+" : ""}{v.pnl?.toFixed(0)}$</div>
+                  {/* Bracket */}
+                  <div style={{ minWidth: 70, textAlign: "center" }}>
+                    <div style={{ fontSize: 16, fontWeight: 700 }}>{bracketLabel(s.bracket_op, s.bracket_temp)}</div>
+                    <div style={{ fontSize: 10, color: "#475569" }}>${Math.round(s.volume).toLocaleString()}</div>
+                  </div>
+
+                  {/* Our prob vs market */}
+                  <div style={{ flex: 1, minWidth: 150 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#475569", marginBottom: 4 }}>
+                      <span>Modeles {s.our_prob}%</span>
+                      <span>Marche {s.market_price}%</span>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
+                    <div style={{ display: "flex", height: 6, borderRadius: 3, overflow: "hidden", background: "#1e293b" }}>
+                      <div style={{ width: `${s.our_prob}%`, background: "#60a5fa", borderRadius: 3 }} />
+                    </div>
+                    <div style={{ display: "flex", height: 6, borderRadius: 3, overflow: "hidden", background: "#1e293b", marginTop: 2 }}>
+                      <div style={{ width: `${s.market_price}%`, background: "#f97316", borderRadius: 3 }} />
+                    </div>
+                  </div>
 
-            {/* Win rate par ville */}
-            {data?.by_city && (
-              <div style={{ background: "#fff", borderRadius: 12, padding: 20, marginBottom: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
-                <h2 style={{ fontSize: 16, fontWeight: 600, color: "#111827", margin: "0 0 16px" }}>🌍 Performance par ville</h2>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                    <thead>
-                      <tr style={{ borderBottom: "2px solid #e5e7eb" }}>
-                        {["Ville", "WR", "N trades", "Meilleur horizon", "Biais GFS"].map(h => (
-                          <th key={h} style={{ padding: "8px 12px", textAlign: "left", color: "#6b7280", fontWeight: 600 }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Object.entries(data.by_city).sort((a, b) => b[1].win_rate - a[1].win_rate).map(([city, v], i) => (
-                        <tr key={city} style={{ borderBottom: "1px solid #f3f4f6", background: i % 2 === 0 ? "#fff" : "#f9fafb" }}>
-                          <td style={{ padding: "10px 12px", fontWeight: 600, color: "#111827" }}>{city}</td>
-                          <td style={{ padding: "10px 12px", fontWeight: 700, color: v.win_rate >= 0.55 ? "#16a34a" : v.win_rate >= 0.5 ? "#ca8a04" : "#dc2626" }}>
-                            {(v.win_rate * 100).toFixed(1)}%
-                          </td>
-                          <td style={{ padding: "10px 12px", color: "#6b7280" }}>{v.n}</td>
-                          <td style={{ padding: "10px 12px" }}>
-                            <span style={{ background: "#dbeafe", color: "#1d4ed8", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
-                              J-{v.best_lead}
-                            </span>
-                          </td>
-                          <td style={{ padding: "10px 12px", color: Math.abs(v.bias) <= 1 ? "#16a34a" : "#dc2626" }}>
-                            {v.bias > 0 ? "+" : ""}{v.bias?.toFixed(1)}°C
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+                  {/* Edge */}
+                  <div style={{ textAlign: "center", minWidth: 60 }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: edgeColor, fontFamily: "monospace" }}>
+                      {s.edge > 0 ? "+" : ""}{s.edge}%
+                    </div>
+                    <div style={{ fontSize: 10, color: "#475569" }}>edge</div>
+                  </div>
 
-            {/* Toutes les stratégies */}
-            {data?.all_strategies && data.all_strategies.length > 0 && (
-              <div style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                  <h2 style={{ fontSize: 16, fontWeight: 600, color: "#111827", margin: 0 }}>
-                    🔬 Toutes les stratégies testées ({data.all_strategies.length})
-                  </h2>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    {(["sharpe", "win_rate", "pnl_total"] as const).map(s => (
-                      <button key={s} onClick={() => setSortBy(s)} style={{
-                        padding: "5px 12px", borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12, fontWeight: 600, cursor: "pointer",
-                        background: sortBy === s ? "#2563eb" : "#f9fafb", color: sortBy === s ? "#fff" : "#374151"
-                      }}>
-                        {s === "sharpe" ? "Sharpe" : s === "win_rate" ? "WR" : "PnL"}
-                      </button>
-                    ))}
+                  {/* Confidence */}
+                  <div style={{ textAlign: "center", minWidth: 50 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: confColor, fontFamily: "monospace" }}>
+                      {s.confidence}%
+                    </div>
+                    <div style={{ fontSize: 10, color: "#475569" }}>conf</div>
+                  </div>
+
+                  {/* Action */}
+                  <div style={{
+                    background: isBuy ? "#052e16" : "#450a0a",
+                    color: isBuy ? "#4ade80" : "#f87171",
+                    padding: "6px 14px", borderRadius: 8,
+                    fontSize: 12, fontWeight: 800,
+                  }}>
+                    {isBuy ? "BUY" : "SELL"}
                   </div>
                 </div>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                    <thead>
-                      <tr style={{ borderBottom: "2px solid #e5e7eb" }}>
-                        {["#", "Horizon", "Edge min", "Type", "Direction", "Liq", "WR", "PnL/100", "Sharpe", "N"].map(h => (
-                          <th key={h} style={{ padding: "6px 10px", textAlign: "left", color: "#6b7280", fontWeight: 600 }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[...data.all_strategies]
-                        .sort((a, b) => (b[sortBy] as number) - (a[sortBy] as number))
-                        .slice(0, 50)
-                        .map((s, i) => (
-                          <tr key={s.id} style={{ borderBottom: "1px solid #f3f4f6", background: i === 0 ? "#f0fdf4" : i % 2 === 0 ? "#fff" : "#f9fafb" }}>
-                            <td style={{ padding: "8px 10px", color: "#6b7280" }}>{i === 0 ? "🏆" : i + 1}</td>
-                            <td style={{ padding: "8px 10px" }}><span style={{ background: "#dbeafe", color: "#1d4ed8", padding: "1px 6px", borderRadius: 8, fontWeight: 600 }}>J-{s.lead_days}</span></td>
-                            <td style={{ padding: "8px 10px" }}>{s.min_edge}%</td>
-                            <td style={{ padding: "8px 10px" }}>{s.bracket_type}</td>
-                            <td style={{ padding: "8px 10px" }}>{s.direction}</td>
-                            <td style={{ padding: "8px 10px" }}>${s.min_liquidity}</td>
-                            <td style={{ padding: "8px 10px", fontWeight: 700, color: s.win_rate >= 0.55 ? "#16a34a" : s.win_rate >= 0.5 ? "#ca8a04" : "#dc2626" }}>
-                              {(s.win_rate * 100).toFixed(1)}%
-                            </td>
-                            <td style={{ padding: "8px 10px", color: s.pnl_total >= 0 ? "#16a34a" : "#dc2626" }}>{s.pnl_total >= 0 ? "+" : ""}{s.pnl_total?.toFixed(0)}$</td>
-                            <td style={{ padding: "8px 10px", fontWeight: 600 }}>{s.sharpe?.toFixed(2)}</td>
-                            <td style={{ padding: "8px 10px", color: "#6b7280" }}>{s.n_trades}</td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </>
+              );
+            })}
+          </div>
         )}
-
-        <p style={{ textAlign: "center", color: "#9ca3af", fontSize: 12, marginTop: 24 }}>
-          {data && `Mis à jour : ${new Date(data.updated_at).toLocaleString("fr-FR")}`}
-        </p>
       </div>
     </div>
   );

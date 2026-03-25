@@ -1,333 +1,347 @@
 "use client";
+import { useEffect, useState } from "react";
 
-import { useEffect, useRef, useState } from "react";
+const SB = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const H = { apikey: KEY, Authorization: `Bearer ${KEY}` };
 
-const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+async function sb<T = any>(path: string): Promise<T> {
+  const r = await fetch(`${SB}/rest/v1/${path}`, { headers: H });
+  if (!r.ok) return [] as unknown as T;
+  return r.json();
+}
 
-interface Trade {
-  condition_id: string;
+interface ResolvedEvent {
+  event_id: string;
+  station: string;
   city: string;
+  target_date: string;
+}
+
+interface ResolvedBracket {
+  condition_id: string;
+  bracket_temp: number;
+  bracket_op: string;
+  bracket_str: string;
+  winner: string | null;
+  volume: number;
+  poly_event_id: string;
+}
+
+interface DailyTemp {
+  station: string;
   date: string;
-  bracket: string;
-  direction: "YES" | "NO";
-  gfs_prob: number;
-  market_prob: number;
+  temp_max_c: number | null;
+  temp_max_f: number | null;
+}
+
+interface Forecast {
+  model: string;
+  horizon: number;
+  temp_max: number | null;
+  temp_max_f: number | null;
+}
+
+interface PastTrade {
+  city: string;
+  station: string;
+  target_date: string;
+  bracket_str: string;
+  bracket_temp: number;
+  bracket_op: string;
+  our_prob: number;
+  market_price: number;
   edge: number;
-  entry_price: number;
-  amount: number;
-  result: "pending" | "win" | "loss";
-  pnl: number | null;
-  question: string;
-  event_title: string;
-  poly_url: string;
-  wunderground: string;
+  direction: "BUY" | "SELL";
+  winner: string | null;
+  outcome: "win" | "loss" | "skip";
+  pnl: number;
+  actual_temp: number | null;
 }
 
-interface Stats {
-  total_trades: number;
-  pending: number;
-  wins: number;
-  losses: number;
-  win_rate: number | null;
-  total_pnl: number;
-  roi: number | null;
-  paper_amount: number;
-}
+const CITIES: Record<string, string> = { EGLC: "London", KLGA: "NYC", RKSI: "Seoul" };
 
-interface Results {
-  updated_at: string;
-  stats: Stats;
-  city_stats: Record<string, { wins: number; losses: number; pnl: number }>;
-  trades: Trade[];
+function bracketLabel(op: string, temp: number) {
+  if (op === "lte") return `\u2264${temp}\u00b0`;
+  if (op === "gte") return `\u2265${temp}\u00b0`;
+  if (op === "between") return `${temp}-${temp + 1}\u00b0`;
+  return `${temp}\u00b0`;
 }
-
-const PAGE_SIZE = 20;
 
 export default function ResultsPage() {
-  const [data, setData]         = useState<Results | null>(null);
-  const [loading, setLoading]   = useState(true);
-  const [dirFilter, setDir]     = useState<"ALL" | "YES" | "NO">("ALL");
-  const [resultFilter, setRes]  = useState<"all" | "pending" | "win" | "loss">("all");
-  const [edgeMin, setEdge]      = useState(5);
-  const [dateFilter, setDate]   = useState("ALL");
-  const [cityFilter, setCity]   = useState("ALL");
-  const [page, setPage]         = useState(1);
-  const loaderRef               = useRef<HTMLDivElement>(null);
+  const [trades, setTrades] = useState<PastTrade[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [cityFilter, setCityFilter] = useState("ALL");
+  const [minEdge, setMinEdge] = useState(10);
 
-  const load = () => {
-    setLoading(true);
-
-    // Primary: fetch from Supabase kv_cache
-    if (SB_URL && SB_KEY) {
-      fetch(`${SB_URL}/rest/v1/kv_cache?key=eq.tracker_output&select=value`, {
-        headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` },
-      })
-        .then(r => r.json())
-        .then((rows: Array<{ value: Results }>) => {
-          if (rows.length > 0 && rows[0].value) {
-            setData(rows[0].value);
-          }
-          setLoading(false);
-        })
-        .catch(() => {
-          // No fallback — V2 clean state
-          setLoading(false);
-        });
-    } else {
-      // No Supabase configured — show empty state
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { load(); }, []);
-  useEffect(() => { setPage(1); }, [dirFilter, resultFilter, edgeMin, dateFilter, cityFilter]);
-
-  // Infinite scroll
   useEffect(() => {
-    const el = loaderRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) setPage(p => p + 1);
-    }, { threshold: 0.1 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [data]);
+    loadResults();
+  }, []);
 
-  if (loading) return <div className="p-8 text-gray-400 text-sm text-center">Chargement...</div>;
-  if (!data) return (
-    <main className="min-h-screen p-4 md:p-8" style={{ background: "#f3f4f6" }}>
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-          <div className="text-4xl mb-4">🚧</div>
-          <p className="text-lg font-medium text-gray-500">Aucune donnée</p>
-          <p className="text-sm mt-1">V2 en cours de construction</p>
-        </div>
-      </div>
-    </main>
-  );
+  async function loadResults() {
+    setLoading(true);
+    try {
+      // Get resolved events
+      const events = await sb<ResolvedEvent[]>(
+        "poly_events?closed=eq.true&select=event_id,station,city,target_date&order=target_date.desc&limit=200"
+      );
 
-  const { stats, trades, updated_at } = data;
+      // Get all resolved brackets
+      const brackets = await sb<ResolvedBracket[]>(
+        "poly_markets?resolved=eq.true&select=condition_id,bracket_temp,bracket_op,bracket_str,winner,volume,poly_event_id&order=bracket_temp"
+      );
 
-  const allDates  = [...new Set(trades.map(t => t.date))].sort();
-  const allCities = [...new Set(trades.map(t => t.city))].sort();
+      // Get actuals
+      const temps = await sb<DailyTemp[]>(
+        "daily_temps?select=station,date,temp_max_c,temp_max_f&order=date.desc&limit=1000"
+      );
+      const tempMap: Record<string, DailyTemp> = {};
+      for (const t of temps) tempMap[`${t.station}|${t.date}`] = t;
 
-  const filtered = trades.filter(t => {
-    if (dirFilter !== "ALL" && t.direction !== dirFilter) return false;
-    if (resultFilter !== "all" && t.result !== resultFilter) return false;
-    if (Math.abs(t.edge) < edgeMin) return false;
-    if (dateFilter !== "ALL" && t.date !== dateFilter) return false;
-    if (cityFilter !== "ALL" && t.city !== cityFilter) return false;
-    return true;
+      // Get deterministic forecasts for simulation
+      const forecasts = await sb<(Forecast & { station: string; target_date: string })[]>(
+        "gfs_forecasts?horizon=eq.1&select=station,target_date,model,horizon,temp_max,temp_max_f&order=target_date.desc&limit=5000"
+      );
+
+      // Group forecasts by station+date
+      const fcMap: Record<string, (Forecast & { station: string })[]> = {};
+      for (const f of forecasts) {
+        const key = `${f.station}|${f.target_date}`;
+        if (!fcMap[key]) fcMap[key] = [];
+        fcMap[key].push(f);
+      }
+
+      // Simulate trades
+      const allTrades: PastTrade[] = [];
+
+      for (const ev of events) {
+        const evBrackets = brackets.filter(b => b.poly_event_id === ev.event_id);
+        const actual = tempMap[`${ev.station}|${ev.target_date}`];
+        const fcs = fcMap[`${ev.station}|${ev.target_date}`] || [];
+
+        if (fcs.length === 0) continue;
+
+        // Simulate ensemble-like probability from deterministic models
+        const totalModels = fcs.length;
+        const isF = ev.station === "KLGA";
+
+        for (const b of evBrackets) {
+          // Count how many models predict this bracket
+          const matching = fcs.filter(f => {
+            const t = Math.round(isF && f.temp_max_f != null ? f.temp_max_f : f.temp_max ?? 0);
+            if (b.bracket_op === "lte") return t <= b.bracket_temp;
+            if (b.bracket_op === "gte") return t >= b.bracket_temp;
+            if (b.bracket_op === "between") return t >= b.bracket_temp && t <= b.bracket_temp + 1;
+            return t === b.bracket_temp;
+          }).length;
+
+          const ourProb = Math.round((matching / totalModels) * 100);
+
+          // Market price: we don't have the exact J-1 price easily
+          // Use winner as proxy: if winner=YES, market ended at ~100%
+          // For simulation, estimate market at 1/n_brackets (uniform prior)
+          const nBrackets = evBrackets.length;
+          const marketPrice = Math.round(100 / nBrackets);
+
+          const edge = ourProb - marketPrice;
+          const isBuy = edge > 0;
+          const direction = isBuy ? "BUY" as const : "SELL" as const;
+
+          // Outcome
+          const won = (isBuy && b.winner === "YES") || (!isBuy && b.winner === "NO");
+          const actualTemp = actual ? (isF ? actual.temp_max_f : actual.temp_max_c) : null;
+
+          // PnL simulation: $10 per trade
+          const betAmount = 10;
+          let pnl = 0;
+          if (isBuy && b.winner === "YES") {
+            pnl = betAmount * (100 / Math.max(ourProb, 1)) - betAmount; // simplified
+          } else if (isBuy && b.winner !== "YES") {
+            pnl = -betAmount;
+          } else if (!isBuy && b.winner === "NO") {
+            pnl = betAmount * 0.5; // simplified sell profit
+          } else {
+            pnl = -betAmount;
+          }
+
+          allTrades.push({
+            city: CITIES[ev.station] || ev.station,
+            station: ev.station,
+            target_date: ev.target_date,
+            bracket_str: b.bracket_str,
+            bracket_temp: b.bracket_temp,
+            bracket_op: b.bracket_op,
+            our_prob: ourProb,
+            market_price: marketPrice,
+            edge,
+            direction,
+            winner: b.winner,
+            outcome: Math.abs(edge) < minEdge ? "skip" : won ? "win" : "loss",
+            pnl: Math.abs(edge) < minEdge ? 0 : pnl,
+            actual_temp: actualTemp,
+          });
+        }
+      }
+
+      setTrades(allTrades);
+    } catch (e) {
+      console.error(e);
+    }
+    setLoading(false);
+  }
+
+  // Apply filters
+  const filtered = trades
+    .filter(t => t.outcome !== "skip")
+    .filter(t => Math.abs(t.edge) >= minEdge)
+    .filter(t => cityFilter === "ALL" || t.city === cityFilter);
+
+  const wins = filtered.filter(t => t.outcome === "win").length;
+  const losses = filtered.filter(t => t.outcome === "loss").length;
+  const totalPnl = filtered.reduce((s, t) => s + t.pnl, 0);
+  const winRate = filtered.length > 0 ? Math.round((wins / filtered.length) * 100) : 0;
+
+  // Per city stats
+  const cities = [...new Set(trades.map(t => t.city))].sort();
+  const cityStats = cities.map(city => {
+    const ct = filtered.filter(t => t.city === city);
+    const cw = ct.filter(t => t.outcome === "win").length;
+    return {
+      city,
+      trades: ct.length,
+      wins: cw,
+      losses: ct.length - cw,
+      winRate: ct.length > 0 ? Math.round((cw / ct.length) * 100) : 0,
+      pnl: ct.reduce((s, t) => s + t.pnl, 0),
+    };
   });
 
-  const visible = filtered.slice(0, page * PAGE_SIZE);
-  const hasMore = filtered.length > visible.length;
-
   return (
-    <main className="min-h-screen p-4 md:p-8" style={{ background: "#f3f4f6" }}>
-      <div className="max-w-5xl mx-auto">
-
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">📋 Résultats</h1>
-            <p className="text-sm text-gray-500">
-              Paper trading ${stats.paper_amount}/trade · {updated_at.slice(0,16).replace("T"," ")} UTC
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={load} className="text-sm text-blue-500 hover:text-blue-700 transition-colors">
-              ↻ Actualiser
-            </button>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-gray-900">{stats.total_trades}</div>
-              <div className="text-xs text-gray-500">trades</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-2 mb-6">
-          {[
-            { label: "Win rate", value: stats.win_rate !== null ? `${stats.win_rate}%` : "—" },
-            { label: "Gagnés",   value: `${stats.wins}` },
-            { label: "Perdus",   value: `${stats.losses}` },
-            {
-              label: "PnL",
-              value: `${stats.total_pnl >= 0 ? "+" : ""}$${stats.total_pnl.toFixed(2)}`,
-              color: stats.total_pnl > 0 ? "text-green-600" : stats.total_pnl < 0 ? "text-red-500" : "text-gray-900"
-            },
-          ].map(s => (
-            <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-3 text-center">
-              <div className={`text-lg font-bold ${s.color ?? "text-gray-900"}`}>{s.value}</div>
-              <div className="text-xs text-gray-400">{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Filtres — même style que signals */}
-        <div className="flex gap-2 mb-6 flex-wrap">
-
-          {/* Direction */}
-          <div className="flex gap-1 bg-white border rounded-lg p-1">
-            {(["ALL","YES","NO"] as const).map(f => (
-              <button key={f} onClick={() => setDir(f)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                  dirFilter === f ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-900"
-                }`}>{f}</button>
-            ))}
-          </div>
-
-          {/* Résultat */}
-          <div className="flex gap-1 bg-white border rounded-lg p-1">
-            {([["all","Tous"],["pending","⏳"],["win","✅"],["loss","❌"]] as const).map(([v,l]) => (
-              <button key={v} onClick={() => setRes(v)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                  resultFilter === v ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-900"
-                }`}>{l}</button>
-            ))}
-          </div>
-
-          {/* Edge */}
-          <div className="flex items-center gap-2 bg-white border rounded-lg px-3 py-1">
-            <span className="text-sm text-gray-500">Edge</span>
-            <select value={edgeMin} onChange={e => setEdge(Number(e.target.value))}
-              className="text-sm font-medium text-gray-900 bg-transparent outline-none">
-              {[0,5,10,15,20,30].map(v => (
-                <option key={v} value={v}>{v === 0 ? "Tous" : `${v}%`}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Date */}
-          <div className="flex items-center gap-2 bg-white border rounded-lg px-3 py-1">
-            <span className="text-sm text-gray-500">Date</span>
-            <select value={dateFilter} onChange={e => setDate(e.target.value)}
-              className="text-sm font-medium text-gray-900 bg-transparent outline-none">
-              <option value="ALL">Toutes</option>
-              {allDates.map(d => (
-                <option key={d} value={d}>
-                  {new Date(d).toLocaleDateString("fr-FR", { day:"numeric", month:"short", timeZone:"UTC" })}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Ville */}
-          <div className="flex items-center gap-2 bg-white border rounded-lg px-3 py-1">
-            <span className="text-sm text-gray-500">Ville</span>
-            <select value={cityFilter} onChange={e => setCity(e.target.value)}
-              className="text-sm font-medium text-gray-900 bg-transparent outline-none">
-              <option value="ALL">Toutes</option>
-              {allCities.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-        </div>
-
-        {/* Légende */}
-        <div className="flex gap-4 text-xs text-gray-400 mb-4">
-          <span className="flex items-center gap-1">
-            <span className="w-3 h-2 rounded-full bg-blue-400 inline-block" /> GFS Modèles
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-3 h-2 rounded-full bg-orange-400 inline-block" /> Marché Polymarket
-          </span>
-        </div>
-
-        {/* Compteur */}
-        {!loading && (
-          <div className="text-xs text-gray-400 mb-3">
-            {visible.length} / {filtered.length} trades affichés
-          </div>
-        )}
-
-        {/* Liste */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">Aucun trade avec ces filtres</div>
-        ) : (
-          <div className="space-y-3">
-            {visible.map(t => (
-              <div key={t.condition_id} className={`bg-white rounded-xl border p-4 shadow-sm ${
-                t.result === "win" ? "border-green-200" :
-                t.result === "loss" ? "border-red-200" : "border-gray-200"
-              }`}>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-gray-900">{t.city}</span>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                        t.direction === "YES" ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
-                      }`}>{t.direction}</span>
-                      {t.result === "pending"
-                        ? <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 font-medium">⏳ En cours</span>
-                        : t.result === "win"
-                        ? <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">✅ Gagné</span>
-                        : <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-600 font-medium">❌ Perdu</span>
-                      }
-                    </div>
-                    {t.event_title && <div className="text-sm font-semibold text-gray-700 mt-0.5">{t.event_title}</div>}
-                    <div className="text-xs text-gray-400 mt-0.5">{t.bracket}</div>
-                    <div className="flex items-center gap-3 mt-1 flex-wrap">
-                      <span className="text-xs text-gray-400">
-                        {new Date(t.date).toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", timeZone:"UTC" })}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    {t.result !== "pending" && t.pnl !== null ? (
-                      <div className={`text-lg font-bold ${t.pnl >= 0 ? "text-green-600" : "text-red-500"}`}>
-                        {t.pnl >= 0 ? "+" : ""}${t.pnl.toFixed(2)}
-                      </div>
-                    ) : (
-                      <div className="text-sm font-bold text-gray-400">${t.amount}</div>
-                    )}
-                    <div className="text-xs text-gray-400">{(t.entry_price * 100).toFixed(1)}¢</div>
-                  </div>
-                </div>
-
-                {/* Barre GFS vs Marché */}
-                <div className="mt-3 flex items-center gap-2 text-xs">
-                  <span className="text-gray-400 w-12 text-right shrink-0">GFS</span>
-                  <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden relative">
-                    <div className="h-full bg-blue-400 rounded-full" style={{ width: `${t.gfs_prob}%` }} />
-                    <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-gray-700">
-                      {t.gfs_prob.toFixed(0)}%
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-1 flex items-center gap-2 text-xs">
-                  <span className="text-gray-400 w-12 text-right shrink-0">Marché</span>
-                  <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden relative">
-                    <div className="h-full bg-orange-400 rounded-full" style={{ width: `${t.market_prob}%` }} />
-                    <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-gray-700">
-                      {t.market_prob.toFixed(0)}%
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-1 flex items-center gap-2 text-xs">
-                  <span className="text-gray-400 w-12 text-right shrink-0">Edge</span>
-                  <span className={`font-bold ${Math.abs(t.edge) >= 15 ? (t.edge > 0 ? "text-green-600" : "text-orange-500") : "text-gray-500"}`}>
-                    {t.edge > 0 ? "+" : ""}{t.edge.toFixed(1)}%
-                  </span>
-                </div>
-
-                <div className="flex gap-3 mt-2 pt-2 border-t border-gray-50">
-                  {t.poly_url && <a href={t.poly_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline">Polymarket →</a>}
-                  <a href={t.wunderground} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:underline">Wunderground</a>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Sentinel scroll infini */}
-        <div ref={loaderRef} className="py-4 text-center text-xs text-gray-400">
-          {hasMore
-            ? `${visible.length} / ${filtered.length} — scroll pour charger plus`
-            : filtered.length > 0 ? `${filtered.length} trades au total` : ""}
+    <div style={{ background: "#0a0a0f", minHeight: "100vh", color: "#e2e8f0" }}>
+      {/* Header */}
+      <div style={{ padding: "20px 24px", borderBottom: "1px solid #1e293b" }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Resultats</h1>
+        <div style={{ fontSize: 12, color: "#475569", marginTop: 4 }}>
+          Simulation sur les events resolus &middot; $10/trade &middot; Edge min {minEdge}%
         </div>
       </div>
-    </main>
+
+      <div style={{ padding: "20px 24px", maxWidth: 1000, margin: "0 auto" }}>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: 60, color: "#475569" }}>Chargement...</div>
+        ) : (
+          <>
+            {/* Stats globales */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, marginBottom: 20 }}>
+              {[
+                { label: "Trades", value: filtered.length, color: "#e2e8f0" },
+                { label: "Wins", value: wins, color: "#4ade80" },
+                { label: "Losses", value: losses, color: "#f87171" },
+                { label: "Win Rate", value: `${winRate}%`, color: winRate >= 55 ? "#4ade80" : winRate >= 50 ? "#fbbf24" : "#f87171" },
+                { label: "P&L", value: `${totalPnl >= 0 ? "+" : ""}$${totalPnl.toFixed(0)}`, color: totalPnl >= 0 ? "#4ade80" : "#f87171" },
+              ].map(s => (
+                <div key={s.label} style={{ background: "#111827", borderRadius: 10, padding: "14px 12px", textAlign: "center" }}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: s.color, fontFamily: "monospace" }}>{s.value}</div>
+                  <div style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Filters */}
+            <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
+              <div style={{ background: "#111827", borderRadius: 8, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>Edge min</span>
+                <select value={minEdge} onChange={e => setMinEdge(Number(e.target.value))}
+                  style={{ background: "#1e293b", border: "none", color: "#e2e8f0", borderRadius: 6, padding: "4px 8px", fontSize: 13 }}>
+                  {[0, 5, 10, 15, 20, 30].map(v => <option key={v} value={v}>{v}%</option>)}
+                </select>
+              </div>
+              <div style={{ background: "#111827", borderRadius: 8, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>Ville</span>
+                <select value={cityFilter} onChange={e => setCityFilter(e.target.value)}
+                  style={{ background: "#1e293b", border: "none", color: "#e2e8f0", borderRadius: 6, padding: "4px 8px", fontSize: 13 }}>
+                  <option value="ALL">Toutes</option>
+                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Per city */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 8, marginBottom: 20 }}>
+              {cityStats.map(c => (
+                <div key={c.city} style={{ background: "#111827", borderRadius: 10, padding: "12px 14px" }}>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>{c.city}</div>
+                  <div style={{ display: "flex", gap: 12, marginTop: 6 }}>
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: c.winRate >= 55 ? "#4ade80" : c.winRate >= 50 ? "#fbbf24" : "#f87171", fontFamily: "monospace" }}>
+                        {c.winRate}%
+                      </div>
+                      <div style={{ fontSize: 9, color: "#475569" }}>WR ({c.trades})</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: c.pnl >= 0 ? "#4ade80" : "#f87171", fontFamily: "monospace" }}>
+                        {c.pnl >= 0 ? "+" : ""}${c.pnl.toFixed(0)}
+                      </div>
+                      <div style={{ fontSize: 9, color: "#475569" }}>P&L</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Trades list */}
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8", marginBottom: 8 }}>
+              Derniers trades ({filtered.length})
+            </h3>
+            <div style={{ background: "#111827", borderRadius: 12, overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontFamily: "monospace", minWidth: 700 }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid #1e293b" }}>
+                    {["Date", "Ville", "Bracket", "Notre %", "Marche %", "Edge", "Dir", "Resultat", "P&L"].map(h => (
+                      <th key={h} style={{ padding: "10px 8px", textAlign: "left", color: "#475569", fontWeight: 600, fontSize: 11 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.slice(0, 100).map((t, i) => (
+                    <tr key={i} style={{ borderBottom: "1px solid #0f172a" }}>
+                      <td style={{ padding: "8px", color: "#94a3b8" }}>{t.target_date}</td>
+                      <td style={{ padding: "8px" }}>{t.city}</td>
+                      <td style={{ padding: "8px", fontWeight: 700 }}>{bracketLabel(t.bracket_op, t.bracket_temp)}</td>
+                      <td style={{ padding: "8px", color: "#60a5fa" }}>{t.our_prob}%</td>
+                      <td style={{ padding: "8px", color: "#f97316" }}>{t.market_price}%</td>
+                      <td style={{ padding: "8px", fontWeight: 700, color: t.edge > 0 ? "#4ade80" : "#f87171" }}>
+                        {t.edge > 0 ? "+" : ""}{t.edge}%
+                      </td>
+                      <td style={{ padding: "8px" }}>
+                        <span style={{
+                          padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 700,
+                          background: t.direction === "BUY" ? "#052e16" : "#450a0a",
+                          color: t.direction === "BUY" ? "#4ade80" : "#f87171",
+                        }}>
+                          {t.direction}
+                        </span>
+                      </td>
+                      <td style={{ padding: "8px" }}>
+                        <span style={{
+                          padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 700,
+                          background: t.outcome === "win" ? "#052e16" : "#450a0a",
+                          color: t.outcome === "win" ? "#4ade80" : "#f87171",
+                        }}>
+                          {t.outcome === "win" ? "WIN" : "LOSS"}
+                        </span>
+                      </td>
+                      <td style={{ padding: "8px", fontWeight: 700, color: t.pnl >= 0 ? "#4ade80" : "#f87171" }}>
+                        {t.pnl >= 0 ? "+" : ""}${t.pnl.toFixed(1)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
