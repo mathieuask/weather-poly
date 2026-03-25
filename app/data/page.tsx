@@ -817,6 +817,52 @@ export default function DataPage() {
                       </div>
                     )}
 
+                    {/* Bracket cards: our prob vs market */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 6 }}>
+                      {brackets.map((b, i) => {
+                        const ourProb = latest.probs[b.condition_id] ?? 0;
+                        const pts = prices[b.condition_id] || [];
+                        const marketProb = pts.length > 0 ? Math.round(pts[pts.length - 1].price_yes * 100) : null;
+                        const edge = marketProb != null ? ourProb - marketProb : null;
+                        const edgeColor = edge != null ? (edge > 10 ? "#4ade80" : edge < -10 ? "#f87171" : "#475569") : "#475569";
+                        const color = COLORS[i % COLORS.length];
+                        const isClosed = closedBrackets.has(b.condition_id);
+
+                        return (
+                          <button
+                            key={b.condition_id}
+                            onClick={() => setClosedBrackets(prev => {
+                              const next = new Set(prev);
+                              if (next.has(b.condition_id)) next.delete(b.condition_id); else next.add(b.condition_id);
+                              return next;
+                            })}
+                            style={{
+                              background: isClosed ? "#0a0a0f" : "#111827", borderRadius: 8, padding: "8px 10px",
+                              borderLeft: `3px solid ${isClosed ? "#1e293b" : color}`,
+                              border: "none", textAlign: "left", cursor: "pointer",
+                              opacity: isClosed ? 0.4 : 1,
+                            }}
+                          >
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                              <div style={{ width: 6, height: 6, borderRadius: "50%", background: isClosed ? "#334155" : color }} />
+                              <span style={{ fontSize: 12, fontWeight: 700, color: isClosed ? "#475569" : "#e2e8f0" }}>{bracketLabel(b)}</span>
+                            </div>
+                            <div style={{ fontSize: 16, fontWeight: 700, color: isClosed ? "#334155" : color, fontFamily: "monospace" }}>
+                              {ourProb}%
+                            </div>
+                            {marketProb != null && (
+                              <div style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>
+                                Poly: {marketProb}%
+                                <span style={{ color: isClosed ? "#334155" : edgeColor, fontWeight: 700, marginLeft: 4 }}>
+                                  {edge! > 0 ? "+" : ""}{edge}
+                                </span>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
                     {/* ── Courbe 3 — Intemperies ── */}
                     {hasData && chartWidth > 0 && (() => {
                       // Build weather data: for each chart timestamp, compute averages from nearest snapshot
@@ -1036,51 +1082,6 @@ export default function DataPage() {
                       );
                     })()}
 
-                    {/* Bracket cards: our prob vs market */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 6 }}>
-                      {brackets.map((b, i) => {
-                        const ourProb = latest.probs[b.condition_id] ?? 0;
-                        const pts = prices[b.condition_id] || [];
-                        const marketProb = pts.length > 0 ? Math.round(pts[pts.length - 1].price_yes * 100) : null;
-                        const edge = marketProb != null ? ourProb - marketProb : null;
-                        const edgeColor = edge != null ? (edge > 10 ? "#4ade80" : edge < -10 ? "#f87171" : "#475569") : "#475569";
-                        const color = COLORS[i % COLORS.length];
-                        const isClosed = closedBrackets.has(b.condition_id);
-
-                        return (
-                          <button
-                            key={b.condition_id}
-                            onClick={() => setClosedBrackets(prev => {
-                              const next = new Set(prev);
-                              if (next.has(b.condition_id)) next.delete(b.condition_id); else next.add(b.condition_id);
-                              return next;
-                            })}
-                            style={{
-                              background: isClosed ? "#0a0a0f" : "#111827", borderRadius: 8, padding: "8px 10px",
-                              borderLeft: `3px solid ${isClosed ? "#1e293b" : color}`,
-                              border: "none", textAlign: "left", cursor: "pointer",
-                              opacity: isClosed ? 0.4 : 1,
-                            }}
-                          >
-                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                              <div style={{ width: 6, height: 6, borderRadius: "50%", background: isClosed ? "#334155" : color }} />
-                              <span style={{ fontSize: 12, fontWeight: 700, color: isClosed ? "#475569" : "#e2e8f0" }}>{bracketLabel(b)}</span>
-                            </div>
-                            <div style={{ fontSize: 16, fontWeight: 700, color: isClosed ? "#334155" : color, fontFamily: "monospace" }}>
-                              {ourProb}%
-                            </div>
-                            {marketProb != null && (
-                              <div style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>
-                                Poly: {marketProb}%
-                                <span style={{ color: isClosed ? "#334155" : edgeColor, fontWeight: 700, marginLeft: 4 }}>
-                                  {edge! > 0 ? "+" : ""}{edge}
-                                </span>
-                              </div>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
                   </div>
                 );
               })()}
