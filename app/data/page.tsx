@@ -838,8 +838,9 @@ export default function DataPage() {
                             })}
                             style={{
                               background: isClosed ? "#0a0a0f" : "#111827", borderRadius: 8, padding: "8px 10px",
+                              borderTop: "none", borderRight: "none", borderBottom: "none",
                               borderLeft: `3px solid ${isClosed ? "#1e293b" : color}`,
-                              border: "none", textAlign: "left", cursor: "pointer",
+                              textAlign: "left", cursor: "pointer",
                               opacity: isClosed ? 0.4 : 1,
                             }}
                           >
