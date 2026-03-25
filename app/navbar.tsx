@@ -5,10 +5,9 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 
 const nav = [
-  { href: "/",          icon: "📡", label: "Signaux",   desc: "Opportunités en temps réel" },
-  { href: "/results",   icon: "📋", label: "Résultats", desc: "Paper trades & performance" },
-  { href: "/data",      icon: "📊", label: "Data",      desc: "Historique marchés & biais GFS" },
-  { href: "/strategy",  icon: "🧠", label: "Strategy",  desc: "Backtest & stratégie optimale" },
+  { href: "/data",      icon: "📊", label: "Data",      desc: "Courbes & prédictions 143 membres" },
+  { href: "/strategy",  icon: "🧠", label: "Stratégie", desc: "Signaux & paramètres" },
+  { href: "/results",   icon: "📋", label: "Résultats", desc: "Trades passés & P&L" },
 ];
 
 export default function Navbar() {
@@ -28,7 +27,7 @@ export default function Navbar() {
           </svg>
         </button>
         <span className="font-semibold text-gray-900">🌤 Weather Arb</span>
-        <span className="text-xs text-gray-400 hidden sm:block">Polymarket × GFS+ICON+ECMWF</span>
+        <span className="text-xs text-gray-400 hidden sm:block">Polymarket × 143 ensemble members</span>
       </div>
 
       {/* Overlay sombre */}
@@ -48,7 +47,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div>
             <div className="font-bold text-gray-900 text-base">🌤 Weather Arb</div>
-            <div className="text-xs text-gray-400 mt-0.5">Polymarket × GFS+ICON+ECMWF</div>
+            <div className="text-xs text-gray-400 mt-0.5">Polymarket × 143 ensemble members</div>
           </div>
           <button
             onClick={() => setOpen(false)}
@@ -91,7 +90,7 @@ export default function Navbar() {
         {/* Footer */}
         <div className="px-5 py-4 border-t border-gray-100 text-xs text-gray-400 space-y-1">
           <div>🔄 Scan toutes les 30 min</div>
-          <div>📊 GFS + ICON + ECMWF · 129 membres</div>
+          <div>📊 GFS + ECMWF + ICON + GEM · 143 membres</div>
           <a
             href="https://github.com/mathieuask/weather-poly"
             target="_blank"
