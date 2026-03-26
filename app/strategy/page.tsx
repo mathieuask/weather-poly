@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useCities, type City } from "../lib/useCities";
 
 const SB = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -39,12 +40,6 @@ interface Signal {
   volume: number;
 }
 
-const CITIES: Record<string, { name: string; flag: string }> = {
-  EGLC: { name: "London", flag: "\u{1F1EC}\u{1F1E7}" },
-  KLGA: { name: "NYC", flag: "\u{1F1FA}\u{1F1F8}" },
-  RKSI: { name: "Seoul", flag: "\u{1F1F0}\u{1F1F7}" },
-};
-
 function bracketLabel(op: string, temp: number) {
   if (op === "lte") return `\u2264${temp}\u00b0`;
   if (op === "gte") return `\u2265${temp}\u00b0`;
@@ -53,6 +48,10 @@ function bracketLabel(op: string, temp: number) {
 }
 
 export default function StrategyPage() {
+  const cities = useCities();
+  const cityMap: Record<string, City> = {};
+  for (const c of cities) cityMap[c.station] = c;
+
   const [signals, setSignals] = useState<Signal[]>([]);
   const [loading, setLoading] = useState(true);
   const [minEdge, setMinEdge] = useState(10);
@@ -142,7 +141,7 @@ export default function StrategyPage() {
 
           allSignals.push({
             station: ev.station,
-            city: CITIES[ev.station]?.name || ev.station,
+            city: ev.city || ev.station,
             target_date: ev.target_date,
             bracket_temp: b.bracket_temp,
             bracket_op: b.bracket_op,
@@ -231,7 +230,7 @@ export default function StrategyPage() {
               .sort((a, b) => a[0].localeCompare(b[0]))
               .map(([key, sigs]) => {
                 const first = sigs[0];
-                const cityInfo = CITIES[first.station];
+                const cityInfo = cityMap[first.station];
                 const confColor = first.confidence >= 75 ? "#4ade80" : first.confidence >= 50 ? "#fbbf24" : "#f87171";
 
                 return (
