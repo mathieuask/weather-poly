@@ -1,0 +1,3 @@
+# Keep only compressed archives in git, not individual JSON files
+*.json
+!.gitignore
