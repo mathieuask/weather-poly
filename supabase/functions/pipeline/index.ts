@@ -5,19 +5,6 @@ const SB_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const WU_KEY = "e1f10a1e78da46f5b10a1e78da96f525";
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36";
 
-const STATIONS: Record<string, { country: string; city: string }> = {
-  EGLC: { country: "GB", city: "London" },
-  KLGA: { country: "US", city: "NYC" },
-  RKSI: { country: "KR", city: "Seoul" },
-};
-
-const CITY_SLUGS: Record<string, string> = {
-  london: "EGLC",
-  "new york": "KLGA",
-  nyc: "KLGA",
-  seoul: "RKSI",
-};
-
 const MONTHS: Record<string, number> = {
   january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
   july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
@@ -28,6 +15,60 @@ function log(msg: string) {
 }
 
 const sb = createClient(SB_URL, SB_KEY);
+
+// ── City type ─────────────────────────────────────────────
+
+interface City {
+  name: string;
+  station: string;
+  wu_country: string;
+  lat: number;
+  lon: number;
+  tz: string;
+  unit: string;
+  slug: string;
+  active: boolean;
+  wu_city: string | null;
+  resolution_source: string | null;
+  resolution_url: string | null;
+  airport_name: string | null;
+  flag: string | null;
+}
+
+// ── Load cities from DB ───────────────────────────────────
+
+async function loadCities(): Promise<City[]> {
+  const { data, error } = await sb.from("cities").select("*").eq("active", true);
+  if (error) {
+    log(`loadCities error: ${error.message}`);
+    return [];
+  }
+  return data || [];
+}
+
+// Build slug-to-city lookup (includes "new york" -> nyc alias)
+function buildSlugMap(cities: City[]): Record<string, City> {
+  const map: Record<string, City> = {};
+  for (const city of cities) {
+    if (city.slug) {
+      map[city.slug] = city;
+    }
+  }
+  // Special alias: "new york" -> nyc city
+  if (map["nyc"] && !map["new york"]) {
+    map["new york"] = map["nyc"];
+  }
+  return map;
+}
+
+// Build station-to-city lookup
+function buildStationMap(cities: City[]): Record<string, City> {
+  const map: Record<string, City> = {};
+  for (const city of cities) {
+    map[city.station] = city;
+  }
+  return map;
+}
 
 // ── CLOB fetch ─────────────────────────────────────────────
 
@@ -86,14 +127,12 @@ async function fetchOpenPrices() {
       }));
 
     if (newPts.length > 0) {
-      // Insert in chunks of 200
       for (let i = 0; i < newPts.length; i += 200) {
         await sb.from("price_history").upsert(newPts.slice(i, i + 200), { onConflict: "condition_id,ts", ignoreDuplicates: true });
       }
       totalNew += newPts.length;
     }
 
-    // Small delay to avoid rate limits
     await new Promise((r) => setTimeout(r, 100));
   }
 
@@ -102,7 +141,7 @@ async function fetchOpenPrices() {
 
 // ── 2. Check resolutions ───────────────────────────────────
 
-async function checkResolutions() {
+async function checkResolutions(stationMap: Record<string, City>) {
   const { data: openEvents } = await sb
     .from("poly_events")
     .select("event_id,station,target_date,city")
@@ -150,15 +189,15 @@ async function checkResolutions() {
           .eq("condition_id", m.conditionId);
       }
 
-      // Fetch WU temperature (native unit: °F for KLGA, °C for others)
-      const info = STATIONS[ev.station];
-      if (info) {
+      // Fetch WU temperature — only for cities with resolution_source = 'wu'
+      const city = stationMap[ev.station];
+      if (city && city.resolution_source === "wu" && city.wu_city) {
         const wuDate = ev.target_date.replace(/-/g, "");
-        const isF = ev.station === "KLGA";
+        const isF = city.unit === "F";
         const wuUnits = isF ? "e" : "m";
         try {
           const wuR = await fetch(
-            `https://api.weather.com/v1/location/${ev.station}:9:${info.country}/observations/historical.json?apiKey=${WU_KEY}&units=${wuUnits}&startDate=${wuDate}`
+            `https://api.weather.com/v1/location/${ev.station}:9:${city.wu_country.toUpperCase()}/observations/historical.json?apiKey=${WU_KEY}&units=${wuUnits}&startDate=${wuDate}`
           );
           if (wuR.ok) {
             const obs = (await wuR.json()).observations || [];
@@ -175,7 +214,7 @@ async function checkResolutions() {
                   temp_max_c: tempC,
                   source: "wunderground",
                   is_polymarket_day: true,
-                }], { onConflict: "station,date", ignoreDuplicates: true });
+                }], { onConflict: "station,date,source", ignoreDuplicates: true });
                 log(`  WU: ${tempF}°F (${tempC}°C)`);
               } else {
                 await sb.from("daily_temps").upsert([{
@@ -184,12 +223,14 @@ async function checkResolutions() {
                   temp_max_c: Math.round(maxTemp * 10) / 10,
                   source: "wunderground",
                   is_polymarket_day: true,
-                }], { onConflict: "station,date", ignoreDuplicates: true });
+                }], { onConflict: "station,date,source", ignoreDuplicates: true });
                 log(`  WU: ${maxTemp}°C`);
               }
             }
           }
         } catch { log("  WU: fetch error"); }
+      } else if (city && city.resolution_source !== "wu") {
+        log(`  skip WU for ${ev.city} (resolution_source=${city.resolution_source})`);
       }
 
       // Complete price curves post-resolution
@@ -237,7 +278,7 @@ async function checkResolutions() {
 
 // ── 3. Check new events ────────────────────────────────────
 
-async function checkNewEvents() {
+async function checkNewEvents(slugMap: Record<string, City>) {
   try {
     const r = await fetch("https://gamma-api.polymarket.com/events?tag_slug=temperature&limit=200&closed=false", {
       headers: { "User-Agent": UA },
@@ -247,20 +288,24 @@ async function checkNewEvents() {
 
     log(`events: ${gammaEvents.length} open on Gamma`);
 
+    // Sort slugs by length descending so longer slugs match first
+    // (e.g., "buenos aires" before "aires", "san francisco" before "san")
+    const sortedSlugs = Object.keys(slugMap).sort((a, b) => b.length - a.length);
+
     for (const event of gammaEvents) {
       const title = (event.title || "").toLowerCase();
 
-      let station: string | null = null;
-      let cityName: string | null = null;
-      for (const [slug, stn] of Object.entries(CITY_SLUGS)) {
+      let matchedCity: City | null = null;
+      for (const slug of sortedSlugs) {
         if (title.includes(slug)) {
-          station = stn;
-          cityName = STATIONS[stn].city;
+          matchedCity = slugMap[slug];
           break;
         }
       }
-      if (!station || !cityName) continue;
+      if (!matchedCity) continue;
 
+      const station = matchedCity.station;
+      const cityName = matchedCity.name;
       const eventId = String(event.id);
 
       // Already in DB?
@@ -282,6 +327,9 @@ async function checkNewEvents() {
 
       const markets = event.markets || [];
 
+      // Determine unit from the city
+      const unit = matchedCity.unit || "C";
+
       // Insert event
       await sb.from("poly_events").upsert([{
         event_id: eventId,
@@ -292,7 +340,7 @@ async function checkNewEvents() {
         target_date: targetDate,
         created_at: event.creationDate || event.startDate,
         closed: false,
-        unit: "C",
+        unit,
         n_brackets: markets.length,
         total_volume: markets.reduce((s: number, m: any) => s + parseFloat(m.volume || "0"), 0),
       }], { onConflict: "event_id", ignoreDuplicates: true });
@@ -327,7 +375,7 @@ async function checkNewEvents() {
           bracket_str: question,
           bracket_temp: bracketTemp,
           bracket_op: bracketOp,
-          unit: "C",
+          unit,
           winner: null,
           resolved: false,
           volume: parseFloat(m.volume || "0"),
@@ -346,12 +394,6 @@ async function checkNewEvents() {
 }
 
 // ── 4. Refresh ensemble forecasts for open events ───────────
-
-const ENSEMBLE_STATIONS: Record<string, { lat: number; lon: number }> = {
-  KLGA: { lat: 40.7769, lon: -73.874 },
-  EGLC: { lat: 51.5053, lon: -0.0553 },
-  RKSI: { lat: 37.4602, lon: 126.4407 },
-};
 
 const ENSEMBLE_MODELS: Record<string, { db: string; members: number }> = {
   gfs_seamless: { db: "gfs", members: 31 },
@@ -383,7 +425,68 @@ const VAR_MAP: Record<string, string> = {
   shortwave_radiation_sum: "radiation",
 };
 
-async function refreshEnsembles() {
+// Fetch ensembles for a single station + model combo
+async function fetchEnsemblesForStationModel(
+  city: City,
+  dates: Set<string>,
+  omModel: string,
+  modelCfg: { db: string; members: number },
+  fetchTs: string,
+): Promise<number> {
+  const sortedDates = [...dates].sort();
+  const startDate = sortedDates[0];
+  const endDate = sortedDates[sortedDates.length - 1];
+  const unitParam = city.unit === "F" ? "&temperature_unit=fahrenheit" : "";
+
+  const url = `https://ensemble-api.open-meteo.com/v1/ensemble?latitude=${city.lat}&longitude=${city.lon}&daily=${DAILY_VARS.join(",")}&models=${omModel}&start_date=${startDate}&end_date=${endDate}&timezone=UTC${unitParam}`;
+
+  const r = await fetch(url);
+  if (!r.ok) {
+    log(`ensembles: ${city.station}/${modelCfg.db} API ${r.status}`);
+    return 0;
+  }
+  const data = await r.json();
+  const daily = data.daily || {};
+  const timeArr: string[] = daily.time || [];
+  if (timeArr.length === 0) return 0;
+
+  const rows: any[] = [];
+  for (let i = 0; i < timeArr.length; i++) {
+    const targetDate = timeArr[i];
+    if (!dates.has(targetDate)) continue;
+
+    for (let memberId = 0; memberId < modelCfg.members; memberId++) {
+      const row: any = {
+        station: city.station,
+        target_date: targetDate,
+        fetch_ts: fetchTs,
+        ensemble_model: modelCfg.db,
+        member_id: memberId,
+      };
+
+      for (const [apiVar, dbCol] of Object.entries(VAR_MAP)) {
+        const key = memberId === 0 ? apiVar : `${apiVar}_member${String(memberId).padStart(2, "0")}`;
+        const vals = daily[key] || [];
+        if (i < vals.length && vals[i] != null) {
+          row[dbCol] = Math.round(vals[i] * 100) / 100;
+        }
+      }
+      rows.push(row);
+    }
+  }
+
+  if (rows.length > 0) {
+    for (let i = 0; i < rows.length; i += 2000) {
+      await sb.from("ensemble_forecasts").upsert(rows.slice(i, i + 2000), {
+        onConflict: "station,target_date,fetch_ts,ensemble_model,member_id",
+      });
+    }
+  }
+
+  return rows.length;
+}
+
+async function refreshEnsembles(stationMap: Record<string, City>) {
   const { data: openEvents } = await sb
     .from("poly_events")
     .select("station,target_date")
@@ -406,67 +509,44 @@ async function refreshEnsembles() {
   const fetchTs = now.toISOString();
   let totalRows = 0;
 
+  // Build list of all (city, model) tasks
+  const tasks: Array<{
+    city: City;
+    dates: Set<string>;
+    omModel: string;
+    modelCfg: { db: string; members: number };
+  }> = [];
+
   for (const [station, dates] of Object.entries(stationDates)) {
-    const cfg = ENSEMBLE_STATIONS[station];
-    if (!cfg) continue;
-
-    const sortedDates = [...dates].sort();
-    const startDate = sortedDates[0];
-    const endDate = sortedDates[sortedDates.length - 1];
-
+    const city = stationMap[station];
+    if (!city) {
+      log(`ensembles: unknown station ${station}, skipping`);
+      continue;
+    }
     for (const [omModel, modelCfg] of Object.entries(ENSEMBLE_MODELS)) {
-      try {
-        const unitParam = station === "KLGA" ? "&temperature_unit=fahrenheit" : "";
-        const url = `https://ensemble-api.open-meteo.com/v1/ensemble?latitude=${cfg.lat}&longitude=${cfg.lon}&daily=${DAILY_VARS.join(",")}&models=${omModel}&start_date=${startDate}&end_date=${endDate}&timezone=UTC${unitParam}`;
+      tasks.push({ city, dates, omModel, modelCfg });
+    }
+  }
 
-        const r = await fetch(url);
-        if (!r.ok) {
-          log(`ensembles: ${station}/${modelCfg.db} API ${r.status}`);
-          continue;
-        }
-        const data = await r.json();
-        const daily = data.daily || {};
-        const timeArr: string[] = daily.time || [];
-        if (timeArr.length === 0) continue;
+  log(`ensembles: ${tasks.length} tasks (${Object.keys(stationDates).length} stations x ${Object.keys(ENSEMBLE_MODELS).length} models)`);
 
-        const rows: any[] = [];
-        for (let i = 0; i < timeArr.length; i++) {
-          const targetDate = timeArr[i];
-          if (!dates.has(targetDate)) continue;
+  // Process in parallel batches of 5 tasks, with 2s delay between batches
+  const BATCH_SIZE = 5;
+  for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
+    const batch = tasks.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(
+      batch.map((t) =>
+        fetchEnsemblesForStationModel(t.city, t.dates, t.omModel, t.modelCfg, fetchTs).catch((e) => {
+          log(`ensembles: ${t.city.station}/${t.modelCfg.db} error: ${e}`);
+          return 0;
+        })
+      )
+    );
+    totalRows += results.reduce((s, n) => s + n, 0);
 
-          for (let memberId = 0; memberId < modelCfg.members; memberId++) {
-            const row: any = {
-              station,
-              target_date: targetDate,
-              fetch_ts: fetchTs,
-              ensemble_model: modelCfg.db,
-              member_id: memberId,
-            };
-
-            for (const [apiVar, dbCol] of Object.entries(VAR_MAP)) {
-              const key = memberId === 0 ? apiVar : `${apiVar}_member${String(memberId).padStart(2, "0")}`;
-              const vals = daily[key] || [];
-              if (i < vals.length && vals[i] != null) {
-                row[dbCol] = Math.round(vals[i] * 100) / 100;
-              }
-            }
-            rows.push(row);
-          }
-        }
-
-        if (rows.length > 0) {
-          for (let i = 0; i < rows.length; i += 2000) {
-            await sb.from("ensemble_forecasts").upsert(rows.slice(i, i + 2000), {
-              onConflict: "station,target_date,fetch_ts,ensemble_model,member_id",
-            });
-          }
-          totalRows += rows.length;
-        }
-
-        await new Promise((r) => setTimeout(r, 2000));
-      } catch (e) {
-        log(`ensembles: ${station}/${modelCfg.db} error: ${e}`);
-      }
+    // 2s delay between batches (not after the last one)
+    if (i + BATCH_SIZE < tasks.length) {
+      await new Promise((r) => setTimeout(r, 2000));
     }
   }
 
@@ -475,21 +555,35 @@ async function refreshEnsembles() {
 
 // ── Handler ────────────────────────────────────────────────
 
-Deno.serve(async (req) => {
+Deno.serve(async (_req) => {
   try {
+    // Load cities dynamically from DB
+    const cities = await loadCities();
+    if (cities.length === 0) {
+      log("ERROR: no active cities loaded from DB");
+      return new Response(JSON.stringify({ error: "no active cities" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    log(`loaded ${cities.length} active cities`);
+
+    const slugMap = buildSlugMap(cities);
+    const stationMap = buildStationMap(cities);
+
     // 1. Always: fetch prices
     await fetchOpenPrices();
 
     // 2. Always: check resolutions
-    await checkResolutions();
+    await checkResolutions(stationMap);
 
     // 3. Check new events
-    await checkNewEvents();
+    await checkNewEvents(slugMap);
 
-    // 4. Hourly: refresh ensemble forecasts (143 members)
+    // 4. Hourly: refresh ensemble forecasts (143 members per city)
     const minute = new Date().getUTCMinutes();
     if (minute < 5) {
-      await refreshEnsembles();
+      await refreshEnsembles(stationMap);
     }
 
     return new Response(JSON.stringify({ ok: true }), {
