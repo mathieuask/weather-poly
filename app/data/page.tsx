@@ -9,18 +9,13 @@ import {
   YAxis,
   ReferenceLine,
 } from "recharts";
+import { useCities, stationAccent, type City } from "../lib/useCities";
 
 /* ─── Config ─────────────────────────────────────────────── */
 
 const SB = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}` };
-
-const CITIES = [
-  { name: "London", station: "EGLC", flag: "\u{1F1EC}\u{1F1E7}", accent: "#60a5fa" },
-  { name: "NYC", station: "KLGA", flag: "\u{1F1FA}\u{1F1F8}", accent: "#f87171" },
-  { name: "Seoul", station: "RKSI", flag: "\u{1F1F0}\u{1F1F7}", accent: "#34d399" },
-];
 
 const COLORS = [
   "#818cf8", "#a78bfa", "#c084fc", "#e879f9", "#f472b6",
@@ -162,7 +157,15 @@ function downsample(pts: PricePoint[], max: number): PricePoint[] {
 /* ─── Component ──────────────────────────────────────────── */
 
 export default function DataPage() {
-  const [city, setCity] = useState(CITIES[0]);
+  const cities = useCities();
+  const [city, setCity] = useState<City | null>(null);
+
+  // Auto-select first city once loaded
+  useEffect(() => {
+    if (cities.length > 0 && !city) setCity(cities[0]);
+  }, [cities, city]);
+
+  const accent = city ? stationAccent(city.station) : "#60a5fa";
   const [events, setEvents] = useState<Event[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
   const [page, setPage] = useState(0);
@@ -208,7 +211,7 @@ export default function DataPage() {
     setEventsLoading(false);
   }, []);
 
-  useEffect(() => { loadEvents(city.station); }, [city.station, loadEvents]);
+  useEffect(() => { if (city) loadEvents(city.station); }, [city?.station, loadEvents]);
 
   /* ── Load event detail ── */
   const loadEvent = useCallback(async (ev: Event) => {
@@ -323,23 +326,30 @@ export default function DataPage() {
     <div style={{ background: "#0a0a0f", minHeight: "100vh", color: "#e2e8f0" }}>
 
       {/* ── City tabs ── */}
-      <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #1e293b" }}>
-        {CITIES.map(c => (
-          <button
-            key={c.station}
-            onClick={() => { setCity(c); setSelectedEvent(null); setPage(0); }}
-            style={{
-              flex: 1, padding: "14px 0",
-              background: city.station === c.station ? "#1e293b" : "transparent",
-              color: city.station === c.station ? c.accent : "#64748b",
-              border: "none",
-              borderBottom: city.station === c.station ? `2px solid ${c.accent}` : "2px solid transparent",
-              cursor: "pointer", fontSize: 15, fontWeight: 600,
-            }}
-          >
-            {c.flag} {c.name}
-          </button>
-        ))}
+      <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #1e293b", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+        {cities.map(c => {
+          const cAccent = stationAccent(c.station);
+          const active = city?.station === c.station;
+          return (
+            <button
+              key={c.station}
+              onClick={() => { setCity(c); setSelectedEvent(null); setPage(0); }}
+              style={{
+                padding: "10px 14px", whiteSpace: "nowrap", flexShrink: 0,
+                background: active ? "#1e293b" : "transparent",
+                color: active ? cAccent : "#64748b",
+                border: "none",
+                borderBottom: active ? `2px solid ${cAccent}` : "2px solid transparent",
+                cursor: "pointer", fontSize: 13, fontWeight: 600,
+              }}
+            >
+              {c.flag} {c.name}
+              {c.resolution_source !== "wu" && (
+                <span style={{ fontSize: 9, color: "#f97316", marginLeft: 4, verticalAlign: "super" }}>manual</span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div style={{ display: "flex", minHeight: "calc(100vh - 100px)" }}>
@@ -363,7 +373,7 @@ export default function DataPage() {
                     display: "block", width: "100%", textAlign: "left", padding: "10px 16px",
                     background: active ? "#1e293b" : "transparent", border: "none",
                     borderBottom: "1px solid #0f172a",
-                    borderLeft: active ? `3px solid ${city.accent}` : "3px solid transparent",
+                    borderLeft: active ? `3px solid ${accent}` : "3px solid transparent",
                     color: active ? "#f1f5f9" : "#94a3b8", cursor: "pointer",
                   }}>
                     <div style={{ fontSize: 13, fontWeight: 600 }}>{fmtDate(ev.target_date)}</div>
@@ -434,14 +444,14 @@ export default function DataPage() {
             <>
               {/* Mobile back */}
               <button onClick={() => setSelectedEvent(null)} className="block md:hidden"
-                style={{ background: "none", border: "none", color: city.accent, fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 12, padding: 0 }}>
+                style={{ background: "none", border: "none", color: accent, fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 12, padding: 0 }}>
                 &larr; Back to list
               </button>
 
               {/* ── Header ── */}
               <div style={{ marginBottom: 20 }}>
                 <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
-                  {city.flag} {city.name} &mdash; {fmtDate(selectedEvent.target_date)}
+                  {city?.flag} {city?.name} &mdash; {fmtDate(selectedEvent.target_date)}
                 </h2>
                 <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
                   {brackets.length} brackets &middot; ${Math.round(selectedEvent.total_volume).toLocaleString()} volume

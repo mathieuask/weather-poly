@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useCities, type City } from "../lib/useCities";
 
 const SB = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -59,8 +60,6 @@ interface PastTrade {
   actual_temp: number | null;
 }
 
-const CITIES: Record<string, string> = { EGLC: "London", KLGA: "NYC", RKSI: "Seoul" };
-
 function bracketLabel(op: string, temp: number) {
   if (op === "lte") return `\u2264${temp}\u00b0`;
   if (op === "gte") return `\u2265${temp}\u00b0`;
@@ -69,6 +68,10 @@ function bracketLabel(op: string, temp: number) {
 }
 
 export default function ResultsPage() {
+  const citiesList = useCities();
+  const cityMap: Record<string, City> = {};
+  for (const c of citiesList) cityMap[c.station] = c;
+
   const [trades, setTrades] = useState<PastTrade[]>([]);
   const [loading, setLoading] = useState(true);
   const [cityFilter, setCityFilter] = useState("ALL");
@@ -165,7 +168,7 @@ export default function ResultsPage() {
           }
 
           allTrades.push({
-            city: CITIES[ev.station] || ev.station,
+            city: ev.city || cityMap[ev.station]?.name || ev.station,
             station: ev.station,
             target_date: ev.target_date,
             bracket_str: b.bracket_str,
