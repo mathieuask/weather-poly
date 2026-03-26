@@ -1,0 +1,770 @@
+[
+  {
+    "station": "EGLC",
+    "model": "ecmwf",
+    "horizon": 0,
+    "mae": 0.8,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "ecmwf",
+    "horizon": 1,
+    "mae": 1.01,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "ecmwf",
+    "horizon": 2,
+    "mae": 1.1,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "ecmwf",
+    "horizon": 3,
+    "mae": 1.16,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "gem",
+    "horizon": 0,
+    "mae": 0.76,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "gem",
+    "horizon": 1,
+    "mae": 1.16,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "gem",
+    "horizon": 2,
+    "mae": 1.27,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "gem",
+    "horizon": 3,
+    "mae": 1.38,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "gfs",
+    "horizon": 0,
+    "mae": 0.74,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "gfs",
+    "horizon": 1,
+    "mae": 1.06,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "gfs",
+    "horizon": 2,
+    "mae": 1.21,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "gfs",
+    "horizon": 3,
+    "mae": 1.42,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "icon",
+    "horizon": 0,
+    "mae": 0.55,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "icon",
+    "horizon": 1,
+    "mae": 0.78,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "icon",
+    "horizon": 2,
+    "mae": 1.05,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "icon",
+    "horizon": 3,
+    "mae": 1.15,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "jma",
+    "horizon": 0,
+    "mae": 1.19,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "jma",
+    "horizon": 1,
+    "mae": 1.38,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "jma",
+    "horizon": 2,
+    "mae": 1.49,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "jma",
+    "horizon": 3,
+    "mae": 1.62,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "knmi",
+    "horizon": 0,
+    "mae": 0.83,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "knmi",
+    "horizon": 1,
+    "mae": 1.07,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "knmi",
+    "horizon": 2,
+    "mae": 1.09,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "knmi",
+    "horizon": 3,
+    "mae": 1.16,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:14:46.711368+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "meteofrance",
+    "horizon": 0,
+    "mae": 0.76,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "meteofrance",
+    "horizon": 1,
+    "mae": 0.87,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "meteofrance",
+    "horizon": 2,
+    "mae": 1.41,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "meteofrance",
+    "horizon": 3,
+    "mae": 1.56,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "ukmo",
+    "horizon": 0,
+    "mae": 0.55,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "ukmo",
+    "horizon": 1,
+    "mae": 1.02,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "ukmo",
+    "horizon": 2,
+    "mae": 1.21,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "EGLC",
+    "model": "ukmo",
+    "horizon": 3,
+    "mae": 1.33,
+    "sample_count": 425,
+    "last_updated": "2026-03-25T14:02:54.739029+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "ecmwf",
+    "horizon": 0,
+    "mae": 2.31,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "ecmwf",
+    "horizon": 1,
+    "mae": 3.34,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "ecmwf",
+    "horizon": 2,
+    "mae": 3.63,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "ecmwf",
+    "horizon": 3,
+    "mae": 3.9,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "gem",
+    "horizon": 0,
+    "mae": 1.64,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "gem",
+    "horizon": 1,
+    "mae": 2.23,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "gem",
+    "horizon": 2,
+    "mae": 3.09,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "gem",
+    "horizon": 3,
+    "mae": 3.62,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "gfs",
+    "horizon": 0,
+    "mae": 1.21,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "gfs",
+    "horizon": 1,
+    "mae": 2.64,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "gfs",
+    "horizon": 2,
+    "mae": 3,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "gfs",
+    "horizon": 3,
+    "mae": 3.18,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "icon",
+    "horizon": 0,
+    "mae": 1.47,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "icon",
+    "horizon": 1,
+    "mae": 2.13,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "icon",
+    "horizon": 2,
+    "mae": 2.48,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "icon",
+    "horizon": 3,
+    "mae": 2.79,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "jma",
+    "horizon": 0,
+    "mae": 2.67,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "jma",
+    "horizon": 1,
+    "mae": 3.38,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "jma",
+    "horizon": 2,
+    "mae": 3.73,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "jma",
+    "horizon": 3,
+    "mae": 4.09,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "knmi",
+    "horizon": 0,
+    "mae": 2.42,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "knmi",
+    "horizon": 1,
+    "mae": 3.25,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "knmi",
+    "horizon": 2,
+    "mae": 3.52,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "knmi",
+    "horizon": 3,
+    "mae": 3.81,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:14:42.480176+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "meteofrance",
+    "horizon": 0,
+    "mae": 2.42,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "meteofrance",
+    "horizon": 1,
+    "mae": 3.14,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "meteofrance",
+    "horizon": 2,
+    "mae": 3.61,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "meteofrance",
+    "horizon": 3,
+    "mae": 3.96,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "ukmo",
+    "horizon": 0,
+    "mae": 1.77,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "ukmo",
+    "horizon": 1,
+    "mae": 2.57,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "ukmo",
+    "horizon": 2,
+    "mae": 3.17,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "KLGA",
+    "model": "ukmo",
+    "horizon": 3,
+    "mae": 3.45,
+    "sample_count": 423,
+    "last_updated": "2026-03-25T14:02:50.517316+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "ecmwf",
+    "horizon": 0,
+    "mae": 0.96,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "ecmwf",
+    "horizon": 1,
+    "mae": 1.1,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "ecmwf",
+    "horizon": 2,
+    "mae": 1.14,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "ecmwf",
+    "horizon": 3,
+    "mae": 1.15,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "gem",
+    "horizon": 0,
+    "mae": 0.88,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "gem",
+    "horizon": 1,
+    "mae": 0.95,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "gem",
+    "horizon": 2,
+    "mae": 1.15,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "gem",
+    "horizon": 3,
+    "mae": 1.44,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "gfs",
+    "horizon": 0,
+    "mae": 2.09,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "gfs",
+    "horizon": 1,
+    "mae": 2.13,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "gfs",
+    "horizon": 2,
+    "mae": 2.17,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "gfs",
+    "horizon": 3,
+    "mae": 2.23,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "icon",
+    "horizon": 0,
+    "mae": 1.32,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "icon",
+    "horizon": 1,
+    "mae": 1.39,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "icon",
+    "horizon": 2,
+    "mae": 1.51,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "icon",
+    "horizon": 3,
+    "mae": 1.49,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "jma",
+    "horizon": 0,
+    "mae": 1.98,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "jma",
+    "horizon": 1,
+    "mae": 2.12,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "jma",
+    "horizon": 2,
+    "mae": 2.09,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "jma",
+    "horizon": 3,
+    "mae": 2.05,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "knmi",
+    "horizon": 0,
+    "mae": 0.97,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "knmi",
+    "horizon": 1,
+    "mae": 1,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "knmi",
+    "horizon": 2,
+    "mae": 1.12,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "knmi",
+    "horizon": 3,
+    "mae": 1.14,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:14:48.616589+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "meteofrance",
+    "horizon": 0,
+    "mae": 1.47,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "meteofrance",
+    "horizon": 1,
+    "mae": 1.51,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "meteofrance",
+    "horizon": 2,
+    "mae": 1.57,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "meteofrance",
+    "horizon": 3,
+    "mae": 1.62,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "ukmo",
+    "horizon": 0,
+    "mae": 2.12,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "ukmo",
+    "horizon": 1,
+    "mae": 2.2,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "ukmo",
+    "horizon": 2,
+    "mae": 2.25,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  },
+  {
+    "station": "RKSI",
+    "model": "ukmo",
+    "horizon": 3,
+    "mae": 2.38,
+    "sample_count": 109,
+    "last_updated": "2026-03-25T14:02:56.289787+00:00"
+  }
+]
