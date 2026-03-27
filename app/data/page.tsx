@@ -13,9 +13,7 @@ import { useCities, stationAccent, type City } from "../lib/useCities";
 
 /* ─── Config ─────────────────────────────────────────────── */
 
-const SB = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const H = { apikey: KEY, Authorization: `Bearer ${KEY}` };
+const API = process.env.NEXT_PUBLIC_API_URL!;
 
 const COLORS = [
   "#818cf8", "#a78bfa", "#c084fc", "#e879f9", "#f472b6",
@@ -26,10 +24,10 @@ const PAGE_SIZE = 30;
 const CHART_H = 400;
 const CHART_MARGIN = { top: 8, right: 16, left: 44, bottom: 40 };
 
-/* ─── Supabase helper ────────────────────────────────────── */
+/* ─── API helper ─────────────────────────────────────────── */
 
 async function sb<T = any>(path: string): Promise<T> {
-  const r = await fetch(`${SB}/rest/v1/${path}`, { headers: H });
+  const r = await fetch(`${API}/${path}`);
   if (!r.ok) return [] as unknown as T;
   return r.json();
 }
@@ -101,11 +99,6 @@ interface EnsembleForecast {
   ensemble_model: string;
   member_id: number;
   temp_max: number | null;
-  wind_gusts_max: number | null;
-  precipitation: number | null;
-  snowfall: number | null;
-  cloud_cover: number | null;
-  pressure_msl: number | null;
 }
 
 /* ─── Helpers ────────────────────────────────────────────── */
@@ -162,7 +155,10 @@ export default function DataPage() {
 
   // Auto-select first city once loaded
   useEffect(() => {
-    if (cities.length > 0 && !city) setCity(cities[0]);
+    if (cities.length > 0 && !city) {
+      const london = cities.find(c => c.station === "EGLC");
+      setCity(london || cities[0]);
+    }
   }, [cities, city]);
 
   const accent = city ? stationAccent(city.station) : "#60a5fa";
@@ -252,7 +248,7 @@ export default function DataPage() {
 
       // Fetch ensemble data for this event
       const ens = await sbAll<EnsembleForecast>(
-        `ensemble_forecasts?station=eq.${ev.station}&target_date=eq.${ev.target_date}&select=station,target_date,fetch_ts,ensemble_model,member_id,temp_max,wind_gusts_max,precipitation,snowfall,cloud_cover,pressure_msl&order=fetch_ts,ensemble_model,member_id`
+        `ensemble_forecasts?station=eq.${ev.station}&target_date=eq.${ev.target_date}&select=station,target_date,fetch_ts,ensemble_model,member_id,temp_max&order=fetch_ts,ensemble_model,member_id`
       );
       setEnsembles(ens);
 
@@ -330,6 +326,7 @@ export default function DataPage() {
         {cities.map(c => {
           const cAccent = stationAccent(c.station);
           const active = city?.station === c.station;
+          const noWu = c.resolution_source !== "wu";
           return (
             <button
               key={c.station}
@@ -337,15 +334,16 @@ export default function DataPage() {
               style={{
                 padding: "10px 14px", whiteSpace: "nowrap", flexShrink: 0,
                 background: active ? "#1e293b" : "transparent",
-                color: active ? cAccent : "#64748b",
+                color: noWu ? "#ef4444" : active ? cAccent : "#64748b",
                 border: "none",
-                borderBottom: active ? `2px solid ${cAccent}` : "2px solid transparent",
+                borderBottom: active ? `2px solid ${noWu ? "#ef4444" : cAccent}` : "2px solid transparent",
                 cursor: "pointer", fontSize: 13, fontWeight: 600,
+                opacity: noWu && !active ? 0.6 : 1,
               }}
             >
               {c.flag} {c.name}
-              {c.resolution_source !== "wu" && (
-                <span style={{ fontSize: 9, color: "#f97316", marginLeft: 4, verticalAlign: "super" }}>manual</span>
+              {noWu && (
+                <span style={{ fontSize: 9, color: "#ef4444", marginLeft: 4, fontWeight: 700 }}>SOON</span>
               )}
             </button>
           );
@@ -447,6 +445,24 @@ export default function DataPage() {
                 style={{ background: "none", border: "none", color: accent, fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 12, padding: 0 }}>
                 &larr; Back to list
               </button>
+
+              {/* ── Non-WU banner ── */}
+              {city?.resolution_source !== "wu" && (
+                <div style={{
+                  background: "#7f1d1d", border: "1px solid #ef4444", borderRadius: 10,
+                  padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10,
+                }}>
+                  <span style={{ fontSize: 20 }}>🚧</span>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#fca5a5" }}>
+                      Resolution non disponible
+                    </div>
+                    <div style={{ fontSize: 12, color: "#fca5a5", opacity: 0.8 }}>
+                      {city?.name} utilise {city?.resolution_source?.toUpperCase()} comme source — pas encore integre. Les prix sont affiches mais les predictions et resultats ne sont pas verifies.
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* ── Header ── */}
               <div style={{ marginBottom: 20 }}>
@@ -649,8 +665,8 @@ export default function DataPage() {
                 })}
               </div>
 
-              {/* ── Model Prediction (courbe 2) ── */}
-              {ensembles.length > 0 && (() => {
+              {/* ── Model Prediction (courbe 2) — hidden for non-WU cities ── */}
+              {city?.resolution_source === "wu" && ensembles.length > 0 && (() => {
                 // Group ensembles by fetch_ts → compute probability per bracket per snapshot
                 const snapshots = [...new Set(ensembles.map(e => e.fetch_ts))].sort();
 
@@ -873,95 +889,6 @@ export default function DataPage() {
                         );
                       })}
                     </div>
-
-                    {/* ── Courbe 3 — Intemperies ── */}
-                    {hasData && chartWidth > 0 && (() => {
-                      // Build weather data using same X axis as price chart
-                      const avg = (arr: (number | null)[]) => {
-                        const valid = arr.filter((v): v is number => v != null);
-                        return valid.length > 0 ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
-                      };
-                      const weatherData = predChartData.map(row => {
-                        const newRow: Record<string, any> = { ts: row.ts, time: row.time, fullTime: row.fullTime };
-                        let best: typeof snapshotProbs[0] | null = null;
-                        for (const sp of snapshotProbs) {
-                          if (sp.ts <= row.ts) best = sp;
-                        }
-                        if (best) {
-                          const snapMembers = ensembles.filter(e => {
-                            const ets = Math.floor(new Date(e.fetch_ts).getTime() / 1000);
-                            return Math.abs(ets - best!.ts) < 3600;
-                          });
-                          if (snapMembers.length > 0) {
-                            newRow.precipitation = avg(snapMembers.map(e => e.precipitation));
-                            newRow.snowfall = avg(snapMembers.map(e => e.snowfall));
-                            newRow.windGusts = avg(snapMembers.map(e => e.wind_gusts_max));
-                            newRow.cloudCover = avg(snapMembers.map(e => e.cloud_cover));
-                            const pressures = snapMembers.map(e => e.pressure_msl).filter((v): v is number => v != null);
-                            newRow.pressureDelta = pressures.length > 0 ? pressures.reduce((a, b) => a + b, 0) / pressures.length - 1013 : null;
-                          }
-                        }
-                        return newRow;
-                      });
-
-                      const hasWeather = weatherData.some(r => r.precipitation != null);
-                      if (!hasWeather) return null;
-
-                      return (
-                        <div style={{ marginTop: 16 }}>
-                          <h3 style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8", marginBottom: 8 }}>
-                            Conditions Meteo
-                          </h3>
-                          <div style={{ position: "relative" }}>
-                            <div
-                              onMouseMove={handleChartMouse}
-                              onMouseLeave={() => setHoverIdx(null)}
-                              style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "crosshair" }}
-                            />
-                            {hoverIdx !== null && (
-                              <div style={{
-                                position: "absolute", left: hoverX, top: CHART_MARGIN.top, bottom: CHART_MARGIN.bottom,
-                                width: 1, background: "#475569", zIndex: 5, pointerEvents: "none",
-                              }} />
-                            )}
-                            {hoverIdx !== null && weatherData[hoverIdx] && (() => {
-                              const wr = weatherData[hoverIdx];
-                              return (
-                                <div style={{
-                                  position: "absolute", top: 8, zIndex: 20, pointerEvents: "none",
-                                  left: hoverX > (chartWidth - 48) * 0.65 ? undefined : hoverX + 16,
-                                  right: hoverX > (chartWidth - 48) * 0.65 ? (chartWidth - 48) - hoverX + 16 : undefined,
-                                  background: "#1a1a2eee", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 14px",
-                                  fontSize: 12, minWidth: 160,
-                                }}>
-                                  <div style={{ color: "#94a3b8", marginBottom: 6, fontFamily: "monospace" }}>{wr.fullTime}</div>
-                                  {wr.precipitation != null && <div style={{ color: "#60a5fa" }}>Precip: {wr.precipitation.toFixed(1)} mm</div>}
-                                  {wr.snowfall != null && wr.snowfall > 0 && <div style={{ color: "#e2e8f0" }}>Neige: {wr.snowfall.toFixed(1)} cm</div>}
-                                  {wr.windGusts != null && <div style={{ color: "#a78bfa" }}>Rafales: {wr.windGusts.toFixed(0)} km/h</div>}
-                                  {wr.cloudCover != null && <div style={{ color: "#94a3b8" }}>Nuages: {wr.cloudCover.toFixed(0)}%</div>}
-                                  {wr.pressureDelta != null && <div style={{ color: "#f97316" }}>Pression: {wr.pressureDelta > 0 ? "+" : ""}{wr.pressureDelta.toFixed(1)} hPa</div>}
-                                </div>
-                              );
-                            })()}
-                            <div style={{ background: "#111827", borderRadius: 12, overflow: "hidden" }}>
-                              <LineChart data={weatherData} width={chartWidth - 48} height={280} margin={CHART_MARGIN}>
-                                <XAxis dataKey="time" xAxisId="hours" tick={{ fill: "#475569", fontSize: 11 }} axisLine={{ stroke: "#1e293b" }} tickLine={false} interval="preserveStartEnd" minTickGap={60} />
-                                <XAxis dataKey="ts" xAxisId="days" axisLine={false} tickLine={false}
-                                  ticks={(() => { const seen = new Set<string>(); const t: number[] = []; for (const r of weatherData) { const d = new Date(r.ts * 1000); const k = `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`; if (!seen.has(k)) { seen.add(k); t.push(r.ts); } } return t; })()}
-                                  tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
-                                  tickFormatter={(ts: number) => new Date(ts * 1000).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })}
-                                />
-                                <YAxis tick={{ fill: "#475569", fontSize: 11 }} axisLine={{ stroke: "#1e293b" }} tickLine={false} width={44} />
-                                <Line xAxisId="hours" dataKey="precipitation" stroke="#60a5fa" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} name="Precip (mm)" />
-                                <Line xAxisId="hours" dataKey="snowfall" stroke="#e2e8f0" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} name="Neige (cm)" />
-                                <Line xAxisId="hours" dataKey="windGusts" stroke="#a78bfa" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} name="Rafales (km/h)" />
-                                <Line xAxisId="hours" dataKey="cloudCover" stroke="#64748b" strokeWidth={1} strokeDasharray="4 4" dot={false} connectNulls isAnimationActive={false} name="Nuages (%)" />
-                              </LineChart>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
 
                     {/* ── Courbe 4 — Score de Confiance ── */}
                     {hasData && chartWidth > 0 && (() => {

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 
-const URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const API = process.env.NEXT_PUBLIC_API_URL!;
 
 export interface City {
   name: string;
@@ -15,8 +14,7 @@ export function useCities() {
   const [cities, setCities] = useState<City[]>([]);
   useEffect(() => {
     fetch(
-      `${URL}/rest/v1/cities?select=name,station,flag,unit,resolution_source&active=eq.true&order=name`,
-      { headers: { apikey: KEY } }
+      `${API}/cities?select=name,station,flag,unit,resolution_source&active=eq.true&order=name`,
     )
       .then((r) => r.json())
       .then(setCities)
