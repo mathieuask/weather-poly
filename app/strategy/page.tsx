@@ -2,12 +2,10 @@
 import { useEffect, useState } from "react";
 import { useCities, type City } from "../lib/useCities";
 
-const SB = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const H = { apikey: KEY, Authorization: `Bearer ${KEY}` };
+const API = process.env.NEXT_PUBLIC_API_URL!;
 
 async function sb<T = any>(path: string): Promise<T> {
-  const r = await fetch(`${SB}/rest/v1/${path}`, { headers: H });
+  const r = await fetch(`${API}/${path}`);
   if (!r.ok) return [] as unknown as T;
   return r.json();
 }
