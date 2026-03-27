@@ -330,7 +330,7 @@ export default function DataPage() {
           return (
             <button
               key={c.station}
-              onClick={() => { setCity(c); setSelectedEvent(null); setPage(0); }}
+              onClick={() => { if (noWu) return; setCity(c); setSelectedEvent(null); setPage(0); }}
               style={{
                 padding: "10px 14px", whiteSpace: "nowrap", flexShrink: 0,
                 background: active ? "#1e293b" : "transparent",
@@ -427,7 +427,16 @@ export default function DataPage() {
           style={{ flex: 1, padding: "20px 24px", overflowY: "auto", minWidth: 0 }}
           className={!selectedEvent ? "hidden md:block" : ""}
         >
-          {!selectedEvent ? (
+          {city && city.resolution_source !== "wu" ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#334155" }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 40, marginBottom: 8 }}>🚧</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#ef4444", marginBottom: 8 }}>Coming Soon</div>
+                <div style={{ fontSize: 14, color: "#475569" }}>{city.name} n'utilise pas encore Weather Underground.</div>
+                <div style={{ fontSize: 12, color: "#334155", marginTop: 4 }}>Source actuelle : {city.resolution_source?.toUpperCase()}</div>
+              </div>
+            </div>
+          ) : !selectedEvent ? (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#334155" }}>
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 40, marginBottom: 8 }}>📊</div>
